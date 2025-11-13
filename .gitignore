@@ -1,0 +1,30 @@
+# WordPress junk
+*.log
+wp-content/uploads/
+wp-content/cache/
+wp-content/backups/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node / build tools
+node_modules/
+npm-debug.log*
+
+# Composer
+vendor/
+composer.lock
+
+# JetBrains / VSCode
+.idea/
+.vscode/
+
+# ZIP builds
+mivon-html-editor.zip
+*.zip
+
+# Temporary
+*.bak
+*.tmp
+*.swp
