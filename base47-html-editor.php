@@ -13,16 +13,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 | CONSTANTS
 -------------------------------------------------------------------------- */
 define( 'BASE47_HE_VERSION', '2.6.0' );
+define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
+define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
+
 // GitHub Updater (Base47)
-require_once MIVON_HE_PATH . 'inc/class-base47-github-updater.php';
+require_once BASE47_HE_PATH . 'inc/class-base47-github-updater.php';
 
 new Base47_GitHub_Updater(
     __FILE__,
     'stefangoldltd-sudo/base47-html-editor',  // GitHub repo
-    MIVON_HE_VERSION                           // version from this plugin
+    BASE47_HE_VERSION                           // version from this plugin
 );
-define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
-define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
 /* --------------------------------------------------------------------------
 | OPTIONS
@@ -751,7 +752,7 @@ function base47_he_admin_assets( $hook ) {
 
     wp_localize_script(
         'base47-he-admin',
-        'MIVON_HE_DATA',
+        'BASE47_HE_DATA',
         [
             'ajax_url'    => admin_url( 'admin-ajax.php' ),
             'nonce'       => wp_create_nonce( 'base47_he_editor' ),
@@ -853,7 +854,7 @@ function base47_he_templates_page() {
                             $shortcode = '[base47-'.$set_clean.'-'.$slug.']';
                         }
                         $preview = admin_url(
-                            'admin-ajax.php?action=mivon_he_preview&file='
+                            'admin-ajax.php?action=base47_he_preview&file='
                             . rawurlencode( $file )
                             . '&set=' . rawurlencode( $set_slug )
                             . '&_wpnonce=' . wp_create_nonce( 'base47_he_preview' )
@@ -916,7 +917,7 @@ function base47_he_editor_page() {
 
     $preview = $selected
         ? admin_url(
-            'admin-ajax.php?action=mivon_he_preview&file='
+            'admin-ajax.php?action=base47_he_preview&file='
             . rawurlencode( $selected )
             . '&set=' . rawurlencode( $current_set )
             . '&_wpnonce=' . wp_create_nonce( 'base47_he_preview' )
@@ -1007,7 +1008,7 @@ function base47_he_editor_page() {
 
         <input type="hidden" id="base47-he-current-file" value="<?php echo esc_attr( $selected ); ?>">
         <input type="hidden" id="base47-he-current-set" value="<?php echo esc_attr( $current_set ); ?>">
-        <?php wp_nonce_field( 'base47_he_editor', 'mivon_he_editor_nonce' ); ?>
+        <?php wp_nonce_field( 'base47_he_editor', 'base47_he_editor_nonce' ); ?>
     </div>
     <?php
 }
@@ -1038,7 +1039,7 @@ function base47_he_settings_page() {
             : [];
         update_option( BASE47_HE_OPT_USE_MANIFEST, $use_manifest );
 
-        add_settings_error( 'mivon_he_settings', 'mivon_he_saved', 'Settings saved.', 'updated' );
+        add_settings_error( 'base47_he_settings', 'base47_he_saved', 'Settings saved.', 'updated' );
         $active = $new_active;
     }
 

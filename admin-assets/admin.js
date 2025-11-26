@@ -148,7 +148,7 @@ jQuery(function($){
     $resizer.on('mousedown', function(e){
       e.preventDefault();
       dragging = true;
-      $('body').addClass('mivon-he-dragging');
+      $('body').addClass('base47-he-dragging');
     });
 
     $(document).on('mousemove', function(e){
@@ -164,7 +164,7 @@ jQuery(function($){
     $(document).on('mouseup', function(){
       if (dragging) {
         dragging = false;
-        $('body').removeClass('mivon-he-dragging');
+        $('body').removeClass('base47-he-dragging');
       }
     });
   }
