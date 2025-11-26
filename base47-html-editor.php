@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.0
+Version: 2.6.1
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.0' );
+define( 'BASE47_HE_VERSION', '2.6.1' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -34,34 +34,154 @@ const BASE47_HE_OPT_USE_MANIFEST   = 'base47_use_manifest';      // array of set
 const BASE47_HE_OPT_SETTINGS_NONCE = 'base47_he_settings_nonce';
 
 /* --------------------------------------------------------------------------
-| DISCOVERY  find all template sets (folders ending with -templates or -templetes)
+| DISCOVERY  find all template sets 
 -------------------------------------------------------------------------- */
-function base47_he_get_template_sets() {
-    $sets = [];
-    foreach ( glob( BASE47_HE_PATH . '*', GLOB_ONLYDIR ) as $dir ) {
-        $base = basename( $dir );
-        $low  = strtolower( $base );
-        if ( str_ends_with( $low, '-templates' ) || str_ends_with( $low, '-templetes' ) ) {
-            $sets[ $base ] = [
-                'slug' => $base,
-                'path' => trailingslashit( $dir ),
-                'url'  => trailingslashit( BASE47_HE_URL . $base ),
-            ];
-        }
+/**
+ * Discover theme sets (*-templates folders) with smart caching.
+ *
+ * - Uses static cache (per request) so multiple calls are cheap.
+ * - Uses transient cache (between requests) to avoid repeated glob().
+ * - Detects folder add/remove using a signature of folder names.
+ *
+ * IMPORTANT:
+ * This ONLY caches folder structure (paths + URLs), NOT template contents.
+ * Live Editor still reads actual HTML files from disk, so changes are instant.
+ */
+function base47_he_get_template_sets( $force = false ) {
+
+    // 1) In-memory cache for current request
+    static $static = null;
+    if ( $static !== null && ! $force ) {
+        return $static;
     }
 
-    // Back-compat: ensure mivon-templates appears even if empty
-    if ( ! isset( $sets['mivon-templates'] ) && is_dir( BASE47_HE_PATH . 'mivon-templates' ) ) {
-        $sets['mivon-templates'] = [
-            'slug' => 'mivon-templates',
-            'path' => BASE47_HE_PATH . 'mivon-templates/',
-            'url'  => BASE47_HE_URL . 'mivon-templates/',
+    // Ensure cache class is loaded
+    require_once BASE47_HE_PATH . 'inc/class-base47-cache.php';
+
+    // 2) Try transient cache first
+    $saved             = get_transient( Base47_Cache::TRANS_SETS );
+    $current_signature = Base47_Cache::get_signature( BASE47_HE_PATH . '*-templates' );
+
+    if (
+        ! $force &&
+        is_array( $saved ) &&
+        isset( $saved['sets'], $saved['signature'] ) &&
+        hash_equals( $saved['signature'], $current_signature )
+    ) {
+        $static = $saved['sets'];
+        return $static;
+    }
+
+    // 3) No valid cache ? rescan filesystem (only occasionally)
+    $sets = [];
+
+    foreach ( glob( BASE47_HE_PATH . '*-templates', GLOB_ONLYDIR ) as $dir ) {
+        $base          = basename( $dir );
+        $sets[ $base ] = [
+            'slug' => $base,
+            'path' => trailingslashit( $dir ),
+            'url'  => trailingslashit( BASE47_HE_URL . $base ),
         ];
     }
 
+
+    // Sort for consistent ordering
     ksort( $sets, SORT_NATURAL | SORT_FLAG_CASE );
+
+    // 4) Save to transient cache
+    set_transient( Base47_Cache::TRANS_SETS, [
+        'sets'      => $sets,
+        'signature' => $current_signature,
+    ], Base47_Cache::CACHE_TIME );
+
+    // 5) Save in-memory and return
+    $static = $sets;
     return $sets;
 }
+
+/**
+ * Get list of templates per theme set.
+ *
+ * Returns array like:
+ * [
+ *   'mivon-templates' => [
+ *       'home-1.html' => '/full/path/to/home-1.html',
+ *       ...
+ *   ],
+ *   'redox-templates' => [ ... ],
+ * ]
+ *
+ * STRUCTURE ONLY � CONTENT IS NOT CACHED.
+ */
+function base47_he_get_template_list( $force = false ) {
+
+    static $static = null;
+    if ( $static !== null && ! $force ) {
+        return $static;
+    }
+
+    require_once BASE47_HE_PATH . 'inc/class-base47-cache.php';
+
+    $sets = base47_he_get_template_sets( $force );
+
+    // Signature for template list (folder + filenames)
+    $sig = Base47_Cache::get_signature( BASE47_HE_PATH . '*-templates/*' );
+    $saved = get_transient( Base47_Cache::TRANS_TEMPLATES );
+
+    if (
+        ! $force &&
+        is_array( $saved ) &&
+        isset( $saved['templates'], $saved['signature'] ) &&
+        hash_equals( $saved['signature'], $sig )
+    ) {
+        $static = $saved['templates'];
+        return $static;
+    }
+
+    $templates = [];
+
+    foreach ( $sets as $set_slug => $info ) {
+        $templates[ $set_slug ] = [];
+
+        foreach ( glob( $info['path'] . '*.html' ) as $file ) {
+            $name = basename( $file );
+            $templates[ $set_slug ][ $name ] = $file;
+        }
+    }
+
+    set_transient( Base47_Cache::TRANS_TEMPLATES, [
+        'templates' => $templates,
+        'signature' => $sig,
+    ], Base47_Cache::CACHE_TIME );
+
+    $static = $templates;
+    return $templates;
+}
+
+/**
+ * Manually refresh caches related to theme sets + templates.
+ * We'll call this from Theme Manager (install/uninstall/refresh).
+ */
+function base47_he_refresh_theme_caches() {
+    require_once BASE47_HE_PATH . 'inc/class-base47-cache.php';
+    Base47_Cache::clear_all();
+    base47_he_get_template_sets( true );
+    base47_he_get_template_list( true );
+}
+
+
+
+
+/**
+ * Helper: force refresh of template set cache.
+ * We will call this later from Theme Manager (e.g. after install/uninstall).
+ */
+function base47_he_refresh_template_sets_cache() {
+    delete_transient( 'base47_he_cache_template_sets' );
+    // Force next call to rescan filesystem
+    base47_he_get_template_sets( true );
+}
+
 
 /** Return only the active theme set slugs (persisted). */
 function base47_he_get_active_sets() {
@@ -73,16 +193,14 @@ function base47_he_get_active_sets() {
     $active = array_values( array_intersect( array_keys( $all ), $opt ) );
 
     // If nothing persisted, fall back to sane default:
-    if ( empty( $active ) ) {
-        if ( isset( $all['mivon-templates'] ) ) {
-            $active = [ 'mivon-templates' ];
-        } elseif ( ! empty( $all ) ) {
-            $active = [ array_key_first( $all ) ];
-        }
+if ( empty( $active ) ) {
+    if ( ! empty( $all ) ) {
+        $active = [ array_key_first( $all ) ];
         update_option( BASE47_HE_OPT_ACTIVE_THEMES, $active );
     }
-    return $active;
 }
+
+return $active;
 
 /** True if a set slug is active. */
 function base47_he_is_set_active( $set_slug ) {
@@ -362,7 +480,7 @@ function base47_he_get_all_manifests() {
         $data['_set_slug']      = $set_slug;
         $data['_handle_prefix'] = ! empty( $data['handle_prefix'] )
             ? sanitize_key( $data['handle_prefix'] )
-            : 'mivon-' . sanitize_key( $set_slug );
+            : 'base47-' . sanitize_key( $set_slug );
 
         $cache[ $set_slug ] = $data;
     }
@@ -374,8 +492,8 @@ function base47_he_get_all_manifests() {
 /**
  * Enqueue assets for a given set.
  *
- * 1. If there is a manifest for this set â†’ use it (Option 2).
- * 2. If no manifest â†’ fall back to old "assets/css/*.css" + "assets/js/*.js".
+ * 1. If there is a manifest for this set � use it (Option 2).
+ * 2. If no manifest � fall back to old "assets/css/*.css" + "assets/js/*.js".
  *
  * $set_slug is the folder name, e.g. "lezar-templates", "mivon-templates".
  */
@@ -520,9 +638,9 @@ function base47_he_render_template( $filename, $set_slug = '' ) {
         if ( ! file_exists( $full ) ) return '';
     }
 
-    // If set is inactive â†’ do not render
+    // If set is inactive � do not render
     if ( ! base47_he_is_set_active( $set_slug ) ) {
-        return '<!-- Base47 HTML: "'.$set_slug.'" is inactive. Enable it in Settings â†’ Theme Manager. -->';
+        return '<!-- Base47 HTML: "'.$set_slug.'" is inactive. Enable it in Settings � Theme Manager. -->';
     }
 
     $html = file_get_contents( $full );
@@ -632,7 +750,7 @@ function base47_special_widgets_page() {
                 $name    = $w['name'];
                 $desc    = $w['description'];
                 $slug    = $w['slug'];
-                $shortcode = '[mivon_widget slug="' . esc_attr( $slug ) . '"]';
+                $shortcode = '[base47_widget slug="' . esc_attr( $slug ) . '"]';
                 $preview  = $plugin_url . 'special-widgets/' . $folder . '/' . $html;
             ?>
                 <tr>
@@ -1024,7 +1142,7 @@ function base47_he_settings_page() {
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
         check_admin_referer( BASE47_HE_OPT_SETTINGS_NONCE );
 
-        $new_active = isset( $_POST['mivon_active_sets'] ) && is_array( $_POST['mivon_active_sets'] )
+        $new_active = isset( $_POST['mivon_active_sets'] ) && is_array( $_POST['base47_active_sets'] )
             ? array_values( array_intersect( array_keys( $sets ), array_map( 'sanitize_text_field', $_POST['mivon_active_sets'] ) ) )
             : [];
 
@@ -1075,7 +1193,7 @@ function base47_he_settings_page() {
                             <strong>Active:</strong>
                             <label class="base47-switch" title="<?php echo $is_active ? 'Active' : 'Inactive'; ?>" style="margin-left:8px;">
                                 <input type="checkbox"
-                                       name="mivon_active_sets[]"
+                                       name="base47_active_sets[]"
                                        value="<?php echo esc_attr( $slug ); ?>"
                                        <?php checked( $is_active ); ?>>
                                 <span class="base47-slider"></span>
@@ -1090,7 +1208,7 @@ function base47_he_settings_page() {
                                            name="asset_mode_<?php echo esc_attr( $slug ); ?>" 
                                            value="loader" 
                                            <?php checked( !$use_manifest ); ?>
-                                           onchange="document.querySelector('input[name=\'mivon_use_manifest[]\'][value=\'<?php echo esc_attr( $slug ); ?>\']').checked = false;">
+                                           onchange="document.querySelector('input[name=\'base47_use_manifest[]\'][value=\'<?php echo esc_attr( $slug ); ?>\']').checked = false;">
                                     <span style="margin-left:4px;">🚀 Loader (Fast)</span>
                                 </label>
                                 <label style="display:inline-flex;align-items:center;">
@@ -1099,11 +1217,11 @@ function base47_he_settings_page() {
                                            value="manifest" 
                                            <?php checked( $use_manifest ); ?>
                                            <?php disabled( !$has_manifest ); ?>
-                                           onchange="document.querySelector('input[name=\'mivon_use_manifest[]\'][value=\'<?php echo esc_attr( $slug ); ?>\']').checked = true;">
+                                           onchange="document.querySelector('input[name=\'base47_use_manifest[]\'][value=\'<?php echo esc_attr( $slug ); ?>\']').checked = true;">
                                     <span style="margin-left:4px;">⚙️ Manifest <?php echo $has_manifest ? '' : '(No manifest.json)'; ?></span>
                                 </label>
                                 <input type="checkbox" 
-                                       name="mivon_use_manifest[]" 
+                                       name="base47_use_manifest[]" 
                                        value="<?php echo esc_attr( $slug ); ?>" 
                                        <?php checked( $use_manifest ); ?>
                                        style="display:none;">
@@ -1135,12 +1253,10 @@ function base47_he_changelog_page() {
 -------------------------------------------------------------------------- */
 /** Detect default theme (for JS/editor). */
 function base47_he_detect_default_theme() {
-    $sets = base47_he_get_template_sets();
-    if ( ! empty( $sets ) ) {
-        return array_key_first( $sets );
-    }
-    return 'mivon-templates';
+ $sets = base47_he_get_template_sets();
+return array_key_first($sets) ?: '';
 }
+
 
 function base47_he_ajax_preview() {
     check_admin_referer( 'base47_he_preview' );
@@ -1372,13 +1488,13 @@ function base47_he_get_special_widgets_registry() {
 }
 
 /* --------------------------------------------------------------------------
-| SPECIAL WIDGET SHORTCODE: [mivon_widget slug="hero-slider-mivon"]
+| SPECIAL WIDGET SHORTCODE: [base47_widget slug="hero-slider"]
 -------------------------------------------------------------------------- */
 
 function base47_he_special_widget_shortcode( $atts = [], $content = '' ) {
     $atts = shortcode_atts([
         'slug' => '',
-    ], $atts, 'mivon_widget' );
+    ], $atts, 'base47_widget' );
 
     $slug = sanitize_title( $atts['slug'] );
     if ( ! $slug ) {
