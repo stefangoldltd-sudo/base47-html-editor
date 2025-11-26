@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: Mivon HTML Editor
+Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.5.2
+Version: 2.6.0
 Author: Stefan Gold
-Text Domain: mivon-html-editor
+Text Domain: base47-html-editor
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -12,40 +12,48 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'MIVON_HE_VERSION', '2.5.2' );
-define( 'MIVON_HE_PATH', plugin_dir_path( __FILE__ ) );
-define( 'MIVON_HE_URL',  plugin_dir_url( __FILE__ ) );
+define( 'BASE47_HE_VERSION', '2.6.0' );
+// GitHub Updater (Base47)
+require_once MIVON_HE_PATH . 'inc/class-base47-github-updater.php';
+
+new Base47_GitHub_Updater(
+    __FILE__,
+    'stefangoldltd-sudo/base47-html-editor',  // GitHub repo
+    MIVON_HE_VERSION                           // version from this plugin
+);
+define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
+define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
 /* --------------------------------------------------------------------------
 | OPTIONS
 -------------------------------------------------------------------------- */
-const MIVON_HE_OPT_ACTIVE_THEMES  = 'mivon_active_themes';     // array of active set slugs
-const MIVON_HE_OPT_USE_MANIFEST   = 'mivon_use_manifest';      // array of sets using manifest
-const MIVON_HE_OPT_SETTINGS_NONCE = 'mivon_he_settings_nonce';
+const BASE47_HE_OPT_ACTIVE_THEMES  = 'base47_active_themes';     // array of active set slugs
+const BASE47_HE_OPT_USE_MANIFEST   = 'base47_use_manifest';      // array of sets using manifest
+const BASE47_HE_OPT_SETTINGS_NONCE = 'base47_he_settings_nonce';
 
 /* --------------------------------------------------------------------------
 | DISCOVERY  find all template sets (folders ending with -templates or -templetes)
 -------------------------------------------------------------------------- */
-function mivon_he_get_template_sets() {
+function base47_he_get_template_sets() {
     $sets = [];
-    foreach ( glob( MIVON_HE_PATH . '*', GLOB_ONLYDIR ) as $dir ) {
+    foreach ( glob( BASE47_HE_PATH . '*', GLOB_ONLYDIR ) as $dir ) {
         $base = basename( $dir );
         $low  = strtolower( $base );
         if ( str_ends_with( $low, '-templates' ) || str_ends_with( $low, '-templetes' ) ) {
             $sets[ $base ] = [
                 'slug' => $base,
                 'path' => trailingslashit( $dir ),
-                'url'  => trailingslashit( MIVON_HE_URL . $base ),
+                'url'  => trailingslashit( BASE47_HE_URL . $base ),
             ];
         }
     }
 
     // Back-compat: ensure mivon-templates appears even if empty
-    if ( ! isset( $sets['mivon-templates'] ) && is_dir( MIVON_HE_PATH . 'mivon-templates' ) ) {
+    if ( ! isset( $sets['mivon-templates'] ) && is_dir( BASE47_HE_PATH . 'mivon-templates' ) ) {
         $sets['mivon-templates'] = [
             'slug' => 'mivon-templates',
-            'path' => MIVON_HE_PATH . 'mivon-templates/',
-            'url'  => MIVON_HE_URL . 'mivon-templates/',
+            'path' => BASE47_HE_PATH . 'mivon-templates/',
+            'url'  => BASE47_HE_URL . 'mivon-templates/',
         ];
     }
 
@@ -54,9 +62,9 @@ function mivon_he_get_template_sets() {
 }
 
 /** Return only the active theme set slugs (persisted). */
-function mivon_he_get_active_sets() {
-    $all  = mivon_he_get_template_sets();
-    $opt  = get_option( MIVON_HE_OPT_ACTIVE_THEMES, [] );
+function base47_he_get_active_sets() {
+    $all  = base47_he_get_template_sets();
+    $opt  = get_option( BASE47_HE_OPT_ACTIVE_THEMES, [] );
     $opt  = is_array( $opt ) ? array_values( array_unique( array_filter( $opt ) ) ) : [];
 
     // Filter to only those that still exist
@@ -69,20 +77,20 @@ function mivon_he_get_active_sets() {
         } elseif ( ! empty( $all ) ) {
             $active = [ array_key_first( $all ) ];
         }
-        update_option( MIVON_HE_OPT_ACTIVE_THEMES, $active );
+        update_option( BASE47_HE_OPT_ACTIVE_THEMES, $active );
     }
     return $active;
 }
 
 /** True if a set slug is active. */
-function mivon_he_is_set_active( $set_slug ) {
-    return in_array( $set_slug, mivon_he_get_active_sets(), true );
+function base47_he_is_set_active( $set_slug ) {
+    return in_array( $set_slug, base47_he_get_active_sets(), true );
 }
 
 /** All templates across sets (restricted to active sets unless $include_inactive = true). */
-function mivon_he_get_all_templates( $include_inactive = false ) {
-    $sets   = mivon_he_get_template_sets();
-    $active = $include_inactive ? array_keys( $sets ) : mivon_he_get_active_sets();
+function base47_he_get_all_templates( $include_inactive = false ) {
+    $sets   = base47_he_get_template_sets();
+    $active = $include_inactive ? array_keys( $sets ) : base47_he_get_active_sets();
     $all    = [];
 
     foreach ( $active as $set_slug ) {
@@ -110,10 +118,10 @@ function mivon_he_get_all_templates( $include_inactive = false ) {
 }
 
 /** Locate a filename across sets; prefer active, then inactive. */
-function mivon_he_locate_template( $filename ) {
-    $sets = mivon_he_get_template_sets();
+function base47_he_locate_template( $filename ) {
+    $sets = base47_he_get_template_sets();
     // First pass: active sets
-    foreach ( mivon_he_get_active_sets() as $set_slug ) {
+    foreach ( base47_he_get_active_sets() as $set_slug ) {
         if ( isset( $sets[ $set_slug ] ) ) {
             $full = $sets[ $set_slug ]['path'] . $filename;
             if ( file_exists( $full ) ) {
@@ -142,22 +150,42 @@ function mivon_he_locate_template( $filename ) {
 /* --------------------------------------------------------------------------
 | ACTIVATION
 -------------------------------------------------------------------------- */
-function mivon_he_activate() {
-    // Ensure default active sets saved
-    mivon_he_get_active_sets();
+function base47_he_migrate_options() {
+    // Migrate active themes option
+    $old_active = get_option( 'mivon_active_themes' );
+    $new_active = get_option( 'base47_active_themes' );
+    
+    if ( $old_active && ! $new_active && is_array( $old_active ) ) {
+        update_option( 'base47_active_themes', $old_active );
+    }
+    
+    // Migrate manifest option
+    $old_manifest = get_option( 'mivon_use_manifest' );
+    $new_manifest = get_option( 'base47_use_manifest' );
+    
+    if ( $old_manifest && ! $new_manifest && is_array( $old_manifest ) ) {
+        update_option( 'base47_use_manifest', $old_manifest );
+    }
 }
-register_activation_hook( __FILE__, 'mivon_he_activate' );
+
+function base47_he_activate() {
+    // Run migration first
+    base47_he_migrate_options();
+    // Ensure default active sets saved
+    base47_he_get_active_sets();
+}
+register_activation_hook( __FILE__, 'base47_he_activate' );
 
 /* --------------------------------------------------------------------------
 | UTILITIES
 -------------------------------------------------------------------------- */
-function mivon_he_filename_to_slug( $filename ) {
+function base47_he_filename_to_slug( $filename ) {
     $base = pathinfo( $filename, PATHINFO_FILENAME );
     $slug = sanitize_title_with_dashes( $base );
     return $slug ?: ( 'tpl-' . md5( $filename ) );
 }
 
-function mivon_he_rewrite_assets( $html, $base_url, $add_ver = true ) {
+function base47_he_rewrite_assets( $html, $base_url, $add_ver = true ) {
 
     $base = trailingslashit( $base_url );
 
@@ -239,7 +267,7 @@ function mivon_he_rewrite_assets( $html, $base_url, $add_ver = true ) {
 }
 
 /** Strip outer html/head/body while preserving inline styles/scripts. Also remove external assets tags. */
-function mivon_he_strip_shell( $html ) {
+function base47_he_strip_shell( $html ) {
     $head = '';
     if ( preg_match( '#<head\b[^>]*>(.*?)</head>#is', $html, $m ) ) {
         $head = $m[1];
@@ -271,16 +299,16 @@ function mivon_he_strip_shell( $html ) {
 }
 
 /** General asset URL helper for a given set and relative path (e.g. 'assets/css/main.css'). */
-function mivon_he_asset_url( $set_slug, $relative ) {
-    $sets = mivon_he_get_template_sets();
+function base47_he_asset_url( $set_slug, $relative ) {
+    $sets = base47_he_get_template_sets();
     if ( ! isset( $sets[ $set_slug ] ) ) return '';
     return trailingslashit( $sets[ $set_slug ]['url'] ) . ltrim( $relative, '/' );
 }
 
 /* Deprecated set-specific shortcuts (kept for back-compat) */
-function mivon_he_asset( $relative_path ) { return plugins_url( $relative_path, __FILE__ ); }
-function mivon_bfolio_asset( $file )       { return plugins_url( 'bfolio-rtl-templates/assets/' . ltrim( $file, '/' ), __FILE__ ); }
-function mivon_asset( $file )              { return plugins_url( 'mivon-templates/assets/' . ltrim( $file, '/' ), __FILE__ ); }
+function base47_he_asset( $relative_path ) { return plugins_url( $relative_path, __FILE__ ); }
+function base47_bfolio_asset( $file )       { return plugins_url( 'bfolio-rtl-templates/assets/' . ltrim( $file, '/' ), __FILE__ ); }
+function base47_asset( $file )              { return plugins_url( 'mivon-templates/assets/' . ltrim( $file, '/' ), __FILE__ ); }
 
 
 /**
@@ -290,7 +318,7 @@ function mivon_asset( $file )              { return plugins_url( 'mivon-template
  *   /mivon-html-editor/{set}-templates/manifest.json
  *   /mivon-html-editor/{set}-templates/assets/
  */
-function mivon_he_get_all_manifests() {
+function base47_he_get_all_manifests() {
     static $cache = null;
     if ( $cache !== null ) {
         return $cache;
@@ -349,26 +377,26 @@ function mivon_he_get_all_manifests() {
  *
  * $set_slug is the folder name, e.g. "lezar-templates", "mivon-templates".
  */
-function mivon_he_enqueue_assets_for_set( $set_slug ) {
+function base47_he_enqueue_assets_for_set( $set_slug ) {
 
     // Only enqueue for active sets
-    if ( ! mivon_he_is_set_active( $set_slug ) ) {
+    if ( ! base47_he_is_set_active( $set_slug ) ) {
         return;
     }
 
-    $sets = mivon_he_get_template_sets();
+    $sets = base47_he_get_template_sets();
     if ( ! isset( $sets[ $set_slug ] ) ) {
         return;
     }
 
     // Check if this set is configured to use manifest
-    $use_manifest_sets = get_option( MIVON_HE_OPT_USE_MANIFEST, [] );
+    $use_manifest_sets = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
     $use_manifest = in_array( $set_slug, $use_manifest_sets, true );
 
     /* -------------------------------------------------
      * 1) Try manifest-based loading (only if enabled for this set)
      * ------------------------------------------------- */
-    $manifests    = mivon_he_get_all_manifests();
+    $manifests    = base47_he_get_all_manifests();
     $manifest_key = $set_slug; // use full folder name e.g. "lezar-templates"
 
     if ( $use_manifest && isset( $manifests[ $manifest_key ] ) ) {
@@ -444,7 +472,7 @@ function mivon_he_enqueue_assets_for_set( $set_slug ) {
 
     if ( is_dir( $css_dir ) ) {
         foreach ( glob( $css_dir . '*.css' ) as $f ) {
-            $handle = 'mivon-he-css-' . md5( $set_slug . $f );
+            $handle = 'base47-he-css-' . md5( $set_slug . $f );
             wp_enqueue_style(
                 $handle,
                 $sets[ $set_slug ]['url'] . 'assets/css/' . basename( $f ),
@@ -456,7 +484,7 @@ function mivon_he_enqueue_assets_for_set( $set_slug ) {
 
     if ( is_dir( $js_dir ) ) {
         foreach ( glob( $js_dir . '*.js' ) as $f ) {
-            $handle = 'mivon-he-js-' . md5( $set_slug . $f );
+            $handle = 'base47-he-js-' . md5( $set_slug . $f );
             wp_enqueue_script(
                 $handle,
                 $sets[ $set_slug ]['url'] . 'assets/js/' . basename( $f ),
@@ -474,11 +502,11 @@ function mivon_he_enqueue_assets_for_set( $set_slug ) {
 | RENDERING
 -------------------------------------------------------------------------- */
 
-function mivon_he_render_template( $filename, $set_slug = '' ) {
-    $sets = mivon_he_get_template_sets();
+function base47_he_render_template( $filename, $set_slug = '' ) {
+    $sets = base47_he_get_template_sets();
 
     if ( empty( $set_slug ) ) {
-        $info = mivon_he_locate_template( $filename );
+        $info = base47_he_locate_template( $filename );
         if ( ! $info ) return '';
         $set_slug = $info['set'];
         $full     = $info['path'];
@@ -491,59 +519,87 @@ function mivon_he_render_template( $filename, $set_slug = '' ) {
     }
 
     // If set is inactive â†’ do not render
-    if ( ! mivon_he_is_set_active( $set_slug ) ) {
-        return '<!-- Mivon HTML: "'.$set_slug.'" is inactive. Enable it in Settings â†’ Theme Manager. -->';
+    if ( ! base47_he_is_set_active( $set_slug ) ) {
+        return '<!-- Base47 HTML: "'.$set_slug.'" is inactive. Enable it in Settings â†’ Theme Manager. -->';
     }
 
     $html = file_get_contents( $full );
-    $html = mivon_he_strip_shell( $html );
-    $html = mivon_he_rewrite_assets( $html, $base_url, true );
+    $html = base47_he_strip_shell( $html );
+    $html = base47_he_rewrite_assets( $html, $base_url, true );
 
     // âœ… allow nested shortcodes inside the HTML template
     $html = do_shortcode( $html );
 
-    mivon_he_enqueue_assets_for_set( $set_slug );
+    base47_he_enqueue_assets_for_set( $set_slug );
     return $html;
 }
 
 /* --------------------------------------------------------------------------
 | SHORTCODES register ONLY for active sets
 -------------------------------------------------------------------------- */
-function mivon_he_register_shortcodes() {
-    $all = mivon_he_get_all_templates( false ); // active only
+function base47_he_register_shortcodes() {
+    $all = base47_he_get_all_templates( false ); // active only
 
     foreach ( $all as $item ) {
         $set  = $item['set'];
         $file = $item['file'];
-        $slug = mivon_he_filename_to_slug( $file );
+        $slug = base47_he_filename_to_slug( $file );
 
-        if ( $set === 'mivon-templates' ) {
-            $shortcode = 'mivon-' . $slug;
+        if ( $set === 'base47-templates' || $set === 'mivon-templates' ) {
+            $shortcode = 'base47-' . $slug;
         } else {
             $set_clean = str_replace( ['-templates','-templetes'], '', $set );
-            $shortcode = 'mivon-' . $set_clean . '-' . $slug;
+            $shortcode = 'base47-' . $set_clean . '-' . $slug;
         }
 
         add_shortcode( $shortcode, function( $atts = [], $content = '' ) use ( $file, $set ) {
-            return mivon_he_render_template( $file, $set );
+            return base47_he_render_template( $file, $set );
         } );
     }
 }
-add_action( 'init', 'mivon_he_register_shortcodes', 20 );
+add_action( 'init', 'base47_he_register_shortcodes', 20 );
+
+/* --------------------------------------------------------------------------
+| BACKWARD COMPATIBILITY: Legacy mivon-* shortcodes
+-------------------------------------------------------------------------- */
+function base47_he_register_legacy_shortcodes() {
+    $all = base47_he_get_all_templates( false ); // active only
+
+    foreach ( $all as $item ) {
+        $set  = $item['set'];
+        $file = $item['file'];
+        $slug = base47_he_filename_to_slug( $file );
+
+        if ( $set === 'base47-templates' || $set === 'mivon-templates' ) {
+            $legacy_shortcode = 'mivon-' . $slug;
+        } else {
+            $set_clean = str_replace( ['-templates','-templetes'], '', $set );
+            $legacy_shortcode = 'mivon-' . $set_clean . '-' . $slug;
+        }
+
+        add_shortcode( $legacy_shortcode, function( $atts = [], $content = '' ) use ( $file, $set, $legacy_shortcode ) {
+            if ( defined('WP_DEBUG') && WP_DEBUG ) {
+                error_log( "Base47 HTML Editor: Legacy shortcode [$legacy_shortcode] is deprecated. Use [base47-*] shortcodes instead." );
+            }
+            return base47_he_render_template( $file, $set );
+        } );
+    }
+}
+add_action( 'init', 'base47_he_register_legacy_shortcodes', 21 );
 
 /* --------------------------------------------------------------------------
 | SPECIAL WIDGETS ADMIN PAGE (AUTO)
 -------------------------------------------------------------------------- */
-function mivon_special_widgets_page() {
-    $widgets = mivon_he_get_special_widgets_registry();
+function base47_special_widgets_page() {
+    $widgets = base47_he_get_special_widgets_registry();
     ?>
-    <div class="wrap mivon-he-wrap">
+    <div class="wrap base47-he-wrap">
         <h1 style="margin-bottom:20px;">Special Widgets</h1>
 
         <p style="font-size:15px;color:#555;margin-bottom:25px;">
             Below is a list of all special widgets discovered in the
             <code>special-widgets</code> folder (only folders that contain <code>widget.json</code>).
-            Copy the shortcode to insert in any Mivon HTML template.
+            Copy the shortcode to insert in any Base47 HTML template.
         </p>
 
         <?php if ( empty( $widgets ) ) : ?>
@@ -606,153 +662,153 @@ function mivon_special_widgets_page() {
 /* --------------------------------------------------------------------------
 | ADMIN MENUS
 -------------------------------------------------------------------------- */
-function mivon_he_admin_menu() {
+function base47_he_admin_menu() {
     // MAIN
     add_menu_page(
-        'Mivon HTML',
-        'Mivon HTML',
+        'Base47 HTML',
+        'Base47 HTML',
         'manage_options',
-        'mivon-he-dashboard',
-        'mivon_he_dashboard_page',
+        'base47-he-dashboard',
+        'base47_he_dashboard_page',
         'dashicons-layout',
         60
     );
 
     // Shortcodes
     add_submenu_page(
-        'mivon-he-dashboard',
+        'base47-he-dashboard',
         'Shortcodes',
         'Shortcodes',
         'manage_options',
-        'mivon-he-templates',
-        'mivon_he_templates_page'
+        'base47-he-templates',
+        'base47_he_templates_page'
     );
 
     // Live Editor
     add_submenu_page(
-        'mivon-he-dashboard',
+        'base47-he-dashboard',
         'Live Editor',
         'Live Editor',
         'manage_options',
-        'mivon-he-editor',
-        'mivon_he_editor_page'
+        'base47-he-editor',
+        'base47_he_editor_page'
     );
 
     // Theme Manager
     add_submenu_page(
-        'mivon-he-dashboard',
+        'base47-he-dashboard',
         'Theme Manager',
         'Theme Manager',
         'manage_options',
-        'mivon-he-settings',
-        'mivon_he_settings_page'
+        'base47-he-settings',
+        'base47_he_settings_page'
     );
 
     // Special Widgets 
     add_submenu_page(
-        'mivon-he-dashboard',
+        'base47-he-dashboard',
         'Special Widgets',
         'Special Widgets',
         'manage_options',
-        'mivon-special-widgets',
-        'mivon_special_widgets_page'
+        'base47-special-widgets',
+        'base47_special_widgets_page'
     );
 
     // Changelog
     add_submenu_page(
-        'mivon-he-dashboard',
+        'base47-he-dashboard',
         'Changelog',
         'Changelog',
         'manage_options',
-        'mivon-he-changelog',
-        'mivon_he_changelog_page'
+        'base47-he-changelog',
+        'base47_he_changelog_page'
     );
 }
-add_action( 'admin_menu', 'mivon_he_admin_menu' );
+add_action( 'admin_menu', 'base47_he_admin_menu' );
 
 /* --------------------------------------------------------------------------
 | ADMIN ASSETS
 -------------------------------------------------------------------------- */
-function mivon_he_admin_assets( $hook ) {
-    if ( strpos( $hook, 'mivon-he-' ) === false && strpos( $hook, 'mivon-special-widgets' ) === false ) {
+function base47_he_admin_assets( $hook ) {
+    if ( strpos( $hook, 'base47-he-' ) === false && strpos( $hook, 'base47-special-widgets' ) === false ) {
         return;
     }
 
     wp_enqueue_style(
-        'mivon-he-admin',
-        MIVON_HE_URL . 'admin-assets/admin.css',
+        'base47-he-admin',
+        BASE47_HE_URL . 'admin-assets/admin.css',
         [],
-        MIVON_HE_VERSION
+        BASE47_HE_VERSION
     );
 
     wp_enqueue_script(
-        'mivon-he-admin',
-        MIVON_HE_URL . 'admin-assets/admin.js',
+        'base47-he-admin',
+        BASE47_HE_URL . 'admin-assets/admin.js',
         ['jquery'],
-        MIVON_HE_VERSION,
+        BASE47_HE_VERSION,
         true
     );
 
     wp_localize_script(
-        'mivon-he-admin',
+        'base47-he-admin',
         'MIVON_HE_DATA',
         [
             'ajax_url'    => admin_url( 'admin-ajax.php' ),
-            'nonce'       => wp_create_nonce( 'mivon_he_editor' ),
-            'default_set' => mivon_he_detect_default_theme(),
+            'nonce'       => wp_create_nonce( 'base47_he_editor' ),
+            'default_set' => base47_he_detect_default_theme(),
         ]
     );
 
     // Minimal inline styles for toggle switches if admin.css missing
     $css = '
-    .mivon-switch { position:relative; display:inline-block; width:54px; height:28px; }
-    .mivon-switch input{ display:none; }
-    .mivon-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; transition:.3s; border-radius:28px; }
-    .mivon-slider:before { position:absolute; content:""; height:22px; width:22px; left:3px; top:3px; background:white; transition:.3s; border-radius:50%; }
-    .mivon-switch input:checked + .mivon-slider { background:#2ecc71; }
-    .mivon-switch input:checked + .mivon-slider:before { transform: translateX(26px); }
-    .mivon-he-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
-    .mivon-box{border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff;}
-    .mivon-box h3{margin:4px 0 10px;font-size:15px;}
-    .mivon-muted{color:#666;font-size:12px;}
-    .mivon-he-template-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0;}
-    .mivon-he-template-box{border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff;}
-    .mivon-he-template-thumb iframe{width:100%;height:320px;border:1px solid #eee;border-radius:6px;}
-    .mivon-he-preview-toolbar{display:flex;gap:8px;margin-bottom:10px;}
+    .base47-switch { position:relative; display:inline-block; width:54px; height:28px; }
+    .base47-switch input{ display:none; }
+    .base47-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; transition:.3s; border-radius:28px; }
+    .base47-slider:before { position:absolute; content:""; height:22px; width:22px; left:3px; top:3px; background:white; transition:.3s; border-radius:50%; }
+    .base47-switch input:checked + .base47-slider { background:#2ecc71; }
+    .base47-switch input:checked + .base47-slider:before { transform: translateX(26px); }
+    .base47-he-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+    .base47-box{border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff;}
+    .base47-box h3{margin:4px 0 10px;font-size:15px;}
+    .base47-muted{color:#666;font-size:12px;}
+    .base47-he-template-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0;}
+    .base47-he-template-box{border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff;}
+    .base47-he-template-thumb iframe{width:100%;height:320px;border:1px solid #eee;border-radius:6px;}
+    .base47-he-preview-toolbar{display:flex;gap:8px;margin-bottom:10px;}
     ';
-    wp_add_inline_style( 'mivon-he-admin', $css );
+    wp_add_inline_style( 'base47-he-admin', $css );
 }
-add_action( 'admin_enqueue_scripts', 'mivon_he_admin_assets' );
+add_action( 'admin_enqueue_scripts', 'base47_he_admin_assets' );
 
 /* --------------------------------------------------------------------------
 | ADMIN PAGES (existing)
 -------------------------------------------------------------------------- */
-function mivon_he_dashboard_page() {
+function base47_he_dashboard_page() {
     if ( ! current_user_can( 'manage_options' ) ) return;
 
-    $sets   = mivon_he_get_template_sets();
-    $active = mivon_he_get_active_sets();
-    $all    = mivon_he_get_all_templates( true );
+    $sets   = base47_he_get_template_sets();
+    $active = base47_he_get_active_sets();
+    $all    = base47_he_get_all_templates( true );
 
     $counts = [];
     foreach ( $all as $item ) {
         $counts[ $item['set'] ] = ( $counts[ $item['set'] ] ?? 0 ) + 1;
     }
     ?>
-    <div class="wrap mivon-he-wrap">
-        <h1>Mivon HTML Editor</h1>
-        <p>Version: <?php echo esc_html( MIVON_HE_VERSION ); ?></p>
+    <div class="wrap base47-he-wrap">
+        <h1>Base47 HTML Editor</h1>
+        <p>Version: <?php echo esc_html( BASE47_HE_VERSION ); ?></p>
 
         <h2 style="margin-top:24px;">Theme Sets</h2>
-        <div class="mivon-he-grid">
+        <div class="base47-he-grid">
             <?php foreach ( $sets as $slug => $set ) : ?>
-                <div class="mivon-box">
+                <div class="base47-box">
                     <h3><?php echo esc_html( $slug ); ?></h3>
-                    <p class="mivon-muted">
-                        Status: <?php echo mivon_he_is_set_active( $slug ) ? 'Active' : 'Inactive'; ?> |
+                    <p class="base47-muted">
+                        Status: <?php echo base47_he_is_set_active( $slug ) ? 'Active' : 'Inactive'; ?> |
                         Templates: <?php echo intval( $counts[ $slug ] ?? 0 ); ?>
                     </p>
-                    <p class="mivon-muted">Path: <code><?php echo esc_html( $set['path'] ); ?></code></p>
+                    <p class="base47-muted">Path: <code><?php echo esc_html( $set['path'] ); ?></code></p>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -760,11 +816,11 @@ function mivon_he_dashboard_page() {
     <?php
 }
 
-function mivon_he_templates_page() {
+function base47_he_templates_page() {
     if ( ! current_user_can( 'manage_options' ) ) return;
 
-    $active = mivon_he_get_active_sets();
-    $sets   = mivon_he_get_template_sets();
+    $active = base47_he_get_active_sets();
+    $sets   = base47_he_get_template_sets();
 
     if ( empty( $active ) ) {
         echo '<div class="wrap"><h1>Shortcodes</h1><p>No active themes. Go to <strong>Theme Manager</strong> to enable one.</p></div>';
@@ -772,11 +828,11 @@ function mivon_he_templates_page() {
     }
 
     $by_set = [];
-    foreach ( mivon_he_get_all_templates( false ) as $item ) {
+    foreach ( base47_he_get_all_templates( false ) as $item ) {
         $by_set[ $item['set'] ][] = $item['file'];
     }
     ?>
-    <div class="wrap mivon-he-wrap">
+    <div class="wrap base47-he-wrap">
         <h1>Shortcodes</h1>
         <p>Only <strong>active</strong> theme sets are listed. Toggle sets in <em>Theme Manager</em>.</p>
 
@@ -785,11 +841,11 @@ function mivon_he_templates_page() {
             ?>
             <h2><?php echo esc_html( $set_slug ); ?></h2>
             <?php if ( empty( $files ) ) : ?>
-                <p class="mivon-muted">No templates found in this set.</p>
+                <p class="base47-muted">No templates found in this set.</p>
             <?php else : ?>
-                <div class="mivon-he-template-grid">
+                <div class="base47-he-template-grid">
                     <?php foreach ( $files as $file ) :
-                        $slug = mivon_he_filename_to_slug( $file );
+                        $slug = base47_he_filename_to_slug( $file );
                         if ( $set_slug === 'mivon-templates' ) {
                             $shortcode = '[mivon-'.$slug.']';
                         } else {
@@ -800,19 +856,19 @@ function mivon_he_templates_page() {
                             'admin-ajax.php?action=mivon_he_preview&file='
                             . rawurlencode( $file )
                             . '&set=' . rawurlencode( $set_slug )
-                            . '&_wpnonce=' . wp_create_nonce( 'mivon_he_preview' )
+                            . '&_wpnonce=' . wp_create_nonce( 'base47_he_preview' )
                         );
                         ?>
-                        <div class="mivon-he-template-box">
+                        <div class="base47-he-template-box">
                             <strong><?php echo esc_html( $file ); ?></strong>
                             <code><?php echo esc_html( $shortcode ); ?></code>
-                            <div class="mivon-he-template-thumb">
+                            <div class="base47-he-template-thumb">
                                 <iframe src="<?php echo esc_url( $preview ); ?>"></iframe>
                             </div>
-                            <div class="mivon-he-template-actions">
-                                <button class="button mivon-he-copy" data-shortcode="<?php echo esc_attr( $shortcode ); ?>">Copy shortcode</button>
+                            <div class="base47-he-template-actions">
+                                <button class="button base47-he-copy" data-shortcode="<?php echo esc_attr( $shortcode ); ?>">Copy shortcode</button>
                                 <a class="button" href="<?php echo esc_url( $preview ); ?>" target="_blank">Open preview</a>
-                                <a class="button" href="<?php echo admin_url( 'admin.php?page=mivon-he-editor&set=' . rawurlencode( $set_slug ) . '&file=' . rawurlencode( $file ) ); ?>">Edit</a>
+                                <a class="button" href="<?php echo admin_url( 'admin.php?page=base47-he-editor&set=' . rawurlencode( $set_slug ) . '&file=' . rawurlencode( $file ) ); ?>">Edit</a>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -823,11 +879,11 @@ function mivon_he_templates_page() {
     <?php
 }
 
-function mivon_he_editor_page() {
+function base47_he_editor_page() {
     if ( ! current_user_can( 'manage_options' ) ) return;
 
-    $sets_all   = mivon_he_get_template_sets();
-    $active     = mivon_he_get_active_sets();
+    $sets_all   = base47_he_get_template_sets();
+    $active     = base47_he_get_active_sets();
 
     if ( empty( $active ) ) {
         echo '<div class="wrap"><h1>Live Editor</h1><p>No active themes. Enable at least one in <strong>Theme Manager</strong>.</p></div>';
@@ -863,16 +919,16 @@ function mivon_he_editor_page() {
             'admin-ajax.php?action=mivon_he_preview&file='
             . rawurlencode( $selected )
             . '&set=' . rawurlencode( $current_set )
-            . '&_wpnonce=' . wp_create_nonce( 'mivon_he_preview' )
+            . '&_wpnonce=' . wp_create_nonce( 'base47_he_preview' )
         )
         : '';
 
     ?>
-    <div class="wrap mivon-he-wrap">
+    <div class="wrap base47-he-wrap">
         <h1>Live Editor</h1>
-        <div class="mivon-he-editor-topbar">
+        <div class="base47-he-editor-topbar">
             <form method="get">
-                <input type="hidden" name="page" value="mivon-he-editor">
+                <input type="hidden" name="page" value="base47-he-editor">
                 <select name="set" onchange="this.form.submit()">
                     <?php foreach ( $active as $set_slug ) : ?>
                         <option value="<?php echo esc_attr( $set_slug ); ?>" <?php selected( $set_slug, $current_set ); ?>>
@@ -889,82 +945,82 @@ function mivon_he_editor_page() {
                 </select>
             </form>
              <?php if ( $selected ) : ?>
-    <button id="mivon-he-save" class="button button-primary">Save</button>
-    <button id="mivon-he-restore" class="button">Restore</button>
-    <button id="mivon-he-open-preview" class="button">Open Preview</button>
+    <button id="base47-he-save" class="button button-primary">Save</button>
+    <button id="base47-he-restore" class="button">Restore</button>
+    <button id="base47-he-open-preview" class="button">Open Preview</button>
 <?php endif; ?>
         </div>
 
-        <div id="mivon-he-editor-shell" class="mivon-he-editor-shell">
-            <div id="mivon-he-editor-left" class="mivon-he-editor-left">
-                <textarea id="mivon-he-code" style="width:100%;height:520px;"><?php echo esc_textarea( $content ); ?></textarea>
+        <div id="base47-he-editor-shell" class="base47-he-editor-shell">
+            <div id="base47-he-editor-left" class="base47-he-editor-left">
+                <textarea id="base47-he-code" style="width:100%;height:520px;"><?php echo esc_textarea( $content ); ?></textarea>
             </div>
-            <div id="mivon-he-resizer" class="mivon-he-resizer"></div>
-            <div class="mivon-he-editor-right">
-                <div class="mivon-he-preview-toolbar">
+            <div id="base47-he-resizer" class="base47-he-resizer"></div>
+            <div class="base47-he-editor-right">
+                <div class="base47-he-preview-toolbar">
                     <button type="button" class="button preview-size-btn active" data-size="100%">Full</button>
                     <button type="button" class="button preview-size-btn" data-size="1024">Desktop</button>
                     <button type="button" class="button preview-size-btn" data-size="768">Tablet</button>
                     <button type="button" class="button preview-size-btn" data-size="375">Mobile</button>
                 </div>
-                <div class="mivon-he-preview-wrap">
-                    <iframe id="mivon-he-preview" src="<?php echo esc_url( $preview ); ?>"></iframe>
+                <div class="base47-he-preview-wrap">
+                    <iframe id="base47-he-preview" src="<?php echo esc_url( $preview ); ?>"></iframe>
                 </div>
             </div>
         </div>
 
-     </div> <!-- close mivon-he-editor-shell --> 
+     </div> <!-- close base47-he-editor-shell --> 
       
-   <div class="mivon-he-shortcuts-panel">
-    <h2 class="mivon-he-shortcuts-title">Keyboard Shortcuts</h2>
+   <div class="base47-he-shortcuts-panel">
+    <h2 class="base47-he-shortcuts-title">Keyboard Shortcuts</h2>
 
-    <div class="mivon-he-shortcuts-grid">
+    <div class="base47-he-shortcuts-grid">
 
-        <div class="mivon-he-shortcut">
-            <span class="mivon-he-shortcut-keys">Ctrl / Cmd + S</span>
-            <span class="mivon-he-shortcut-desc">Save template</span>
+        <div class="base47-he-shortcut">
+            <span class="base47-he-shortcut-keys">Ctrl / Cmd + S</span>
+            <span class="base47-he-shortcut-desc">Save template</span>
         </div>
 
-        <div class="mivon-he-shortcut">
-            <span class="mivon-he-shortcut-keys">Ctrl / Cmd + P</span>
-            <span class="mivon-he-shortcut-desc">Open preview in new tab</span>
+        <div class="base47-he-shortcut">
+            <span class="base47-he-shortcut-keys">Ctrl / Cmd + P</span>
+            <span class="base47-he-shortcut-desc">Open preview in new tab</span>
         </div>
 
-        <div class="mivon-he-shortcut">
-            <span class="mivon-he-shortcut-keys">Ctrl / Cmd + 1</span>
-            <span class="mivon-he-shortcut-desc">Desktop preview</span>
+        <div class="base47-he-shortcut">
+            <span class="base47-he-shortcut-keys">Ctrl / Cmd + 1</span>
+            <span class="base47-he-shortcut-desc">Desktop preview</span>
         </div>
 
-        <div class="mivon-he-shortcut">
-            <span class="mivon-he-shortcut-keys">Ctrl / Cmd + 2</span>
-            <span class="mivon-he-shortcut-desc">Tablet preview</span>
+        <div class="base47-he-shortcut">
+            <span class="base47-he-shortcut-keys">Ctrl / Cmd + 2</span>
+            <span class="base47-he-shortcut-desc">Tablet preview</span>
         </div>
 
-        <div class="mivon-he-shortcut">
-            <span class="mivon-he-shortcut-keys">Ctrl / Cmd + 3</span>
-            <span class="mivon-he-shortcut-desc">Mobile preview</span>
+        <div class="base47-he-shortcut">
+            <span class="base47-he-shortcut-keys">Ctrl / Cmd + 3</span>
+            <span class="base47-he-shortcut-desc">Mobile preview</span>
         </div>
 
     </div>
 </div>
       
 
-        <input type="hidden" id="mivon-he-current-file" value="<?php echo esc_attr( $selected ); ?>">
-        <input type="hidden" id="mivon-he-current-set" value="<?php echo esc_attr( $current_set ); ?>">
-        <?php wp_nonce_field( 'mivon_he_editor', 'mivon_he_editor_nonce' ); ?>
+        <input type="hidden" id="base47-he-current-file" value="<?php echo esc_attr( $selected ); ?>">
+        <input type="hidden" id="base47-he-current-set" value="<?php echo esc_attr( $current_set ); ?>">
+        <?php wp_nonce_field( 'base47_he_editor', 'mivon_he_editor_nonce' ); ?>
     </div>
     <?php
 }
 
 /** THEME MANAGER (toggle switches) */
-function mivon_he_settings_page() {
+function base47_he_settings_page() {
     if ( ! current_user_can( 'manage_options' ) ) return;
 
-    $sets   = mivon_he_get_template_sets();
-    $active = mivon_he_get_active_sets();
+    $sets   = base47_he_get_template_sets();
+    $active = base47_he_get_active_sets();
 
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-        check_admin_referer( MIVON_HE_OPT_SETTINGS_NONCE );
+        check_admin_referer( BASE47_HE_OPT_SETTINGS_NONCE );
 
         $new_active = isset( $_POST['mivon_active_sets'] ) && is_array( $_POST['mivon_active_sets'] )
             ? array_values( array_intersect( array_keys( $sets ), array_map( 'sanitize_text_field', $_POST['mivon_active_sets'] ) ) )
@@ -974,34 +1030,34 @@ function mivon_he_settings_page() {
             $first      = array_key_first( $sets );
             $new_active = [ $first ];
         }
-        update_option( MIVON_HE_OPT_ACTIVE_THEMES, $new_active );
+        update_option( BASE47_HE_OPT_ACTIVE_THEMES, $new_active );
 
         // Save manifest preferences
-        $use_manifest = isset( $_POST['mivon_use_manifest'] ) && is_array( $_POST['mivon_use_manifest'] )
-            ? array_values( array_intersect( array_keys( $sets ), array_map( 'sanitize_text_field', $_POST['mivon_use_manifest'] ) ) )
+        $use_manifest = isset( $_POST['base47_use_manifest'] ) && is_array( $_POST['base47_use_manifest'] )
+            ? array_values( array_intersect( array_keys( $sets ), array_map( 'sanitize_text_field', $_POST['base47_use_manifest'] ) ) )
             : [];
-        update_option( MIVON_HE_OPT_USE_MANIFEST, $use_manifest );
+        update_option( BASE47_HE_OPT_USE_MANIFEST, $use_manifest );
 
         add_settings_error( 'mivon_he_settings', 'mivon_he_saved', 'Settings saved.', 'updated' );
         $active = $new_active;
     }
 
-    $use_manifest_sets = get_option( MIVON_HE_OPT_USE_MANIFEST, [] );
-    $manifests = mivon_he_get_all_manifests();
+    $use_manifest_sets = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
+    $manifests = base47_he_get_all_manifests();
 
     settings_errors( 'mivon_he_settings' );
     ?>
-    <div class="wrap mivon-he-wrap">
+    <div class="wrap base47-he-wrap">
         <h1>Theme Manager</h1>
         <p>Toggle which theme sets are <strong>Active</strong>. Only active sets are exposed as shortcodes and appear in Live Editor & Shortcodes.</p>
         <p style="background:#fff3cd;padding:12px;border-left:4px solid #ffc107;margin:16px 0;">
-            <strong>💡 Asset Loading:</strong> Choose <strong>Manifest</strong> for simple/light themes with selective asset loading, or <strong>Loader</strong> (default) for heavy themes that need all assets. Loader is faster for complex themes like Mivon, Lezar, Bfolio.
+            <strong>💡 Asset Loading:</strong> Choose <strong>Manifest</strong> for simple/light themes with selective asset loading, or <strong>Loader</strong> (default) for heavy themes that need all assets. Loader is faster for complex themes like Base47, Lezar, Bfolio.
         </p>
 
         <form method="post">
-            <?php wp_nonce_field( MIVON_HE_OPT_SETTINGS_NONCE ); ?>
+            <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
 
-            <div class="mivon-he-grid" style="margin-top:16px;">
+            <div class="base47-he-grid" style="margin-top:16px;">
                 <?php if ( empty( $sets ) ) : ?>
                     <p>No *-templates folders found in the plugin directory.</p>
                 <?php else : foreach ( $sets as $slug => $set ) :
@@ -1009,18 +1065,18 @@ function mivon_he_settings_page() {
                     $use_manifest = in_array( $slug, $use_manifest_sets, true );
                     $has_manifest = isset( $manifests[ $slug ] );
                 ?>
-                    <div class="mivon-box">
+                    <div class="base47-box">
                         <h3><?php echo esc_html( $slug ); ?></h3>
-                        <p class="mivon-muted">Path: <code><?php echo esc_html( $set['path'] ); ?></code></p>
+                        <p class="base47-muted">Path: <code><?php echo esc_html( $set['path'] ); ?></code></p>
                         
                         <div style="margin:12px 0;">
                             <strong>Active:</strong>
-                            <label class="mivon-switch" title="<?php echo $is_active ? 'Active' : 'Inactive'; ?>" style="margin-left:8px;">
+                            <label class="base47-switch" title="<?php echo $is_active ? 'Active' : 'Inactive'; ?>" style="margin-left:8px;">
                                 <input type="checkbox"
                                        name="mivon_active_sets[]"
                                        value="<?php echo esc_attr( $slug ); ?>"
                                        <?php checked( $is_active ); ?>>
-                                <span class="mivon-slider"></span>
+                                <span class="base47-slider"></span>
                             </label>
                         </div>
 
@@ -1063,38 +1119,38 @@ function mivon_he_settings_page() {
     <?php
 }
 
-function mivon_he_changelog_page() {
-    $file    = MIVON_HE_PATH . 'changelog.txt';
+function base47_he_changelog_page() {
+    $file    = BASE47_HE_PATH . 'changelog.txt';
     $content = file_exists( $file )
         ? file_get_contents( $file )
         : "â€¢ 2.3.0 â€” Special Widgets admin page, Redox slider v1 integration.\nâ€¢ 2.1.0 â€” Theme Manager (toggle switches), active-only shortcodes, safer defaults.\nâ€¢ 2.0.x â€” Multi-set foundations.\n";
 
-    echo '<div class="wrap mivon-he-wrap"><h1>Changelog</h1><pre class="mivon-he-changelog">' . esc_html( $content ) . '</pre></div>';
+    echo '<div class="wrap base47-he-wrap"><h1>Changelog</h1><pre class="base47-he-changelog">' . esc_html( $content ) . '</pre></div>';
 }
 
 /* --------------------------------------------------------------------------
 | AJAX PREVIEW / GET / SAVE / LIVE PREVIEW
 -------------------------------------------------------------------------- */
 /** Detect default theme (for JS/editor). */
-function mivon_he_detect_default_theme() {
-    $sets = mivon_he_get_template_sets();
+function base47_he_detect_default_theme() {
+    $sets = base47_he_get_template_sets();
     if ( ! empty( $sets ) ) {
         return array_key_first( $sets );
     }
     return 'mivon-templates';
 }
 
-function mivon_he_ajax_preview() {
-    check_admin_referer( 'mivon_he_preview' );
+function base47_he_ajax_preview() {
+    check_admin_referer( 'base47_he_preview' );
 
     $file = isset( $_GET['file'] ) ? sanitize_text_field( wp_unslash( $_GET['file'] ) ) : '';
     $set  = isset( $_GET['set'] )  ? sanitize_text_field( wp_unslash( $_GET['set'] ) )  : '';
 
     if ( ! $file ) wp_die( 'Template not specified.' );
 
-    $sets = mivon_he_get_template_sets();
+    $sets = base47_he_get_template_sets();
     if ( empty( $set ) ) {
-        $info = mivon_he_locate_template( $file );
+        $info = base47_he_locate_template( $file );
         if ( ! $info ) wp_die( 'Template not found.' );
         $set      = $info['set'];
         $full     = $info['path'];
@@ -1107,24 +1163,24 @@ function mivon_he_ajax_preview() {
     }
 
     $html = file_get_contents( $full );
-    $html = mivon_he_rewrite_assets( $html, $base_url, true );
+    $html = base47_he_rewrite_assets( $html, $base_url, true );
     echo $html;
     exit;
 }
-add_action( 'wp_ajax_mivon_he_preview',        'mivon_he_ajax_preview' );
-add_action( 'wp_ajax_nopriv_mivon_he_preview', 'mivon_he_ajax_preview' );
+add_action( 'wp_ajax_mivon_he_preview',        'base47_he_ajax_preview' );
+add_action( 'wp_ajax_nopriv_mivon_he_preview', 'base47_he_ajax_preview' );
 
-function mivon_he_ajax_get_template() {
-    check_ajax_referer( 'mivon_he_editor', 'nonce' );
+function base47_he_ajax_get_template() {
+    check_ajax_referer( 'base47_he_editor', 'nonce' );
 
     $file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
     $set  = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
 
     if ( ! $file ) wp_send_json_error( 'Template not specified.' );
 
-    $sets = mivon_he_get_template_sets();
+    $sets = base47_he_get_template_sets();
     if ( empty( $set ) ) {
-        $info = mivon_he_locate_template( $file );
+        $info = base47_he_locate_template( $file );
         if ( ! $info ) wp_send_json_error( 'Template not found.' );
         $set      = $info['set'];
         $full     = $info['path'];
@@ -1137,7 +1193,7 @@ function mivon_he_ajax_get_template() {
     }
 
     $content = file_get_contents( $full );
-    $preview = mivon_he_rewrite_assets( mivon_he_strip_shell( $content ), $base_url, true );
+    $preview = base47_he_rewrite_assets( base47_he_strip_shell( $content ), $base_url, true );
 
     wp_send_json_success( [
         'content' => $content,
@@ -1145,10 +1201,10 @@ function mivon_he_ajax_get_template() {
         'set'     => $set,
     ] );
 }
-add_action( 'wp_ajax_mivon_he_get_template', 'mivon_he_ajax_get_template' );
+add_action( 'wp_ajax_mivon_he_get_template', 'base47_he_ajax_get_template' );
 
-function mivon_he_ajax_save_template() {
-    check_ajax_referer( 'mivon_he_editor', 'nonce' );
+function base47_he_ajax_save_template() {
+    check_ajax_referer( 'base47_he_editor', 'nonce' );
 
     $file    = isset( $_POST['file'] )    ? sanitize_text_field( wp_unslash( $_POST['file'] ) )    : '';
     $set     = isset( $_POST['set'] )     ? sanitize_text_field( wp_unslash( $_POST['set'] ) )     : '';
@@ -1156,9 +1212,9 @@ function mivon_he_ajax_save_template() {
 
     if ( ! $file ) wp_send_json_error( 'Template not specified.' );
 
-    $sets = mivon_he_get_template_sets();
+    $sets = base47_he_get_template_sets();
     if ( empty( $set ) ) {
-        $info = mivon_he_locate_template( $file );
+        $info = base47_he_locate_template( $file );
         if ( ! $info ) wp_send_json_error( 'Template not found.' );
         $full = $info['path'];
     } else {
@@ -1172,10 +1228,10 @@ function mivon_he_ajax_save_template() {
 
     wp_send_json_success( 'saved' );
 }
-add_action( 'wp_ajax_mivon_he_save_template', 'mivon_he_ajax_save_template' );
+add_action( 'wp_ajax_mivon_he_save_template', 'base47_he_ajax_save_template' );
 
 add_action( 'wp_ajax_mivon_he_live_preview', function() {
-    check_ajax_referer( 'mivon_he_editor', 'nonce' );
+    check_ajax_referer( 'base47_he_editor', 'nonce' );
 
     $file    = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
     $set     = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
@@ -1183,9 +1239,9 @@ add_action( 'wp_ajax_mivon_he_live_preview', function() {
 
     if ( ! $file ) wp_send_json_error( 'No file' );
 
-    $sets = mivon_he_get_template_sets();
+    $sets = base47_he_get_template_sets();
     if ( empty( $set ) ) {
-        $info = mivon_he_locate_template( $file );
+        $info = base47_he_locate_template( $file );
         if ( ! $info ) wp_send_json_error( 'Template not found.' );
         $base_url = $info['url'];
     } else {
@@ -1193,7 +1249,7 @@ add_action( 'wp_ajax_mivon_he_live_preview', function() {
         $base_url = $sets[ $set ]['url'];
     }
 
-    $html = mivon_he_rewrite_assets( $content, $base_url, false );
+    $html = base47_he_rewrite_assets( $content, $base_url, false );
     wp_send_json_success( [ 'html' => $html ] );
 });
 
@@ -1203,10 +1259,10 @@ add_action( 'wp_ajax_mivon_he_live_preview', function() {
 add_action( 'admin_head', function() {
     $screen = get_current_screen();
     if ( ! $screen ) return;
-    if ( strpos( $screen->id, 'mivon-he' ) !== false || strpos( $screen->id, 'mivon-special-widgets' ) !== false ) {
+    if ( strpos( $screen->id, 'mivon-he' ) !== false || strpos( $screen->id, 'base47-special-widgets' ) !== false ) {
         echo '<style>
             #wpcontent {max-width:100%!important;margin-left:160px!important;padding-left:20px!important;box-sizing:border-box!important;}
-            .wrap.mivon-he-wrap {max-width:96%!important;width:100%!important;margin:0 auto;}
+            .wrap.base47-he-wrap {max-width:96%!important;width:100%!important;margin:0 auto;}
             @media (max-width: 960px) { #wpcontent {margin-left:0!important;width:100%!important;} }
         </style>';
     }
@@ -1235,7 +1291,7 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  * Structure:
  * [
  *   'hero-slider-mivon' => [
- *      'name'        => 'Hero Slider (Mivon)',
+ *      'name'        => 'Hero Slider (Base47)',
  *      'slug'        => 'hero-slider-mivon',
  *      'description' => '...',
  *      'folder'      => 'hero-slider-mivon',
@@ -1246,7 +1302,7 @@ if ( ! function_exists( 'str_ends_with' ) ) {
  *   ...
  * ]
  */
-function mivon_he_get_special_widgets_registry() {
+function base47_he_get_special_widgets_registry() {
     static $cache = null;
 
     if ( $cache !== null ) {
@@ -1317,7 +1373,7 @@ function mivon_he_get_special_widgets_registry() {
 | SPECIAL WIDGET SHORTCODE: [mivon_widget slug="hero-slider-mivon"]
 -------------------------------------------------------------------------- */
 
-function mivon_he_special_widget_shortcode( $atts = [], $content = '' ) {
+function base47_he_special_widget_shortcode( $atts = [], $content = '' ) {
     $atts = shortcode_atts([
         'slug' => '',
     ], $atts, 'mivon_widget' );
@@ -1327,7 +1383,7 @@ function mivon_he_special_widget_shortcode( $atts = [], $content = '' ) {
         return '';
     }
 
-    $widgets = mivon_he_get_special_widgets_registry();
+    $widgets = base47_he_get_special_widgets_registry();
     if ( empty( $widgets[ $slug ] ) ) {
         // Fail silently - no widget with that slug
         return '';
@@ -1401,4 +1457,6 @@ function mivon_he_special_widget_shortcode( $atts = [], $content = '' ) {
 
     return $html;
 }
-add_shortcode( 'mivon_widget', 'mivon_he_special_widget_shortcode' );
+add_shortcode( 'base47_widget', 'base47_he_special_widget_shortcode' );
+// Backward compatibility: support old mivon_widget shortcode
+add_shortcode( 'mivon_widget', 'base47_he_special_widget_shortcode' );

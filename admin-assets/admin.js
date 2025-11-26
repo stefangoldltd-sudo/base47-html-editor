@@ -1,14 +1,14 @@
 jQuery(function($){
 
-  const $code    = $('#mivon-he-code');
-  const $file    = $('#mivon-he-current-file');
-  const $set     = $('#mivon-he-current-set');
-  const $preview = $('#mivon-he-preview');
+  const $code    = $('#base47-he-code');
+  const $file    = $('#base47-he-current-file');
+  const $set     = $('#base47-he-current-set');
+  const $preview = $('#base47-he-preview');
 
   // ==========================
   // COPY SHORTCODE BUTTON
   // ==========================
-  $('.mivon-he-copy').on('click', function(){
+  $('.base47-he-copy').on('click', function(){
     const sc = $(this).data('shortcode');
     if (!sc) return;
     const $btn = $(this);
@@ -28,10 +28,10 @@ jQuery(function($){
   function getActiveSet() {
     let setVal = $set.val();
     if (!setVal || setVal === '' || setVal === 'undefined') {
-      if (typeof MIVON_HE_DATA.default_set !== 'undefined' && MIVON_HE_DATA.default_set) {
-        setVal = MIVON_HE_DATA.default_set;
+      if (typeof BASE47_HE_DATA.default_set !== 'undefined' && BASE47_HE_DATA.default_set) {
+        setVal = BASE47_HE_DATA.default_set;
       } else {
-        setVal = 'mivon-templates';
+        setVal = 'base47-templates';
       }
     }
     return setVal;
@@ -45,9 +45,9 @@ jQuery(function($){
     $code.on('input', function(){
       clearTimeout(liveTimer);
       liveTimer = setTimeout(function(){
-        $.post(MIVON_HE_DATA.ajax_url, {
-          action:  'mivon_he_live_preview',
-          nonce:   MIVON_HE_DATA.nonce,
+        $.post(BASE47_HE_DATA.ajax_url, {
+          action:  'base47_he_live_preview',
+          nonce:   BASE47_HE_DATA.nonce,
           file:    $file.val(),
           set:     getActiveSet(),
           content: $code.val()
@@ -68,11 +68,11 @@ jQuery(function($){
   // ==========================
   // SAVE TEMPLATE
   // ==========================
-  $('#mivon-he-save').on('click', function(e){
+  $('#base47-he-save').on('click', function(e){
     e.preventDefault();
-    $.post(MIVON_HE_DATA.ajax_url, {
-      action:  'mivon_he_save_template',
-      nonce:   MIVON_HE_DATA.nonce,
+    $.post(BASE47_HE_DATA.ajax_url, {
+      action:  'base47_he_save_template',
+      nonce:   BASE47_HE_DATA.nonce,
       file:    $file.val(),
       set:     getActiveSet(),
       content: $code.val()
@@ -80,8 +80,8 @@ jQuery(function($){
       if (resp && resp.success) {
         const src = $preview.attr('src').split('&_rand=')[0];
         $preview.attr('src', src + '&_rand=' + Date.now());
-        $('#mivon-he-save').text('Saved ✓');
-        setTimeout(()=>$('#mivon-he-save').text('Save'),1000);
+        $('#base47-he-save').text('Saved ✓');
+        setTimeout(()=>$('#base47-he-save').text('Save'),1000);
       } else {
         alert('Save failed: ' + (resp && resp.data ? resp.data : 'unknown'));
       }
@@ -91,11 +91,11 @@ jQuery(function($){
   // ==========================
   // RESTORE TEMPLATE
   // ==========================
-  $('#mivon-he-restore').on('click', function(e){
+  $('#base47-he-restore').on('click', function(e){
     e.preventDefault();
-    $.post(MIVON_HE_DATA.ajax_url, {
-      action: 'mivon_he_get_template',
-      nonce:  MIVON_HE_DATA.nonce,
+    $.post(BASE47_HE_DATA.ajax_url, {
+      action: 'base47_he_get_template',
+      nonce:  BASE47_HE_DATA.nonce,
       file:   $file.val(),
       set:    getActiveSet()
     }, function(resp){
@@ -128,7 +128,7 @@ jQuery(function($){
   // ==========================
   // OPEN PREVIEW IN NEW TAB
   // ==========================
-  $('#mivon-he-open-preview').on('click', function(e){
+  $('#base47-he-open-preview').on('click', function(e){
     e.preventDefault();
     if (!$preview.length) return;
     const src = $preview.attr('src');
@@ -139,9 +139,9 @@ jQuery(function($){
   // ==========================
   // DRAG RESIZER
   // ==========================
-  const $resizer = $('#mivon-he-resizer');
-  const $left    = $('#mivon-he-editor-left');
-  const $shell   = $('#mivon-he-editor-shell');
+  const $resizer = $('#base47-he-resizer');
+  const $left    = $('#base47-he-editor-left');
+  const $shell   = $('#base47-he-editor-shell');
   if ($resizer.length && $left.length && $shell.length) {
     let dragging = false;
 
@@ -179,14 +179,14 @@ jQuery(function($){
 
     const key = (e.key || '').toLowerCase();
 
-    if (key === 's') { e.preventDefault(); $('#mivon-he-save').trigger('click'); }
-    if (key === 'p') { e.preventDefault(); $('#mivon-he-open-preview').trigger('click'); }
+    if (key === 's') { e.preventDefault(); $('#base47-he-save').trigger('click'); }
+    if (key === 'p') { e.preventDefault(); $('#base47-he-open-preview').trigger('click'); }
   });
 
   // ==========================
   // THEME MANAGER TOGGLES  (FIXED VERSION)
   // ==========================
-  $(document).on('change', '.mivon-switch input', function(){
+  $(document).on('change', '.base47-switch input', function(){
     const $el = $(this);
     const theme = $el.data('theme');   // <─ MUST EXIST NOW
     const enabled = $el.is(':checked') ? 1 : 0;
@@ -198,9 +198,9 @@ jQuery(function($){
 
     $el.closest('label').css('opacity', '0.7');
 
-    $.post(MIVON_HE_DATA.ajax_url, {
-      action: 'mivon_he_toggle_theme',
-      nonce: MIVON_HE_DATA.nonce,
+    $.post(BASE47_HE_DATA.ajax_url, {
+      action: 'base47_he_toggle_theme',
+      nonce: BASE47_HE_DATA.nonce,
       theme: theme,
       enabled: enabled
     }, function(resp){

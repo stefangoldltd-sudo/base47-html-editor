@@ -1,17 +1,17 @@
-/* ===============================
-   Mivon HTML Editor – Admin Styles v2.1.1
-   =============================== */
+/* ============================
+   Base47 HTML Editor – Admin Styles v2.1.1
+   ============================ */
 
 /* -------------------------------
    General Wrapper & Titles
    ------------------------------- */
-.mivon-he-wrap {
+.base47-he-wrap {
   width: 100%;
   max-width: 100%;
   margin-top: 25px;
 }
 
-.mivon-he-title {
+.base47-he-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 14px;
@@ -20,26 +20,26 @@
 /* ===============================
    Dashboard Boxes
    =============================== */
-.mivon-he-grid {
+.base47-he-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 18px;
 }
 
-.mivon-box {
+.base47-box {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 12px 14px;
 }
 
-.mivon-box h3 {
+.base47-box h3 {
   margin: 4px 0 10px;
   font-size: 15px;
 }
 
-.mivon-muted {
+.base47-muted {
   color: #666;
   font-size: 12px;
 }
@@ -47,28 +47,28 @@
 /* ===============================
    Shortcodes Page Layout
    =============================== */
-.mivon-he-template-grid {
+.base47-he-template-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
   margin: 16px 0;
 }
 
-.mivon-he-template-box {
+.base47-he-template-box {
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 12px;
   background: #fff;
 }
 
-.mivon-he-template-box strong {
+.base47-he-template-box strong {
   display: block;
   margin-bottom: 6px;
   font-size: 14px;
   color: #111;
 }
 
-.mivon-he-template-box code {
+.base47-he-template-box code {
   background: #f3f3f3;
   padding: 2px 6px;
   display: inline-block;
@@ -77,20 +77,20 @@
   border-radius: 4px;
 }
 
-.mivon-he-template-thumb iframe {
+.base47-he-template-thumb iframe {
   width: 100%;
   height: 320px;
   border: 1px solid #eee;
   border-radius: 6px;
 }
 
-.mivon-he-template-actions {
+.base47-he-template-actions {
   display: flex;
   gap: 6px;
   margin-top: 8px;
 }
 
-.mivon-he-template-actions .button {
+.base47-he-template-actions .button {
   font-size: 11px;
   line-height: 20px;
   height: 26px;
@@ -100,7 +100,7 @@
 /* ===============================
    Live Editor
    =============================== */
-.mivon-he-editor-topbar {
+.base47-he-editor-topbar {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -109,17 +109,17 @@
   justify-content: flex-start; /* FIX */
 }
 
-.mivon-he-editor-topbar form {
+.base47-he-editor-topbar form {
   display: flex;
   gap: 6px;
   align-items: center;
 }
 
-.mivon-he-editor-topbar select {
+.base47-he-editor-topbar select {
   min-width: 160px;
 }
 
-.mivon-he-editor-shell {
+.base47-he-editor-shell {
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
@@ -136,7 +136,7 @@
   min-height: 700px;
 }
 
-.mivon-he-editor-left {
+.base47-he-editor-left {
   flex: 0 0 50%;
   background: #f8f8f8;
   border-right: 1px solid #ddd;
@@ -162,16 +162,16 @@
 }
 
 /* Drag divider */
-.mivon-he-resizer {
+.base47-he-resizer {
   flex: 0 0 6px;
   width: 6px;
   background: #e4e4e4;
   cursor: ew-resize;
   transition: background 0.2s ease;
 }
-.mivon-he-resizer:hover { background: #b3b3b3; }
+.base47-he-resizer:hover { background: #b3b3b3; }
 
-.mivon-he-editor-right {
+.base47-he-editor-right {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -179,7 +179,7 @@
   overflow: hidden;
 }
 
-.mivon-he-preview-toolbar {
+.base47-he-preview-toolbar {
   display: flex;
   justify-content: center;
   gap: 6px;
@@ -191,7 +191,7 @@
   z-index: 2;
 }
 
-.mivon-he-preview-wrap {
+.base47-he-preview-wrap {
   flex: 1;
   overflow: auto;
   background: #fff;
@@ -218,14 +218,14 @@
 }
 
 /* Dragging class from JS */
-.mivon-he-dragging iframe { pointer-events: none; }
+.base47-he-dragging iframe { pointer-events: none; }
 
 /* ===============================
    Settings, Changelog, Theme Manager
    =============================== */
-.mivon-he-settings { max-width: 720px; }
+.base47-he-settings { max-width: 720px; }
 
-.mivon-he-changelog {
+.base47-he-changelog {
   max-width: 720px;
   background: #fff;
   border: 1px solid #ddd;
@@ -237,14 +237,14 @@
 }
 
 /* Theme Manager – Toggle Switch */
-.mivon-switch {
+.base47-switch {
   position: relative;
   display: inline-block;
   width: 54px;
   height: 28px;
 }
-.mivon-switch input { display: none; }
-.mivon-slider {
+.base47-switch input { display: none; }
+.base47-slider {
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -252,7 +252,7 @@
   transition: 0.3s;
   border-radius: 28px;
 }
-.mivon-slider:before {
+.base47-slider:before {
   position: absolute;
   content: "";
   height: 22px; width: 22px;
@@ -261,13 +261,13 @@
   transition: 0.3s;
   border-radius: 50%;
 }
-.mivon-switch input:checked + .mivon-slider { background: #2ecc71; }
-.mivon-switch input:checked + .mivon-slider:before { transform: translateX(26px); }
+.base47-switch input:checked + .base47-slider { background: #2ecc71; }
+.base47-switch input:checked + .base47-slider:before { transform: translateX(26px); }
 
 /* ===============================
    Shortcuts Panel (bottom of editor)
    =============================== */
-.mivon-he-shortcuts-panel {
+.base47-he-shortcuts-panel {
   max-width: 100%;
   margin: 10px 0 40px 0;
   background: #fff;
@@ -277,24 +277,24 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 
-.mivon-he-shortcuts-panel h2 {
+.base47-he-shortcuts-panel h2 {
   font-size: 14px;
   margin: 0 0 8px;
 }
 
-.mivon-he-shortcuts-panel p.mivon-he-shortcuts-note {
+.base47-he-shortcuts-panel p.base47-he-shortcuts-note {
   font-size: 11px;
   color: #777;
   margin: 0 0 10px;
 }
 
-.mivon-he-shortcuts-grid {
+.base47-he-shortcuts-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.mivon-he-shortcut {
+.base47-he-shortcut {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -304,7 +304,7 @@
   font-size: 12px;
 }
 
-.mivon-he-shortcut-keys {
+.base47-he-shortcut-keys {
   font-family: Menlo, Consolas, monospace;
   background: #fff;
   border-radius: 4px;
@@ -312,7 +312,7 @@
   padding: 2px 6px;
 }
 
-.mivon-he-shortcut-desc {
+.base47-he-shortcut-desc {
   color: #555;
 }
 
@@ -320,23 +320,23 @@
    Responsive
    =============================== */
 @media (max-width: 1400px) {
-  .mivon-he-template-grid {
+  .base47-he-template-grid {
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   }
 }
 
 @media (max-width: 1000px) {
-  .mivon-he-editor-shell {
+  .base47-he-editor-shell {
     flex-direction: column;
     height: auto;
     min-height: 0;
   }
-  .mivon-he-editor-left {
+  .base47-he-editor-left {
     min-width: 100%;
     border-right: none;
     border-bottom: 1px solid #ddd;
   }
-  .mivon-he-resizer {
+  .base47-he-resizer {
     cursor: ns-resize;
     width: 100%;
     height: 6px;
@@ -344,7 +344,7 @@
 }
 
 @media (max-width: 700px) {
-  .mivon-he-template-grid {
+  .base47-he-template-grid {
     grid-template-columns: 1fr;
   }
 }

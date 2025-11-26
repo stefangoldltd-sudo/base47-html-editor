@@ -1,7 +1,19 @@
 ========================================================
-MIVON HTML EDITOR — CHANGELOG
+BASE47 HTML EDITOR — CHANGELOG
 ========================================================
 
+
+------------------------------------------
+Version 2.6.0 – December 2025
+------------------------------------------
+
+REBRANDING:
+• Complete rebranding from Base47 HTML Editor to Base47 HTML Editor
+• All functions, constants, and options renamed from mivon_* to base47_*
+• Shortcodes updated to [base47-*] format
+• Backward compatibility maintained for legacy [mivon-*] shortcodes
+• Automatic data migration from old options to new options
+• Admin interface updated with Base47 branding
 
 ------------------------------------------
 Version 2.5.2 – November 18, 2025
