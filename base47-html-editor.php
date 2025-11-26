@@ -846,11 +846,11 @@ function base47_he_templates_page() {
                 <div class="base47-he-template-grid">
                     <?php foreach ( $files as $file ) :
                         $slug = base47_he_filename_to_slug( $file );
-                        if ( $set_slug === 'mivon-templates' ) {
-                            $shortcode = '[mivon-'.$slug.']';
+                        if ( $set_slug === 'base47-templates' || $set_slug === 'mivon-templates' ) {
+                            $shortcode = '[base47-'.$slug.']';
                         } else {
                             $set_clean = str_replace( ['-templates','-templetes'], '', $set_slug );
-                            $shortcode = '[mivon-'.$set_clean.'-'.$slug.']';
+                            $shortcode = '[base47-'.$set_clean.'-'.$slug.']';
                         }
                         $preview = admin_url(
                             'admin-ajax.php?action=mivon_he_preview&file='
@@ -1045,7 +1045,7 @@ function base47_he_settings_page() {
     $use_manifest_sets = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
     $manifests = base47_he_get_all_manifests();
 
-    settings_errors( 'mivon_he_settings' );
+    settings_errors( 'base47_he_settings' );
     ?>
     <div class="wrap base47-he-wrap">
         <h1>Theme Manager</h1>
@@ -1167,8 +1167,8 @@ function base47_he_ajax_preview() {
     echo $html;
     exit;
 }
-add_action( 'wp_ajax_mivon_he_preview',        'base47_he_ajax_preview' );
-add_action( 'wp_ajax_nopriv_mivon_he_preview', 'base47_he_ajax_preview' );
+add_action( 'wp_ajax_base47_he_preview',        'base47_he_ajax_preview' );
+add_action( 'wp_ajax_nopriv_base47_he_preview', 'base47_he_ajax_preview' );
 
 function base47_he_ajax_get_template() {
     check_ajax_referer( 'base47_he_editor', 'nonce' );
@@ -1201,7 +1201,7 @@ function base47_he_ajax_get_template() {
         'set'     => $set,
     ] );
 }
-add_action( 'wp_ajax_mivon_he_get_template', 'base47_he_ajax_get_template' );
+add_action( 'wp_ajax_base47_he_get_template', 'base47_he_ajax_get_template' );
 
 function base47_he_ajax_save_template() {
     check_ajax_referer( 'base47_he_editor', 'nonce' );
@@ -1228,9 +1228,9 @@ function base47_he_ajax_save_template() {
 
     wp_send_json_success( 'saved' );
 }
-add_action( 'wp_ajax_mivon_he_save_template', 'base47_he_ajax_save_template' );
+add_action( 'wp_ajax_base47_he_save_template', 'base47_he_ajax_save_template' );
 
-add_action( 'wp_ajax_mivon_he_live_preview', function() {
+add_action( 'wp_ajax_base47_he_live_preview', function() {
     check_ajax_referer( 'base47_he_editor', 'nonce' );
 
     $file    = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
@@ -1259,7 +1259,7 @@ add_action( 'wp_ajax_mivon_he_live_preview', function() {
 add_action( 'admin_head', function() {
     $screen = get_current_screen();
     if ( ! $screen ) return;
-    if ( strpos( $screen->id, 'mivon-he' ) !== false || strpos( $screen->id, 'base47-special-widgets' ) !== false ) {
+    if ( strpos( $screen->id, 'base47-he' ) !== false || strpos( $screen->id, 'base47-special-widgets' ) !== false ) {
         echo '<style>
             #wpcontent {max-width:100%!important;margin-left:160px!important;padding-left:20px!important;box-sizing:border-box!important;}
             .wrap.base47-he-wrap {max-width:96%!important;width:100%!important;margin:0 auto;}
@@ -1405,7 +1405,7 @@ function base47_he_special_widget_shortcode( $atts = [], $content = '' ) {
             continue;
         }
 
-        $handle = 'mivon-sw-' . $slug . '-css-' . $index;
+        $handle = 'base47-sw-' . $slug . '-css-' . $index;
 
         if ( ! wp_style_is( $handle, 'enqueued' ) ) {
             wp_enqueue_style(
@@ -1424,7 +1424,7 @@ function base47_he_special_widget_shortcode( $atts = [], $content = '' ) {
             continue;
         }
 
-        $handle = 'mivon-sw-' . $slug . '-js-' . $index;
+        $handle = 'base47-sw-' . $slug . '-js-' . $index;
 
         if ( ! wp_script_is( $handle, 'enqueued' ) ) {
             wp_enqueue_script(
@@ -1449,6 +1449,12 @@ function base47_he_special_widget_shortcode( $atts = [], $content = '' ) {
     }
 
     // Path fix: if you used hardcoded /wp-content/plugins/... for this widget, normalize it
+    $html = str_replace(
+        '/wp-content/plugins/base47-html-editor/special-widgets/' . $folder . '/',
+        $widget_dir_url,
+        $html
+    );
+    // Backward compatibility: also replace old mivon path
     $html = str_replace(
         '/wp-content/plugins/mivon-html-editor/special-widgets/' . $folder . '/',
         $widget_dir_url,
