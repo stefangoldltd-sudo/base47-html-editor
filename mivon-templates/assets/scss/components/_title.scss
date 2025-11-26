@@ -1,0 +1,89 @@
+/* Titles
+-----------------------------------------------------------------*/
+
+.sec-head {
+
+    &.bord {
+        padding-top: 30px;
+        border-top: 1px solid rgba(255, 255, 255, .2);
+    }
+
+    h6 {
+        font-size: 16px;
+
+        &:before {
+            content: '';
+            position: relative;
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            background: #fff;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+    }
+}
+
+.sec-head-stand {
+
+    h5 {
+        position: relative;
+
+        &:before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            margin-right: 15px;
+            background-color: #fff;
+        }
+    }
+}
+
+.bg-light {
+
+    .sec-head {
+
+        &.bord {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        h6 {
+
+            &:before {
+                background: #000000;
+            }
+        }
+    }
+}
+
+.modern-agency {
+
+    .sec-head {
+
+        &.bord {
+            border-top: 0;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, .2);
+        }
+    }
+
+    .bg-light {
+
+        .sec-head {
+
+            &.bord {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+                padding-bottom: 30px;
+            }
+
+            h6 {
+
+                &:before {
+                    background: #000000;
+                }
+            }
+        }
+    }
+}

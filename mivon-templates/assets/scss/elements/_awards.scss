@@ -1,0 +1,76 @@
+/* Awards
+-----------------------------------------------------------------*/
+
+.awards-reval {
+
+    .item-row {
+        padding: 35px 30px;
+        border-radius: 100px;
+        border: 1px solid rgba(255,255,255,.2);
+        margin: 15px 0;
+        transition: 0.4s;
+        position: relative;
+        cursor: pointer;
+
+        &:hover{
+            background: #fff;
+            color: #1f1f1f;
+        }
+
+        .row {
+            position: relative;
+            z-index: 5;
+        }
+
+        .award {
+
+            &-year {
+                font-weight: 300;
+                font-size: 16px;
+                min-width: 170px;
+            }
+
+            &-text {
+                font-weight: 500;
+                font-size: 20px;
+            }
+
+            &-position {
+                font-weight: 300;
+                font-size: 18px;
+                opacity: .7;
+            }
+
+        }
+    }
+}
+
+.hover-reveal-item {
+    .award-reveal-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 210px;
+        height: 250px;
+        opacity: 0;
+        z-index: 9;
+        overflow: hidden;
+        pointer-events: none;
+        border-radius: 10px;
+        margin: -150px 0 0 -150px;
+        -webkit-transition: opacity 0.3s, transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1), -webkit-transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+        -moz-transition: opacity 0.3s, transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1), -webkit-transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+        -ms-transition: opacity 0.3s, transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1), -webkit-transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+        -o-transition: opacity 0.3s, transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1), -webkit-transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+        transition: opacity 0.3s, transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1), -webkit-transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+        transform: scale(0.4);
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    &:hover {
+        .award-reveal-img {
+            opacity: 1;
+        }
+    }
+}

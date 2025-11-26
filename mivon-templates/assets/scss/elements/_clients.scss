@@ -1,0 +1,86 @@
+/* Clients
+-----------------------------------------------------------------*/
+
+.marq-brand {
+
+    .item {
+        padding: 0 10px !important;
+        text-align: center;
+
+        a {
+            width: 220px;
+            height: 180px;
+            line-height: 180px;
+            background: $sub_bg;
+            border: 1px solid transparent;
+            border-radius: 50px;
+            transition: all .4s;
+
+            img {
+                vertical-align: middle;
+                max-width: 120px;
+                opacity: .5;
+                transition: all .5s;
+            }
+
+            &:hover {
+                background: transparent;
+                border-color: rgba(255, 255, 255, .1);
+
+                img {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+
+    a {
+
+        &:hover {
+
+            img {
+                opacity: 1;
+            }
+        }
+
+        img {
+            vertical-align: middle;
+            max-width: 100px;
+            opacity: .5;
+            transition: all .5s;
+        }
+    }
+}
+
+.brand-style1 {
+
+    .item {
+        height: 180px;
+        line-height: 180px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, .2);
+        backdrop-filter: blur(5px);
+        border-radius: 50px;
+        margin: 15px 0;
+
+        img {
+            max-width: 100px;
+        }
+
+        &.bg-img {
+            background-size: 30px !important;
+            background-repeat: repeat;
+            backdrop-filter: none;
+            overflow: hidden;
+            opacity: .05;
+        }
+
+        &:hover{
+            background: #fff;
+
+            img{
+                filter: invert(1);
+            }
+        }
+    }
+}

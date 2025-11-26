@@ -1,0 +1,140 @@
+/* Team
+-----------------------------------------------------------------*/
+
+.team-style1{
+
+    .item{
+        border: 1px solid rgba(255, 255, 255, .1);
+        transition: all .4s;
+
+        &:hover{
+            border-color: #fff;
+        }
+
+        .social-icon-circle{
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+
+            a{
+                background: rgba(41, 41, 41, 0.02);
+                backdrop-filter: blur(10px);
+                width: 50px;
+                height: 50px;
+                line-height: 50px;
+
+                &:hover{
+                    background: #fff;
+                }
+            }
+        }
+
+        .info{
+
+            span{
+
+                &:before{
+                    content: '';
+                    display: inline-block;
+                    width: 5px;
+                    height: 5px;
+                    border-radius: 50%;
+                    background: #fff;
+                    margin-right: 10px;
+                }
+            }
+        }
+    }
+}
+
+.team-intro {
+
+    .item {
+        height: 100%;
+        min-height: 440px;
+
+        &.main-colorbg,
+        &.main-colorbg2,
+        &.bg-light {
+            color: #111012;
+        }
+    }
+
+    &.style2 {
+
+        .item {
+            min-height: 600px;
+        }
+    }
+}
+
+.team-reval {
+
+    .item-row {
+        border-color: rgba(255, 255, 255, .5);
+        transition: all .4s;
+        cursor: pointer;
+
+        >.row {
+            position: relative;
+            z-index: 9999999999;
+        }
+
+        span {
+            text-transform: uppercase;
+            opacity: .7;
+        }
+
+        .social-icon {
+            text-align: right;
+
+            a {
+                width: 45px;
+                height: 45px;
+                line-height: 45px;
+                text-align: center;
+                border-radius: 5px;
+                background: rgba(255, 255, 255, .02);
+                backdrop-filter: blur(5px);
+                color: rgba(255, 255, 255, .7);
+
+                &:hover {
+                    background: #fff;
+                    color: #1f1f1f;
+                }
+            }
+        }
+    }
+
+    .hover-reveal-item .award-reveal-img {
+        width: 240px;
+        height: 280px;
+        border-radius: 30px;
+    }
+}
+
+.user-imgs {
+
+    .fit-img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 -10px;
+
+        &:last-of-type {
+            line-height: 45px;
+            text-align: center;
+            background: #1f1f1f;
+            font-size: 14px;
+        }
+    }
+
+    &.style1{
+
+        .fit-img{
+            width: 60px;
+            height: 60px;
+        }
+    }
+}

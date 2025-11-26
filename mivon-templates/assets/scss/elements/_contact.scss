@@ -1,0 +1,148 @@
+/* Contact
+-----------------------------------------------------------------*/
+
+.call-action1 {
+
+    .box-cont {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        .cont {
+            background: #fff;
+            padding: 40px;
+        }
+    }
+}
+
+.contact {
+
+    input,
+    textarea {
+        width: 100%;
+        border: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, .2);
+        background: transparent;
+        color: #fff;
+        padding: 15px 0;
+        transition: all .4s;
+
+        &:focus {
+            border-color: #fff;
+        }
+    }
+
+    textarea {
+        min-height: 300px;
+    }
+
+    button {
+        border-radius: 30px;
+        border: 0;
+        transition: all .4s;
+
+        &:hover {
+            background: $main_color;
+        }
+    }
+
+    .info-box {
+        padding: 80px 40px;
+        border: 1px solid rgba(255, 255, 255, .1);
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(../imgs/map.png);
+            background-size: cover;
+            opacity: .3;
+            z-index: -1;
+        }
+
+        .phone {
+            color: #FF6A3A;
+        }
+    }
+
+    .form2 {
+
+        input,
+        textarea {
+            padding: 20px 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+
+            &:focus {
+                border-color: #fff;
+            }
+        }
+    }
+}
+
+.contact-style1 {
+    color: #fff;
+
+    p {
+        color: #b1b1b1;
+    }
+
+    .contact-form {
+
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+
+            .star {
+                color: red;
+                padding-left: 5px;
+            }
+        }
+
+        input,
+        textarea {
+            color: #fff;
+            background: transparent;
+            width: 100%;
+            padding: 0 0 10px;
+            border: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .2);
+            font-size: 18px;
+        }
+
+        button {
+            border: 0;
+        }
+    }
+
+    .box {
+        padding: 80px 50px;
+        background: rgba(45, 45, 45, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, .1);
+        border-radius: 50px;
+    }
+}
+
+.google-map {
+    height: 450px;
+    width: 100%;
+    position: relative;
+    filter: grayscale(100%);
+
+    iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}

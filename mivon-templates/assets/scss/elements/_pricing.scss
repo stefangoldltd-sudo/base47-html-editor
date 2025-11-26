@@ -1,0 +1,58 @@
+
+/* Pricing
+-----------------------------------------------------------------*/
+
+.price-style1{
+
+    .item{
+        padding: 40px;
+        border: 1px solid rgba(255,255,255,.1);
+
+        .info{
+            padding-bottom: 40px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+
+            span{
+                opacity: .7;
+            }
+        }
+
+        ul{
+            padding: 0;
+        }
+
+        li{
+            position: relative;
+            margin: 15px 0;
+            padding-left: 30px;
+
+            &:before{
+                content: '';
+                position: absolute;
+                top: 40%;
+                left: 0;
+                width: 5px;
+                height: 5px;
+                background: #fff;
+                border-radius: 50%;
+            }
+        }
+    }
+
+    .butn{
+        background: #fff;
+        border: 1px solid rgba(255,255,255,.2);
+        color: #000;
+        transition: all .4s;
+
+        &.active{
+            background: $main-color;
+        }
+
+        &:hover{
+            background: transparent;
+            color: #fff;
+        }
+    }
+}

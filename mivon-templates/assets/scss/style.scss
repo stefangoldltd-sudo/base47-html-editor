@@ -1,0 +1,52 @@
+/*-----------------------------------------------------------------------------------
+
+    Theme Name: Mivon
+    Theme URI: http://
+    Description: Creative Agency & Portfolio
+    Author: UI-ThemeZ
+    Author URI: http://themeforest.net/user/UI-ThemeZ
+    Version: 1.0
+
+-----------------------------------------------------------------------------------*/
+
+// core
+@import "core/variables";
+@import "core/reset";
+@import "core/loop";
+@import "core/classes";
+@import "core/grid";
+@import "core/typography";
+
+
+// components
+@import "components/buttons.scss";
+@import "components/cursor.scss";
+@import "components/extra.scss";
+@import "components/preloader.scss";
+@import "components/overlay.scss";
+@import "components/menu.scss";
+@import "components/title.scss";
+
+
+// elements
+@import "elements/about";
+@import "elements/blog.scss";
+@import "elements/clients.scss";
+@import "elements/contact.scss";
+@import "elements/pricing";
+@import "elements/footer.scss";
+@import "elements/header.scss";
+@import "elements/faqs";
+@import "elements/portfolio.scss";
+@import "elements/services.scss";
+@import "elements/team.scss";
+@import "elements/testimonials.scss";
+@import "elements/awards";
+
+
+// light & dark mode
+@import "core/colors-skin";
+
+
+// responsive
+@import "core/responsive";

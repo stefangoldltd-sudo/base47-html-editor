@@ -1,0 +1,135 @@
+/* Testimonials
+-----------------------------------------------------------------*/
+
+.testim-cards {
+
+    .stackCard, .item {
+        border-radius: 30px;
+        position: relative;
+        width: 100%;
+        padding: 60px 35px;
+        transform-origin: 50% -160%;
+        background: $sub_bg;
+
+        &.revs {
+            background: $sub_bg2;
+        }
+    }
+}
+
+.testim-style1 {
+    position: relative;
+    border-radius: 0 0 80px 80px;
+    overflow: hidden;
+
+    .testim-sliders {
+        position: relative;
+
+        .main-slider {
+            position: relative;
+            overflow: hidden;
+
+            .swiper-pagination {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                left: auto;
+                width: auto;
+                font-size: 14px;
+
+                span {
+                    margin: 0 8px;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                }
+
+                .swiper-pagination-bullet-active {
+                    background: #111;
+                }
+            }
+        }
+
+        .thumb-slider {
+            position: relative;
+            overflow: hidden;
+        }
+    }
+
+    .thumb-side {
+        text-align: center;
+
+        .swiper-button-prev,
+        .swiper-button-next {
+            position: static;
+            margin: 0 5px;
+            display: inline-block;
+            color: inherit;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, .5);
+            border-radius: 50%;
+
+            &:after {
+                font-size: 13px;
+            }
+
+            &:hover {
+                background: #fff;
+                color: #000;
+            }
+        }
+    }
+
+    &.sub-bg {
+        background: linear-gradient(to bottom, transparent, $sub_bg);
+    }
+}
+
+.testim-style2 {
+
+    .item {
+        border-radius: 30px;
+        position: relative;
+        width: 100%;
+        padding: 60px 40px;
+        background: $sub_bg2;
+        height: 100%;
+
+        h4 {
+            font-size: 30px;
+        }
+    }
+
+    .team-intro {
+
+        .item {
+            min-height: auto;
+        }
+    }
+}
+
+.testim-style3 {
+
+    .swiper-slide {
+        height: auto;
+    }
+
+    .tobotm {
+        margin-bottom: -30px;
+        position: relative;
+        z-index: -1;
+
+        h2 {
+            line-height: 1;
+        }
+    }
+
+    .item {
+        padding: 60px 40px;
+        background: rgba(255, 255, 255, .02);
+        backdrop-filter: blur(5px) !important;
+    }
+}

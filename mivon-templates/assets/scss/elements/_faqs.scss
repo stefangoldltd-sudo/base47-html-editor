@@ -1,0 +1,29 @@
+
+/* Faqs
+-----------------------------------------------------------------*/
+
+.faq-style1{
+
+    .accordion-item{
+        background: transparent;
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 15px;
+        padding: 30px 50px;
+
+        h6{
+            font-weight: 300;
+        }
+
+        .arrow{
+            filter: invert(1);
+        }
+
+        &.active{
+            background: rgba(255,255,255,.02);
+
+            h6{
+                font-weight: 500;
+            }
+        }
+    }
+}

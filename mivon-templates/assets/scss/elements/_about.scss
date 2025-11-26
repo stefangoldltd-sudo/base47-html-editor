@@ -1,0 +1,406 @@
+/* About - Intro - Numbers
+-----------------------------------------------------------------*/
+
+.about-md {
+
+    .main-box {
+        color: #fff;
+        height: 870px;
+        padding: 40px;
+        background-image: url(../imgs/team/3.png);
+        background-size: cover;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+
+        .caption {
+
+            h1 {
+                font-size: 100px;
+                line-height: 1.1;
+                font-weight: 600;
+            }
+        }
+
+        .text {
+            position: relative;
+            z-index: 3;
+            margin-top: 60px;
+
+            h6 {
+                font-size: 20px;
+            }
+        }
+
+        .states {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            z-index: 3;
+
+            span {
+                font-size: 14px;
+                text-transform: uppercase;
+                margin-top: 15px;
+            }
+        }
+    }
+
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .team {
+        position: relative;
+        border-radius: 15px;
+        background: #fff;
+        color: #1f1f1f;
+        overflow: hidden;
+
+        .team-swiper {
+            padding: 50px 30px 30px;
+        }
+
+        .img {
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-image: linear-gradient(to bottom, #5B5B5B, #DDDDDD);
+            margin: auto;
+            margin-bottom: 15px;
+        }
+
+        .cont {
+
+            h6 {
+                font-size: 22px;
+            }
+
+            span {
+                font-size: 14px;
+                margin-top: 5px;
+            }
+
+            .social-icon {
+                margin-top: 30px;
+
+                a {
+                    width: 40px;
+                    height: 40px;
+                    line-height: 40px;
+                    border: 1px solid rgba(0, 0, 0, .2);
+                    border-radius: 50%;
+                    font-size: 14px;
+                }
+            }
+        }
+
+        .botom {
+            margin-top: 40px;
+        }
+
+        .title {
+            font-weight: 500;
+        }
+
+        .controls {
+            position: static;
+            display: flex;
+            align-items: center;
+
+            .swiper-button-next,
+            .swiper-button-prev {
+                position: static;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                text-align: center;
+                font-size: 12px;
+                color: #151515;
+                background: #D6D8E8;
+                border-radius: 50%;
+                margin: 0 2px;
+
+                &:hover {
+                    background: #151515;
+                    color: #fff;
+                }
+
+                &:after {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    .join {
+        background: $main-color2;
+        color: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        height: 100%;
+        padding: 30px 20px;
+        position: relative;
+        z-index: 2;
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(../../assets/imgs/symbol.svg);
+            background-size: cover;
+            pointer-events: none;
+            opacity: .05;
+            z-index: -1;
+        }
+
+        .ontop {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .jon-link {
+
+            span {
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 1.5;
+            }
+
+            .icon {
+                width: 40px;
+                height: 40px;
+                line-height: 40px;
+                text-align: center;
+                border-radius: 50%;
+                background: #fff;
+
+                img {
+                    width: 15px;
+                }
+            }
+        }
+
+        .cont {
+
+            span {
+                font-size: 14px;
+                margin-top: 10px;
+            }
+        }
+    }
+}
+
+.intro-style1 {
+
+    .fit-vid {
+        width: 200px;
+        height: 200px;
+        overflow: hidden;
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+    }
+
+    .box-bord {
+        width: 200px;
+        height: 200px;
+        border: 1px solid rgba(255, 255, 255, .1);
+        padding: 15px;
+        text-align: center;
+
+        img {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+}
+
+.intro-style2 {
+
+    .item-numb {
+        padding: 40px 15px;
+        background: rgba(255, 255, 255, .05);
+        border-radius: 100px;
+
+        &.bord {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, .3);
+        }
+    }
+
+    li {
+        position: relative;
+        opacity: .7;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        &:before {
+            content: '';
+            position: relative;
+            display: inline-block;
+            width: 3px;
+            height: 3px;
+            background: #fff;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+    }
+}
+
+.intro-style3 {
+
+    .bord {
+        border: 1px solid rgba(255, 255, 255, .5);
+    }
+
+    .box-bgimg1 {
+        position: relative;
+        padding: 40px;
+        z-index: 3;
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: -30px;
+            width: 75%;
+            height: 75%;
+            background-image: url(../imgs/intro/mshap1.png);
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: -1;
+        }
+    }
+
+    .box-bgimg {
+        position: relative;
+        padding: 40px;
+        z-index: 3;
+
+        &:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background-image: url(../imgs/intro/p1.png);
+            background-size: cover;
+            pointer-events: none;
+            z-index: -1;
+        }
+    }
+}
+
+.numbers {
+
+    .item {
+        border: 1px solid rgba(255, 255, 255, .3);
+        border-radius: 15px;
+        padding: 15px;
+        position: relative;
+
+        span {
+            position: relative;
+
+            &:before {
+                content: '';
+                display: inline-block;
+                margin-right: 15px;
+                background: rgba(255, 255, 255, .1);
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+            }
+        }
+
+        &:after,
+        &:before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, .1);
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+
+        &:after {
+            top: auto;
+            bottom: 20px;
+        }
+    }
+}
+
+.numbers-md {
+    padding: 100px 40px 80px;
+    background: $main-color2;
+    color: #fff;
+    margin-top: -40px;
+    border-radius: 0 0 15px 15px;
+    position: relative;
+    z-index: -1;
+
+    .item {
+
+        h2 {
+            margin-bottom: 30px;
+        }
+
+        span {
+            font-size: 14px;
+            line-height: 1.5;
+            text-transform: uppercase;
+        }
+    }
+}
+
+.skills {
+
+    .item-skill {
+        padding: 80px 15px;
+        border-radius: 150px;
+
+        h2 {
+            font-family: "Mozilla Text", sans-serif;
+        }
+    }
+}
+
+.scrolling-marq {
+
+    .marq-box {
+
+        .item {
+            margin: 0 10px;
+
+            .text {
+                padding: 50px;
+                display: flex;
+            }
+
+            .fit-img,
+            .text {
+                height: 400px;
+                width: 500px !important;
+            }
+        }
+    }
+}
