@@ -7,6 +7,7 @@ Author: Stefan Gold
 Text Domain: base47-html-editor
 */
 
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /* --------------------------------------------------------------------------
