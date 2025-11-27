@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.4.3
+Version: 2.6.4.5
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.4.3' );
+define( 'BASE47_HE_VERSION', '2.6.4.5' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -920,15 +920,16 @@ function base47_he_admin_assets( $hook ) {
         true
     );
 
-    wp_localize_script(
-        'base47-he-admin',
-        'BASE47_HE_DATA',
-        [
-            'ajax_url'    => admin_url( 'admin-ajax.php' ),
-            'nonce'       => wp_create_nonce( 'base47_he_editor' ),
-            'default_set' => base47_he_detect_default_theme(),
-        ]
-    );
+ wp_localize_script(
+    'base47-he-admin',
+    'BASE47_HE_DATA',
+    [
+        'ajax_url'      => admin_url( 'admin-ajax.php' ),
+        'nonce'         => wp_create_nonce( 'base47_he_editor' ),   // editor (live preview, save, restore)
+        'preview_nonce' => wp_create_nonce( 'base47_he_preview' ),  // lazy preview on shortcodes page
+        'default_set'   => base47_he_detect_default_theme(),
+    ]
+);
 
     // Minimal inline styles for toggle switches if admin.css missing
     $css = '
@@ -988,7 +989,10 @@ function base47_he_dashboard_page() {
 }
 
 function base47_he_templates_page() {
-    if ( ! current_user_can( 'manage_options' ) ) return;
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
 
     $active = base47_he_get_active_sets();
     $sets   = base47_he_get_template_sets();
@@ -998,77 +1002,110 @@ function base47_he_templates_page() {
         return;
     }
 
+    // Group templates by set
     $by_set = [];
     foreach ( base47_he_get_all_templates( false ) as $item ) {
         $by_set[ $item['set'] ][] = $item['file'];
     }
+
     ?>
-    <div class="wrap base47-he-wrap">
-        <h1>Shortcodes</h1>
-        <p>Only <strong>active</strong> theme sets are listed. Toggle sets in <em>Theme Manager</em>.</p>
 
-        <?php foreach ( $active as $set_slug ) :
-            $files = $by_set[ $set_slug ] ?? [];
-            ?>
-            <h2><?php echo esc_html( $set_slug ); ?></h2>
+    <h1>Shortcodes</h1>
+    <p>
+        Only <strong>active</strong> theme sets are listed.<br>
+        Previews are now <strong>lazy-loaded</strong> — click <em>Load preview</em>.
+    </p>
 
-            <?php if ( empty( $files ) ) : ?>
-                <p class="base47-muted">No templates found in this set.</p>
+    <?php foreach ( $active as $set_slug ) : ?>
 
-            <?php else : ?>
-                <div class="base47-he-template-grid">
-                    <?php foreach ( $files as $file ) :
+        <?php $files = $by_set[ $set_slug ] ?? []; ?>
 
-                        // Shortcode generation
-                        $slug = base47_he_filename_to_slug( $file );
+        <h2><?php echo esc_html( $set_slug ); ?></h2>
 
-                        if ( $set_slug === 'base47-templates' || $set_slug === 'mivon-templates' ) {
-                            $shortcode = '[base47-'.$slug.']';
-                        } else {
-                            $set_clean = str_replace( ['-templates','-templetes'], '', $set_slug );
-                            $shortcode = '[base47-'.$set_clean.'-'.$slug.']';
-                        }
+        <?php if ( empty( $files ) ) : ?>
 
-                        ?>
-                        <div class="base47-he-template-box">
-                            <strong><?php echo esc_html( $file ); ?></strong>
-                            <code><?php echo esc_html( $shortcode ); ?></code>
+            <p class="base47-muted">No templates found in this set.</p>
 
-                            <!-- ? REPLACED IFRAME WITH PREVIEW BUTTON -->
-                            <div class="base47-he-template-thumb">
-                                <button class="button button-secondary base47-preview-btn"
-                                        data-file="<?php echo esc_attr( $file ); ?>"
-                                        data-set="<?php echo esc_attr( $set_slug ); ?>">
-                                    Preview
-                                </button>
-                            </div>
+        <?php else : ?>
 
-                            <div class="base47-he-template-actions">
-                                <button class="button base47-he-copy" 
-                                        data-shortcode="<?php echo esc_attr( $shortcode ); ?>">
-                                    Copy shortcode
-                                </button>
+            <div class="base47-he-template-grid">
 
-                                <a class="button"
-                                   href="<?php echo admin_url( 
-                                       'admin.php?page=base47-he-editor&set=' 
-                                       . rawurlencode( $set_slug ) 
-                                       . '&file=' 
-                                       . rawurlencode( $file ) 
-                                   ); ?>">
-                                   Edit
-                                </a>
-                            </div>
+                <?php foreach ( $files as $file ) :
+
+                    $slug = base47_he_filename_to_slug( $file );
+
+                    // Shortcode naming
+                    if ( $set_slug === 'base47-templates' || $set_slug === 'mivon-templates' ) {
+                        $shortcode = '[base47-' . $slug . ']';
+                    } else {
+                        $set_clean = str_replace( ['-templates','-templetes'], '', $set_slug );
+                        $shortcode = '[base47-' . $set_clean . '-' . $slug . ']';
+                    }
+
+                    // Classic preview
+                    $preview_url = admin_url(
+                        'admin-ajax.php?action=base47_he_preview&file=' . rawurlencode( $file ) .
+                        '&set=' . rawurlencode( $set_slug ) .
+                        '&_wpnonce=' . wp_create_nonce( 'base47_he_preview' )
+                    );
+
+                    // Live editor
+                    $editor_url = admin_url(
+                        'admin.php?page=base47-he-editor&set=' . rawurlencode( $set_slug ) .
+                        '&file=' . rawurlencode( $file )
+                    );
+                    ?>
+
+                    <div class="base47-he-template-box">
+
+                        <strong><?php echo esc_html( $file ); ?></strong>
+                        <code><?php echo esc_html( $shortcode ); ?></code>
+
+                        <div class="base47-he-template-thumb">
+                            <iframe class="base47-he-template-iframe"
+                                    src="about:blank"
+                                    loading="lazy"></iframe>
                         </div>
 
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
+                        <div class="base47-he-template-actions">
 
-        <?php endforeach; ?>
-    </div>
+                            <a class="button" target="_blank"
+                               href="<?php echo esc_url( $preview_url ); ?>">
+                                Preview
+                            </a>
+
+                            <button type="button"
+                                    class="button base47-he-copy"
+                                    data-shortcode="<?php echo esc_attr( $shortcode ); ?>">
+                                Copy shortcode
+                            </button>
+
+                            <a class="button" href="<?php echo esc_url( $editor_url ); ?>">
+                                Edit
+                            </a>
+
+                            <button type="button"
+                                    class="button button-secondary base47-load-preview-btn"
+                                    data-file="<?php echo esc_attr( $file ); ?>"
+                                    data-set="<?php echo esc_attr( $set_slug ); ?>">
+                                Load preview
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            </div>
+
+        <?php endif; ?>
+
+    <?php endforeach; ?>
+
     <?php
 }
+
 
 function base47_he_editor_page() {
     if ( ! current_user_can( 'manage_options' ) ) return;
