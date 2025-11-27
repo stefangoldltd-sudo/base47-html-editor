@@ -1,4 +1,323 @@
 /* ============================
+   Base47 HTML Editor – Admin Styles v2.1.3
+   ============================ */
+
+/* -------------------------------
+   General Wrapper & Titles
+   ------------------------------- */
+.base47-he-wrap {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 25px;
+}
+
+.base47-he-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ===============================
+   Dashboard Boxes
+   =============================== */
+.base47-he-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.base47-box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.base47-box h3 {
+  margin: 4px 0 10px;
+  font-size: 15px;
+}
+
+.base47-muted {
+  color: #666;
+  font-size: 12px;
+}
+
+/* ===============================
+   Shortcodes Page Layout
+   =============================== */
+.base47-he-template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.base47-he-template-box {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
+
+.base47-he-template-box strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #111;
+}
+
+.base47-he-template-box code {
+  background: #f3f3f3;
+  padding: 2px 6px;
+  display: inline-block;
+  font-size: 11px;
+  margin-bottom: 6px;
+  border-radius: 4px;
+}
+
+.base47-he-template-thumb iframe {
+  width: 100%;
+  height: 320px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.base47-he-template-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.base47-he-template-actions .button {
+  font-size: 11px;
+  line-height: 20px;
+  height: 26px;
+  padding: 0 8px;
+}
+
+/* ===============================
+   Live Editor
+   =============================== */
+.base47-he-editor-topbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* FIX */
+}
+
+.base47-he-editor-topbar form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.base47-he-editor-topbar select {
+  min-width: 160px;
+}
+
+.base47-he-editor-shell {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fafafa;
+  width: 100%;
+  max-width: 100%;
+  height: calc(100vh - 160px);
+  margin: 30px 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  position: relative;
+  min-height: 700px;
+}
+
+.base47-he-editor-left {
+  flex: 0 0 50%;
+  background: #f8f8f8;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  min-width: 360px;
+  transition: flex-basis 0.2s ease;
+}
+
+#base47-he-code {
+  flex: 1;
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 14px;
+  box-sizing: border-box;
+  resize: none;
+  background: #fdfdfd;
+  color: #222;
+}
+
+/* Drag divider */
+.base47-he-resizer {
+  flex: 0 0 6px;
+  width: 6px;
+  background: #e4e4e4;
+  cursor: ew-resize;
+  transition: background 0.2s ease;
+}
+.base47-he-resizer:hover { background: #b3b3b3; }
+
+.base47-he-editor-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  overflow: hidden;
+}
+
+.base47-he-preview-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: #f3f3f3;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.base47-he-preview-wrap {
+  flex: 1;
+  overflow: auto;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+#base47-he-preview {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.preview-size-btn.active {
+  background: #2271b1;
+  border-color: #2271b1;
+  color: #fff;
+}
+
+/* Dragging class from JS */
+.base47-he-dragging iframe { pointer-events: none; }
+
+/* ===============================
+   Settings, Changelog, Theme Manager
+   =============================== */
+.base47-he-settings { max-width: 720px; }
+
+.base47-he-changelog {
+  max-width: 720px;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 12px 14px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  font-family: Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+/* Theme Manager – Toggle Switch */
+.base47-switch {
+  position: relative;
+  display: inline-block;
+  width: 54px;
+  height: 28px;
+}
+.base47-switch input { display: none; }
+.base47-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #ccc;
+  transition: 0.3s;
+  border-radius: 28px;
+}
+.base47-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px; width: 22px;
+  left: 3px; top: 3px;
+  background: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+.base47-switch input:checked + .base47-slider { background: #2ecc71; }
+.base47-switch input:checked + .base47-slider:before { transform: translateX(26px); }
+
+/* ===============================
+   Shortcuts Panel (bottom of editor)
+   =============================== */
+.base47-he-shortcuts-panel {
+  max-width: 100%;
+  margin: 10px 0 40px 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.base47-he-shortcuts-panel h2 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.base47-he-shortcuts-panel p.base47-he-shortcuts-note {
+  font-size: 11px;
+  color: #777;
+  margin: 0 0 10px;
+}
+
+.base47-he-shortcuts-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.base47-he-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f7f7f7;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.base47-he-shortcut-keys {
+  font-family: Menlo, Consolas, monospace;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  padding: 2px 6px;
+}
+
+.base47-he-shortcut-desc {
+  color: #555;
+}
+
+
+/* ============================
    Base47 HTML Editor – Admin Styles v2.1.1
    ============================ */
 
@@ -347,4 +666,210 @@
   .base47-he-template-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ============================================
+   BASE47 — LAZY PREVIEW MODAL
+   ============================================ */
+
+#base47-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    z-index: 999999; /* Above WP admin */
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+
+#base47-modal-overlay.visible {
+    display: flex !important;
+    opacity: 1;
+}
+
+#base47-modal-wrapper {
+    width: 86%;
+    height: 86%;
+    max-width: 1400px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.92);
+    transition: transform .25s ease;
+}
+
+#base47-modal-overlay.visible #base47-modal-wrapper {
+    transform: scale(1);
+}
+
+/* Header */
+#base47-modal-header {
+    padding: 12px 16px;
+    background: #1d2327; /* WP admin dark bar */
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#base47-modal-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+#base47-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    line-height: 22px;
+    color: #fff;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: opacity .2s ease;
+}
+
+#base47-modal-close:hover {
+    opacity: 0.7;
+}
+
+/* Body */
+#base47-modal-body {
+    flex: 1;
+    background: #f3f4f5;
+    position: relative;
+}
+
+#base47-modal-iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+}
+
+
+/* ===============================
+   Responsive
+   =============================== */
+@media (max-width: 1400px) {
+  .base47-he-template-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 1000px) {
+  .base47-he-editor-shell {
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+  }
+  .base47-he-editor-left {
+    min-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+  .base47-he-resizer {
+    cursor: ns-resize;
+    width: 100%;
+    height: 6px;
+  }
+}
+
+@media (max-width: 700px) {
+  .base47-he-template-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   BASE47 — LAZY PREVIEW MODAL
+   ============================================ */
+
+#base47-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    z-index: 999999; /* Above WP admin */
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+
+#base47-modal-overlay.visible {
+    display: flex !important;
+    opacity: 1;
+}
+
+#base47-modal-wrapper {
+    width: 86%;
+    height: 86%;
+    max-width: 1400px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.92);
+    transition: transform .25s ease;
+}
+
+#base47-modal-overlay.visible #base47-modal-wrapper {
+    transform: scale(1);
+}
+
+/* Header */
+#base47-modal-header {
+    padding: 12px 16px;
+    background: #1d2327; /* WP admin dark bar */
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#base47-modal-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+#base47-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    line-height: 22px;
+    color: #fff;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: opacity .2s ease;
+}
+
+#base47-modal-close:hover {
+    opacity: 0.7;
+}
+
+/* Body */
+#base47-modal-body {
+    flex: 1;
+    background: #f3f4f5;
+    position: relative;
+}
+
+#base47-modal-iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
 }

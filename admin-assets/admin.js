@@ -210,5 +210,115 @@ jQuery(function($){
       }
     });
   });
+});
 
+});
+
+
+/* -------------------------------------------------
+   LAZY PREVIEW LOADER (Shortcode Page Optimization)
+-------------------------------------------------- */
+
+jQuery(document).on('click', '.base47-preview-button', function (e) {
+    e.preventDefault();
+
+    let btn = jQuery(this);
+    let file = btn.data('file');
+    let set  = btn.data('set');
+
+    if (!file) {
+        alert("Preview error: Missing file.");
+        return;
+    }
+
+    btn.text("Loading...");
+    btn.prop("disabled", true);
+
+    jQuery.post(ajaxurl, {
+        action: "base47_he_lazy_preview",
+        nonce: base47_admin.nonce,
+        file: file,
+        set: set
+    }, function (response) {
+
+        btn.prop("disabled", false);
+        btn.text("Preview");
+
+        if (!response || !response.success || !response.data.html) {
+            alert("Preview failed.");
+            return;
+        }
+
+        btn.closest(".template-card")
+           .find(".template-preview")
+           .html(response.data.html);
+    });
+});
+
+// ========================================
+// LAZY PREVIEW MODAL — JS HANDLER
+// ========================================
+
+jQuery(document).on('click', '.base47-preview-btn', function (e) {
+    e.preventDefault();
+
+    const btn = jQuery(this);
+    const file = btn.data('file');
+    const set  = btn.data('set');
+
+    if (!file) {
+        alert("Preview error: Missing file.");
+        return;
+    }
+
+    // Show modal
+    const $overlay = jQuery('#base47-modal-overlay');
+    const $iframe  = jQuery('#base47-modal-iframe');
+    const $title   = jQuery('#base47-modal-title');
+
+    $overlay.addClass('visible');
+
+    btn.text("Loading...");
+    btn.prop("disabled", true);
+
+    // Call AJAX to generate preview
+    jQuery.post(BASE47_HE_DATA.ajax_url, {
+        action: 'base47_he_ajax_preview',
+        nonce: BASE47_HE_DATA.nonce,
+        file: file,
+        set: set
+    }, function (resp) {
+
+        btn.text("Preview");
+        btn.prop("disabled", false);
+
+        if (!resp || !resp.success || !resp.data || !resp.data.html) {
+            alert("Preview failed.");
+            $overlay.removeClass('visible');
+            return;
+        }
+
+        // Set modal title
+        $title.text("Preview — " + file);
+
+        // Load iframe
+        const iframe = $iframe.get(0);
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.document.open();
+            iframe.contentWindow.document.write(resp.data.html);
+            iframe.contentWindow.document.close();
+        }
+    });
+});
+
+// CLOSE MODAL
+jQuery(document).on('click', '#base47-modal-close', function () {
+    jQuery('#base47-modal-overlay').removeClass('visible');
+});
+
+// Close on background click
+jQuery(document).on('click', '#base47-modal-overlay', function (e) {
+    if (e.target.id === 'base47-modal-overlay') {
+        jQuery('#base47-modal-overlay').removeClass('visible');
+    }
 });

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.3
+Version: 2.6.4
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.3' );
+define( 'BASE47_HE_VERSION', '2.6.4' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -1561,6 +1561,59 @@ function base47_he_changelog_page() {
     echo '<div class="wrap base47-he-wrap"><h1>Changelog</h1><pre class="base47-he-changelog">' . esc_html( $content ) . '</pre></div>';
 }
 
+
+/* --------------------------------------------------------------------------
+| AJAX: Lazy Template Preview (For Shortcodes Page)
+-------------------------------------------------------------------------- */
+function base47_he_ajax_lazy_preview() {
+    check_ajax_referer( 'base47_he_preview', 'nonce' );
+
+    $file = isset($_POST['file']) ? sanitize_text_field( wp_unslash($_POST['file']) ) : '';
+    $set  = isset($_POST['set'])  ? sanitize_text_field( wp_unslash($_POST['set']) )  : '';
+
+    if ( ! $file ) {
+        wp_send_json_error( 'Missing file parameter.' );
+    }
+
+    $sets = base47_he_get_template_sets();
+
+    // Auto-detect set if none provided
+    if ( empty( $set ) ) {
+        $info = base47_he_locate_template( $file );
+        if ( ! $info ) {
+            wp_send_json_error( 'Template not found.' );
+        }
+        $set      = $info['set'];
+        $full     = $info['path'];
+        $base_url = $info['url'];
+    } else {
+        if ( ! isset( $sets[$set] ) ) {
+            wp_send_json_error( 'Invalid template set.' );
+        }
+        $full     = $sets[$set]['path'] . $file;
+        $base_url = $sets[$set]['url'];
+        if ( ! file_exists( $full ) ) {
+            wp_send_json_error( 'Template file not found.' );
+        }
+    }
+
+    $html = file_get_contents( $full );
+    if ( false === $html ) {
+        wp_send_json_error( 'Failed reading template.' );
+    }
+
+    // Rewrite asset URLs
+    $html = base47_he_rewrite_assets( $html, $base_url, true );
+
+    wp_send_json_success( [
+        'html' => $html,
+        'set'  => $set,
+        'file' => $file,
+    ] );
+}
+add_action( 'wp_ajax_base47_he_lazy_preview', 'base47_he_ajax_lazy_preview' );
+
+
 /* --------------------------------------------------------------------------
 | AJAX PREVIEW / GET / SAVE / LIVE PREVIEW
 -------------------------------------------------------------------------- */
@@ -1897,3 +1950,24 @@ function base47_he_special_widget_shortcode( $atts = [], $content = '' ) {
 add_shortcode( 'base47_widget', 'base47_he_special_widget_shortcode' );
 // Backward compatibility: support old mivon_widget shortcode
 add_shortcode( 'mivon_widget', 'base47_he_special_widget_shortcode' );
+
+// -----------------------------------------------
+// LAZY PREVIEW MODAL (GLOBAL ADMIN FOOTER)
+// -----------------------------------------------
+function base47_he_preview_modal() {
+    ?>
+    <div id="base47-modal-overlay" style="display:none;">
+        <div id="base47-modal-wrapper">
+            <div id="base47-modal-header">
+                <span id="base47-modal-title">Preview</span>
+                <button id="base47-modal-close">×</button>
+            </div>
+
+            <div id="base47-modal-body">
+                <iframe id="base47-modal-iframe"></iframe>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+add_action( 'admin_footer', 'base47_he_preview_modal' );
