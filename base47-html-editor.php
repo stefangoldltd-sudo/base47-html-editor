@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.4.2
+Version: 2.6.4.3
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.4.2' );
+define( 'BASE47_HE_VERSION', '2.6.4.3' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -1011,40 +1011,60 @@ function base47_he_templates_page() {
             $files = $by_set[ $set_slug ] ?? [];
             ?>
             <h2><?php echo esc_html( $set_slug ); ?></h2>
+
             <?php if ( empty( $files ) ) : ?>
                 <p class="base47-muted">No templates found in this set.</p>
+
             <?php else : ?>
                 <div class="base47-he-template-grid">
                     <?php foreach ( $files as $file ) :
+
+                        // Shortcode generation
                         $slug = base47_he_filename_to_slug( $file );
+
                         if ( $set_slug === 'base47-templates' || $set_slug === 'mivon-templates' ) {
                             $shortcode = '[base47-'.$slug.']';
                         } else {
                             $set_clean = str_replace( ['-templates','-templetes'], '', $set_slug );
                             $shortcode = '[base47-'.$set_clean.'-'.$slug.']';
                         }
-                        $preview = admin_url(
-                            'admin-ajax.php?action=base47_he_preview&file='
-                            . rawurlencode( $file )
-                            . '&set=' . rawurlencode( $set_slug )
-                            . '&_wpnonce=' . wp_create_nonce( 'base47_he_preview' )
-                        );
+
                         ?>
                         <div class="base47-he-template-box">
                             <strong><?php echo esc_html( $file ); ?></strong>
                             <code><?php echo esc_html( $shortcode ); ?></code>
+
+                            <!-- ? REPLACED IFRAME WITH PREVIEW BUTTON -->
                             <div class="base47-he-template-thumb">
-                                <iframe src="<?php echo esc_url( $preview ); ?>"></iframe>
+                                <button class="button button-secondary base47-preview-btn"
+                                        data-file="<?php echo esc_attr( $file ); ?>"
+                                        data-set="<?php echo esc_attr( $set_slug ); ?>">
+                                    Preview
+                                </button>
                             </div>
+
                             <div class="base47-he-template-actions">
-                                <button class="button base47-he-copy" data-shortcode="<?php echo esc_attr( $shortcode ); ?>">Copy shortcode</button>
-                                <a class="button" href="<?php echo esc_url( $preview ); ?>" target="_blank">Open preview</a>
-                                <a class="button" href="<?php echo admin_url( 'admin.php?page=base47-he-editor&set=' . rawurlencode( $set_slug ) . '&file=' . rawurlencode( $file ) ); ?>">Edit</a>
+                                <button class="button base47-he-copy" 
+                                        data-shortcode="<?php echo esc_attr( $shortcode ); ?>">
+                                    Copy shortcode
+                                </button>
+
+                                <a class="button"
+                                   href="<?php echo admin_url( 
+                                       'admin.php?page=base47-he-editor&set=' 
+                                       . rawurlencode( $set_slug ) 
+                                       . '&file=' 
+                                       . rawurlencode( $file ) 
+                                   ); ?>">
+                                   Edit
+                                </a>
                             </div>
                         </div>
+
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+
         <?php endforeach; ?>
     </div>
     <?php
