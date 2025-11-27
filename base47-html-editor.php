@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.4.1
+Version: 2.6.4.2
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.4.1' );
+define( 'BASE47_HE_VERSION', '2.6.4.2' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -75,18 +75,21 @@ const BASE47_HE_OPT_SETTINGS_NONCE = 'base47_he_settings_nonce';
  */
 function base47_he_get_template_sets( $force = false ) {
 
-    // 1) In-memory cache for current request
     static $static = null;
     if ( $static !== null && ! $force ) {
         return $static;
     }
 
-    // Ensure cache class is loaded
     require_once BASE47_HE_PATH . 'inc/class-base47-cache.php';
 
-    // 2) Try transient cache first
+    // NEW: get uploads/base47-themes root
+    $root = base47_he_get_themes_root();
+    $themes_dir = trailingslashit( $root['dir'] );
+    $themes_url = trailingslashit( $root['url'] );
+
+    // --- SIGNATURE BASED ON UPLOADS FOLDER ---
     $saved             = get_transient( Base47_Cache::TRANS_SETS );
-    $current_signature = Base47_Cache::get_signature( BASE47_HE_PATH . '*-templates' );
+    $current_signature = Base47_Cache::get_signature( $themes_dir . '*-templates' );
 
     if (
         ! $force &&
@@ -98,28 +101,26 @@ function base47_he_get_template_sets( $force = false ) {
         return $static;
     }
 
-    // 3) No valid cache ? rescan filesystem (only occasionally)
+    // --- SCAN uploads/base47-themes ---
     $sets = [];
 
-    foreach ( glob( BASE47_HE_PATH . '*-templates', GLOB_ONLYDIR ) as $dir ) {
-        $base          = basename( $dir );
+    foreach ( glob( $themes_dir . '*-templates', GLOB_ONLYDIR ) as $dir ) {
+        $base = basename( $dir );
+
         $sets[ $base ] = [
             'slug' => $base,
             'path' => trailingslashit( $dir ),
-            'url'  => trailingslashit( BASE47_HE_URL . $base ),
+            'url'  => trailingslashit( $themes_url . $base ),
         ];
     }
 
-    // Sort for consistent ordering
     ksort( $sets, SORT_NATURAL | SORT_FLAG_CASE );
 
-    // 4) Save to transient cache
     set_transient( Base47_Cache::TRANS_SETS, [
         'sets'      => $sets,
         'signature' => $current_signature,
     ], Base47_Cache::CACHE_TIME );
 
-    // 5) Save in-memory and return
     $static = $sets;
     return $sets;
 }
