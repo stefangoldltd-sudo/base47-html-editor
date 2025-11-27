@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.4.5
+Version: 2.6.6
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.4.5' );
+define( 'BASE47_HE_VERSION', '2.6.6' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -900,11 +900,16 @@ add_action( 'admin_menu', 'base47_he_admin_menu' );
 /* --------------------------------------------------------------------------
 | ADMIN ASSETS
 -------------------------------------------------------------------------- */
+/**
+ * Enqueue admin assets for Base47 (including Theme Manager)
+ */
 function base47_he_admin_assets( $hook ) {
-    if ( strpos( $hook, 'base47-he-' ) === false && strpos( $hook, 'base47-special-widgets' ) === false ) {
-        return;
-    }
+	$screen = get_current_screen();
+    if ( ! $screen || strpos( $screen->id, 'base47-he-' ) === false ) {
+    return;
+}
 
+    // Existing admin CSS/JS for Base47
     wp_enqueue_style(
         'base47-he-admin',
         BASE47_HE_URL . 'admin-assets/admin.css',
@@ -915,42 +920,40 @@ function base47_he_admin_assets( $hook ) {
     wp_enqueue_script(
         'base47-he-admin',
         BASE47_HE_URL . 'admin-assets/admin.js',
-        ['jquery'],
+        [ 'jquery' ],
         BASE47_HE_VERSION,
         true
     );
 
- wp_localize_script(
-    'base47-he-admin',
-    'BASE47_HE_DATA',
-    [
-        'ajax_url'      => admin_url( 'admin-ajax.php' ),
-        'nonce'         => wp_create_nonce( 'base47_he_editor' ),   // editor (live preview, save, restore)
-        'preview_nonce' => wp_create_nonce( 'base47_he_preview' ),  // lazy preview on shortcodes page
-        'default_set'   => base47_he_detect_default_theme(),
-    ]
-);
+    // NEW: Theme Manager glass CSS
+    wp_enqueue_style(
+        'base47-he-theme-manager',
+        BASE47_HE_URL . 'admin-assets/theme-manager.css',
+        [ 'base47-he-admin' ],
+        BASE47_HE_VERSION
+    );
 
-    // Minimal inline styles for toggle switches if admin.css missing
-    $css = '
-    .base47-switch { position:relative; display:inline-block; width:54px; height:28px; }
-    .base47-switch input{ display:none; }
-    .base47-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; transition:.3s; border-radius:28px; }
-    .base47-slider:before { position:absolute; content:""; height:22px; width:22px; left:3px; top:3px; background:white; transition:.3s; border-radius:50%; }
-    .base47-switch input:checked + .base47-slider { background:#2ecc71; }
-    .base47-switch input:checked + .base47-slider:before { transform: translateX(26px); }
-    .base47-he-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
-    .base47-box{border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff;}
-    .base47-box h3{margin:4px 0 10px;font-size:15px;}
-    .base47-muted{color:#666;font-size:12px;}
-    .base47-he-template-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0;}
-    .base47-he-template-box{border:1px solid #ddd;border-radius:8px;padding:12px;background:#fff;}
-    .base47-he-template-thumb iframe{width:100%;height:320px;border:1px solid #eee;border-radius:6px;}
-    .base47-he-preview-toolbar{display:flex;gap:8px;margin-bottom:10px;}
-    ';
-    wp_add_inline_style( 'base47-he-admin', $css );
+    // NEW: Theme Manager JS
+    wp_enqueue_script(
+        'base47-he-theme-manager',
+        BASE47_HE_URL . 'admin-assets/theme-manager.js',
+        [ 'jquery' ],
+        BASE47_HE_VERSION,
+        true
+    );
+
+    wp_localize_script(
+        'base47-he-theme-manager',
+        'base47ThemeManager',
+        [
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'nonce'   => wp_create_nonce( 'base47_theme_manager' ),
+        ]
+    );
 }
 add_action( 'admin_enqueue_scripts', 'base47_he_admin_assets' );
+
+
 
 /* --------------------------------------------------------------------------
 | ADMIN PAGES (existing)
@@ -1647,6 +1650,156 @@ function base47_he_delete_theme_folder( $slug ) {
 }
 
 /**
+ * Base47 Theme metadata (labels, version, description, accent colors)
+ */
+function base47_he_theme_metadata() {
+    return [
+        'mivon-templates' => [
+            'label'       => 'Mivon – Multi-Purpose Theme',
+            'version'     => '1.0.0',
+            'description' => 'One-pager & portfolio layouts.',
+            'accent'      => '#7C5CFF',
+        ],
+        'lezar-templates' => [
+            'label'       => 'Lezar – Clinic Theme',
+            'version'     => '1.0.0',
+            'description' => 'Medical & aesthetic clinic pages.',
+            'accent'      => '#FF5F8A',
+        ],
+        'redox-templates' => [
+            'label'       => 'Redox – Portfolio Slider',
+            'version'     => '1.0.0',
+            'description' => 'Full-screen hero sliders and bold portfolio layouts.',
+            'accent'      => '#00E0C6',
+        ],
+        'bfolio-templates' => [
+            'label'       => 'B-Folio – Minimal Portfolio',
+            'version'     => '1.0.0',
+            'description' => 'Clean personal portfolio & case-study pages.',
+            'accent'      => '#F8C542',
+        ],
+    ];
+}
+/**
+ * Render Theme Manager (glass UI)
+ */
+function base47_he_render_theme_manager_section() {
+
+    $themes        = base47_he_get_template_sets();       // real sets from uploads
+    $meta          = base47_he_theme_metadata();          // pretty names/descriptions/accents
+    $active_themes = get_option( 'base47_he_active_themes', [] );
+
+    if ( ! is_array( $active_themes ) ) {
+        $active_themes = [];
+    }
+    ?>
+    <div class="base47-he-wrap base47-tm-wrap">
+        <div class="base47-tm-header">
+            <h2 class="base47-tm-title">Theme Manager</h2>
+            <p class="base47-tm-subtitle">
+                ??? ???? ?????????? ???? ??????. ?? ???? ?????? ?????? ??????? &amp; ????? – ??? ????? ?? ???? ???? ????.
+            </p>
+        </div>
+
+        <div class="base47-tm-grid">
+            <?php foreach ( $themes as $slug => $theme ) :
+
+                // MERGE BASE DATA + METADATA
+                $info = [
+                    'label'       => $meta[$slug]['label']       ?? $slug,
+                    'version'     => $meta[$slug]['version']     ?? '1.0.0',
+                    'description' => $meta[$slug]['description'] ?? '',
+                    'accent'      => $meta[$slug]['accent']      ?? '#7C5CFF',
+                ];
+
+                $is_active     = in_array( $slug, $active_themes, true );
+                $templates     = base47_he_count_theme_templates( $slug );
+                $accent        = $info['accent'];
+                $first_letter  = strtoupper( mb_substr( $slug, 0, 1 ) );
+                ?>
+                <div class="base47-tm-card <?php echo $is_active ? 'is-active' : 'is-inactive'; ?>"
+                     data-theme="<?php echo esc_attr( $slug ); ?>"
+                     data-active="<?php echo $is_active ? '1' : '0'; ?>"
+                     style="--base47-tm-accent: <?php echo esc_attr( $accent ); ?>;">
+                    
+                    <div class="base47-tm-card-bg"></div>
+
+                    <div class="base47-tm-card-inner">
+                        <div class="base47-tm-badge">
+                            <span class="base47-tm-badge-dot"></span>
+                            <span class="base47-tm-badge-text">
+                                <?php echo $is_active ? 'Active' : 'Disabled'; ?>
+                            </span>
+                        </div>
+
+                        <div class="base47-tm-card-main">
+                            <div class="base47-tm-logo">
+                                <span class="base47-tm-logo-inner">
+                                    <?php echo esc_html( $first_letter ); ?>
+                                </span>
+                            </div>
+
+                            <div class="base47-tm-text">
+                                <h3 class="base47-tm-name">
+                                    <?php echo esc_html( $info['label'] ); ?>
+                                </h3>
+
+                                <div class="base47-tm-meta">
+                                    <span class="base47-tm-meta-item">
+                                        <span class="dashicons dashicons-admin-appearance"></span>
+                                        Version <?php echo esc_html( $info['version'] ); ?>
+                                    </span>
+                                    <span class="base47-tm-meta-sep">•</span>
+                                    <span class="base47-tm-meta-item">
+                                        <span class="dashicons dashicons-media-spreadsheet"></span>
+                                        <?php echo esc_html( $templates ); ?> templates
+                                    </span>
+                                </div>
+
+                                <?php if ( ! empty( $info['description'] ) ) : ?>
+                                    <p class="base47-tm-description">
+                                        <?php echo esc_html( $info['description'] ); ?>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="base47-tm-footer">
+                            <label class="base47-tm-toggle">
+                                <input type="checkbox"
+                                       class="base47-tm-toggle-input"
+                                       data-theme="<?php echo esc_attr( $slug ); ?>"
+                                       <?php checked( $is_active ); ?> />
+
+                                <span class="base47-tm-toggle-track">
+                                    <span class="base47-tm-toggle-thumb"></span>
+                                </span>
+
+                                <span class="base47-tm-toggle-label">
+                                    <?php echo $is_active ? 'Enabled' : 'Disabled'; ?>
+                                </span>
+                            </label>
+
+                            <button type="button" class="button button-secondary base47-tm-details-btn" disabled>
+                                <span class="dashicons dashicons-visibility"></span>
+                                Coming soon
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="base47-tm-footer-note">
+            <p>
+                ???: ???? ???? ?? ?? ?? ???? ???? ????? ?? ???? – ??? ?-Base47 ???? ?? ????? ?
+            </p>
+        </div>
+    </div>
+    <?php
+}
+
+/**
  * Simple recursive rmdir helper.
  */
 function base47_he_rrmdir( $dir ) {
@@ -1863,6 +2016,32 @@ add_action( 'wp_ajax_base47_he_live_preview', function() {
     $html = base47_he_rewrite_assets( $content, $base_url, false );
     wp_send_json_success( [ 'html' => $html ] );
 });
+
+
+/**
+ * Count HTML templates in a theme folder (correct: uploads/base47-themes/)
+ */
+function base47_he_count_theme_templates( $folder_name ) {
+
+    $sets = base47_he_get_template_sets();
+
+    if ( ! isset( $sets[ $folder_name ] ) ) {
+        return 0;
+    }
+
+    $dir = trailingslashit( $sets[ $folder_name ]['path'] );
+
+    if ( ! is_dir( $dir ) ) {
+        return 0;
+    }
+
+    $files = glob( $dir . '*.html' );
+    if ( ! is_array( $files ) ) {
+        return 0;
+    }
+
+    return count( $files );
+}
 
 /* --------------------------------------------------------------------------
 | ADMIN LAYOUT FIX
@@ -2098,3 +2277,48 @@ function base47_he_preview_modal() {
     <?php
 }
 add_action( 'admin_footer', 'base47_he_preview_modal' );
+
+
+/**
+ * AJAX: Toggle theme active/inactive
+ */
+function base47_he_ajax_toggle_theme() {
+    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'base47_theme_manager' ) ) {
+        wp_send_json_error( __( 'Security check failed.', 'base47' ) );
+    }
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( __( 'You are not allowed to do this.', 'base47' ) );
+    }
+
+    $theme  = isset( $_POST['theme'] ) ? sanitize_key( wp_unslash( $_POST['theme'] ) ) : '';
+    $active = isset( $_POST['active'] ) ? (int) $_POST['active'] : 0;
+
+    $themes = base47_he_get_template_sets();
+
+    if ( ! isset( $themes[ $theme ] ) ) {
+        wp_send_json_error( __( 'Unknown theme.', 'base47' ) );
+    }
+
+    $active_themes = get_option( 'base47_he_active_themes', [] );
+    if ( ! is_array( $active_themes ) ) {
+        $active_themes = [];
+    }
+
+    if ( $active ) {
+        if ( ! in_array( $theme, $active_themes, true ) ) {
+            $active_themes[] = $theme;
+        }
+    } else {
+        $active_themes = array_values( array_diff( $active_themes, [ $theme ] ) );
+    }
+
+    update_option( 'base47_he_active_themes', $active_themes );
+
+    wp_send_json_success( [
+        'theme'         => $theme,
+        'active'        => $active,
+        'active_themes' => $active_themes,
+    ] );
+}
+add_action( 'wp_ajax_base47_toggle_theme', 'base47_he_ajax_toggle_theme' );

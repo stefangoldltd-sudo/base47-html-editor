@@ -1,4 +1,3 @@
-// admin-assets/admin.js
 jQuery(function($){
 
   const $code    = $('#base47-he-code');
@@ -24,12 +23,14 @@ jQuery(function($){
   });
 
   /* ==========================
-     ACTIVE SET HELPER  (EDITOR)
+     ACTIVE SET HELPER
   ========================== */
   function getActiveSet(){
     let setVal = $set.val();
     if (!setVal || setVal === 'undefined') {
-      setVal = (BASE47_HE_DATA && BASE47_HE_DATA.default_set) ? BASE47_HE_DATA.default_set : 'base47-templates';
+      setVal = (BASE47_HE_DATA && BASE47_HE_DATA.default_set)
+        ? BASE47_HE_DATA.default_set
+        : 'base47-templates';
     }
     return setVal;
   }
@@ -38,49 +39,49 @@ jQuery(function($){
      LIVE PREVIEW (EDITOR)
   ========================== */
   let timer;
-  if ($code.length && $preview.length){
+  if ($code.length){
     $code.on('input', function(){
       clearTimeout(timer);
       timer = setTimeout(function(){
-        $.post(BASE47_HE_DATA.ajax_url, {
-          action:  'base47_he_live_preview',
-          nonce:   BASE47_HE_DATA.nonce, // editor nonce
-          file:    $file.val(),
-          set:     getActiveSet(),
+        $.post(BASE47_HE_DATA.ajax_url,{
+          action:'base47_he_live_preview',
+          nonce: BASE47_HE_DATA.nonce,
+          file:  $file.val(),
+          set:   getActiveSet(),
           content: $code.val()
-        }, function(resp){
-          if (resp && resp.success && resp.data && resp.data.html){
+        },function(resp){
+          if(resp.success && resp.data && resp.data.html){
             const iframe = $preview.get(0);
-            if (iframe && iframe.contentWindow) {
-              iframe.contentWindow.document.open();
-              iframe.contentWindow.document.write(resp.data.html);
-              iframe.contentWindow.document.close();
-            }
+            iframe.contentWindow.document.open();
+            iframe.contentWindow.document.write(resp.data.html);
+            iframe.contentWindow.document.close();
           }
         });
-      }, 600);
+      },700);
     });
   }
 
   /* ==========================
      SAVE TEMPLATE (EDITOR)
   ========================== */
-  $('#base47-he-save').on('click', function(e){
+  $('#base47-he-save').on('click',function(e){
     e.preventDefault();
-    if (!$file.length) return;
 
-    $.post(BASE47_HE_DATA.ajax_url, {
-      action:  'base47_he_save_template',
-      nonce:   BASE47_HE_DATA.nonce, // editor nonce
-      file:    $file.val(),
-      set:     getActiveSet(),
-      content: $code.val()
-    }, function(resp){
-      if (resp && resp.success){
+    $.post(BASE47_HE_DATA.ajax_url,{
+      action:'base47_he_save_template',
+      nonce: BASE47_HE_DATA.nonce,
+      file:  $file.val(),
+      set:   getActiveSet(),
+      content:$code.val()
+    },function(resp){
+      if(resp.success){
+
+        // 💥 RESTORED OLD BEHAVIOUR — RELOAD IFRAME
+        const src = $preview.attr('src').split('&_rand=')[0];
+        $preview.attr('src', src + '&_rand=' + Date.now());
+
         $('#base47-he-save').text('Saved ✓');
-        setTimeout(()=>$('#base47-he-save').text('Save'), 900);
-      } else {
-        alert('Save failed.');
+        setTimeout(()=>$('#base47-he-save').text('Save'),900);
       }
     });
   });
@@ -88,113 +89,100 @@ jQuery(function($){
   /* ==========================
      RESTORE TEMPLATE (EDITOR)
   ========================== */
-  $('#base47-he-restore').on('click', function(e){
+  $('#base47-he-restore').on('click',function(e){
     e.preventDefault();
-    if (!$file.length) return;
-
-    $.post(BASE47_HE_DATA.ajax_url, {
-      action: 'base47_he_get_template',
-      nonce:  BASE47_HE_DATA.nonce, // editor nonce
-      file:   $file.val(),
-      set:    getActiveSet()
-    }, function(resp){
-      if (resp && resp.success && resp.data){
-        if ($code.length) {
-          $code.val(resp.data.content);
-        }
-        if ($preview.length){
-          const iframe = $preview.get(0);
-          if (iframe && iframe.contentWindow){
-            iframe.contentWindow.document.open();
-            iframe.contentWindow.document.write(resp.data.preview);
-            iframe.contentWindow.document.close();
-          }
-        }
-      } else {
-        alert('Restore failed.');
+    $.post(BASE47_HE_DATA.ajax_url,{
+      action:'base47_he_get_template',
+      nonce: BASE47_HE_DATA.nonce,
+      file:  $file.val(),
+      set:   getActiveSet()
+    },function(resp){
+      if(resp.success){
+        $code.val(resp.data.content);
+        const iframe = $preview.get(0);
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(resp.data.preview);
+        iframe.contentWindow.document.close();
       }
     });
   });
 
   /* ==========================
-     PREVIEW SIZE SWITCHER (EDITOR)
+     PREVIEW SIZE SWITCHER
   ========================== */
-  $('.preview-size-btn').on('click', function(){
-    if (!$preview.length) return;
+  $('.preview-size-btn').on('click',function(){
     $('.preview-size-btn').removeClass('active');
     $(this).addClass('active');
-
     const size = $(this).data('size');
-    $preview.css({
-      width: size === '100%' ? '100%' : size + 'px'
-    });
+    $preview.css({ width: size === '100%' ? '100%' : size + 'px' });
   });
 
   /* ==========================
-     KEYBOARD SHORTCUTS (EDITOR)
+     OPEN PREVIEW (OLD FUNCTION)
   ========================== */
-  $(document).on('keydown', function(e){
-    const isMac = navigator.platform && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const mod   = isMac ? e.metaKey : e.ctrlKey;
-    if (!mod) return;
-
-    const key = (e.key || '').toLowerCase();
-
-    if (key === 's'){
-      e.preventDefault();
-      $('#base47-he-save').trigger('click');
-    }
-    if (key === 'p'){
-      e.preventDefault();
-      $('#base47-he-open-preview').trigger('click');
-    }
+  $('#base47-he-open-preview').on('click', function(e){
+    e.preventDefault();
+    const src = $preview.attr('src');
+    if (src) window.open(src, '_blank');
   });
 
-  /* =======================================================
-     LAZY PREVIEW – SHORTCODES PAGE (PER CARD, NO AUTO LOAD)
-  ======================================================= */
+  /* ==========================
+     DRAG RESIZER (RESTORED)
+  ========================== */
+  const $resizer = $('#base47-he-resizer');
+  const $left    = $('#base47-he-editor-left');
+  const $shell   = $('#base47-he-editor-shell');
 
-  $(document).on('click', '.base47-load-preview-btn', function(e){
+  if ($resizer.length && $left.length && $shell.length){
+    let dragging = false;
+
+    $resizer.on('mousedown',function(e){
+      e.preventDefault();
+      dragging = true;
+      $('body').addClass('base47-he-dragging');
+    });
+
+    $(document).on('mousemove',function(e){
+      if(!dragging) return;
+      const offset = $shell.offset().left;
+      const min = 200;
+      const max = $shell.width() - 200;
+      let w = e.pageX - offset;
+      w = Math.max(min, Math.min(max, w));
+      $left.css('flex-basis', w + 'px');
+    });
+
+    $(document).on('mouseup',function(){
+      dragging = false;
+      $('body').removeClass('base47-he-dragging');
+    });
+  }
+
+  /* =======================================================
+     LAZY PREVIEW – Shortcode Page
+  ======================================================= */
+  $(document).on('click','.base47-load-preview-btn',function(e){
     e.preventDefault();
 
     const btn  = $(this);
     const file = btn.data('file');
     const set  = btn.data('set');
-
-    if (!file){
-      alert('Preview error: missing file.');
-      return;
-    }
-
-    const card   = btn.closest('.base47-he-template-box');
+    const card = btn.closest('.base47-he-template-box');
     const iframe = card.find('.base47-he-template-iframe').get(0);
 
-    if (!iframe){
-      alert('Preview frame not found.');
-      return;
-    }
+    btn.text('Loading...').prop('disabled',true);
 
-    btn.prop('disabled', true).text('Loading...');
-
-    $.post(BASE47_HE_DATA.ajax_url, {
-      action: 'base47_he_lazy_preview',
-      nonce:  BASE47_HE_DATA.preview_nonce, // ⚠ using PREVIEW nonce
-      file:   file,
-      set:    set
-    }, function(res){
-      btn.prop('disabled', false).text('Load preview');
-
-      if (res && res.success && res.data && res.data.html){
+    $.post(BASE47_HE_DATA.ajax_url,{
+      action:'base47_he_lazy_preview',
+      nonce: BASE47_HE_DATA.preview_nonce,
+      file:file,
+      set:set
+    },function(res){
+      btn.text('Load preview').prop('disabled',false);
+      if(res.success && res.data.html){
         const doc = iframe.contentWindow.document;
-        doc.open();
-        doc.write(res.data.html);
-        doc.close();
-      } else {
-        alert('Preview failed.');
+        doc.open(); doc.write(res.data.html); doc.close();
       }
-    }).fail(function(){
-      btn.prop('disabled', false).text('Load preview');
-      alert('AJAX error.');
     });
   });
 
