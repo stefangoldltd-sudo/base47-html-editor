@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.4
+Version: 2.6.4.1
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,9 +13,35 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.4' );
+define( 'BASE47_HE_VERSION', '2.6.4.1' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
+
+/**
+ * Central storage location for user themes.
+ * /wp-content/uploads/base47-themes/{set}/
+ */
+function base47_he_get_themes_root() {
+    static $root = null;
+    if ( $root !== null ) {
+        return $root;
+    }
+
+    $uploads = wp_upload_dir();
+    $dir     = trailingslashit( $uploads['basedir'] ) . 'base47-themes/';
+    $url     = trailingslashit( $uploads['baseurl'] ) . 'base47-themes/';
+
+    if ( ! is_dir( $dir ) ) {
+        wp_mkdir_p( $dir );
+    }
+
+    $root = [
+        'dir' => $dir,
+        'url' => $url,
+    ];
+
+    return $root;
+}
 
 // GitHub Updater (Base47)
 require_once BASE47_HE_PATH . 'inc/class-base47-github-updater.php';
@@ -84,7 +110,6 @@ function base47_he_get_template_sets( $force = false ) {
         ];
     }
 
-
     // Sort for consistent ordering
     ksort( $sets, SORT_NATURAL | SORT_FLAG_CASE );
 
@@ -124,9 +149,11 @@ function base47_he_get_template_list( $force = false ) {
 
     $sets = base47_he_get_template_sets( $force );
 
-    // Signature for template list (folder + filenames)
-    $sig = Base47_Cache::get_signature( BASE47_HE_PATH . '*-templates/*' );
-    $saved = get_transient( Base47_Cache::TRANS_TEMPLATES );
+// NEW signature path
+$root = base47_he_get_themes_root();
+$sig  = Base47_Cache::get_signature( $root['dir'] . '*-templates/*' );
+
+$saved = get_transient( Base47_Cache::TRANS_TEMPLATES );
 
     if (
         ! $force &&
@@ -431,49 +458,73 @@ function base47_asset( $file )              { return plugins_url( 'mivon-templat
 
 
 /**
- * Discover all manifest.json files inside each *-templates folder.
+ * Discover all manifest.json files inside each theme’s folder
+ * located in /wp-content/uploads/base47-themes/.
  *
  * Expected structure:
- *   /mivon-html-editor/{set}-templates/manifest.json
- *   /mivon-html-editor/{set}-templates/assets/
+ *
+ *   /wp-content/uploads/base47-themes/{set}-templates/
+ *       ??? manifest.json
+ *       ??? assets/
+ *       ?     ??? css/
+ *       ?     ??? js/
+ *       ?     ??? img/
+ *       ?     ??? vendor/
+ *       ??? home-1.html
+ *       ??? about.html
+ *       ??? ...
+ *
+ * Each theme must follow the naming rule:
+ *      {slug}-templates
+ *
+ * This loader supports:
+ *   • Unlimited themes
+ *   • Auto-loading manifest.json if present
+ *   • Fallback to loader mode for themes without manifest.json
+ *
+ * Manifest files define:
+ *   {
+ *     "name": "Redox Theme",
+ *     "version": "1.0.0",
+ *     "assets": {
+ *         "css": [...],
+ *         "js":  [...]
+ *     }
+ *   }
+ *
+ * NOTE:
+ *   The plugin no longer stores themes inside its own /plugins directory.
+ *   Themes now live permanently in uploads/base47-themes/
+ *   so plugin updates will NEVER delete theme folders again.
  */
 function base47_he_get_all_manifests() {
     static $cache = null;
-    if ( $cache !== null ) {
-        return $cache;
-    }
+    if ( $cache !== null ) return $cache;
 
-    $cache      = [];
-    $plugin_dir = plugin_dir_path( __FILE__ );   // filesystem path
-    $plugin_url = plugin_dir_url( __FILE__ );    // public URL
+    $cache = [];
 
-    // Loop all folders ending with -templates or -templetes
-    foreach ( glob( $plugin_dir . '*-template*', GLOB_ONLYDIR ) as $template_dir ) {
+    // NEW ROOT
+    $root      = base47_he_get_themes_root();
+    $themes_dir = $root['dir'];
+    $themes_url = $root['url'];
 
-        $set_folder = basename( $template_dir );   // e.g. lezar-templates
+    foreach ( glob( $themes_dir . '*-template*', GLOB_ONLYDIR ) as $template_dir ) {
+
+        $set_folder = basename( $template_dir );
         $manifest   = $template_dir . '/manifest.json';
 
-        if ( ! file_exists( $manifest ) ) {
-            continue;
-        }
+        if ( ! file_exists( $manifest ) ) continue;
 
-        // Read the JSON
         $raw  = file_get_contents( $manifest );
         $data = json_decode( $raw, true );
+        if ( ! is_array( $data ) ) continue;
 
-        if ( ! is_array( $data ) ) {
-            continue;
-        }
+        $set_slug = $set_folder;
 
-        // Create set slug from folder name
-        // Keep slug EXACTLY as folder name, e.g. "lezar-templates"
-             $set_slug = $set_folder;
+        // NEW PATHS
+        $base_url  = trailingslashit( $themes_url . $set_folder . '/assets' );
+        $base_path = trailingslashit( $themes_dir . $set_folder . '/assets' );
 
-        // Build correct URLs and paths
-        $base_url  = trailingslashit( $plugin_url . $set_folder . '/assets' );   // URL
-        $base_path = trailingslashit( $plugin_dir . $set_folder . '/assets' );   // filesystem path
-
-        // Metadata
         $data['_base_url']      = $base_url;
         $data['_base_path']     = $base_path;
         $data['_set_slug']      = $set_slug;
@@ -1403,117 +1454,135 @@ function base47_he_settings_page() {
     <?php
 }
 	
-	/**
- * Install a theme from uploaded ZIP.
+/**
+ * Install a theme from uploaded ZIP (V3 – uploads directory).
  *
- * Expects a ZIP containing exactly one top-level folder like:
- *   lezar-templates/
- *   bfolio-templates/
+ * Expects ZIP structure:
+ *   /{slug}-templates/
+ *       home.html
+ *       manifest.json
+ *       assets/
  *
- * Returns WP_Error on failure, or the installed slug (e.g. 'lezar-templates') on success.
+ * The theme will be installed into:
+ *   /wp-content/uploads/base47-themes/{slug}-templates/
  */
 function base47_he_install_theme_from_upload() {
-    if ( ! isset( $_FILES['base47_theme_zip'] ) || empty( $_FILES['base47_theme_zip']['name'] ) ) {
-        return new WP_Error( 'no_file', 'No ZIP file uploaded.' );
+
+    if ( ! isset($_FILES['base47_theme_zip']) || empty($_FILES['base47_theme_zip']['name']) ) {
+        return new WP_Error('no_file', 'No ZIP file uploaded.');
     }
 
     $file = $_FILES['base47_theme_zip'];
 
-    if ( ! empty( $file['error'] ) ) {
-        return new WP_Error( 'upload_error', 'Upload error: ' . intval( $file['error'] ) );
+    if (! empty($file['error'])) {
+        return new WP_Error('upload_error', 'Upload error: ' . intval($file['error']));
     }
 
     $name      = $file['name'];
     $tmp       = $file['tmp_name'];
-    $extension = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
+    $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 
-    if ( $extension !== 'zip' ) {
-        return new WP_Error( 'invalid_type', 'File must be a .zip archive.' );
+    if ($extension !== 'zip') {
+        return new WP_Error('invalid_type', 'File must be a .zip archive.');
     }
 
-    if ( ! class_exists( 'ZipArchive' ) ) {
-        return new WP_Error( 'no_zip', 'ZipArchive is not available on this server.' );
+    if (! class_exists('ZipArchive')) {
+        return new WP_Error('no_zip', 'ZipArchive is not available on this server.');
     }
 
     $zip = new ZipArchive();
-    if ( true !== $zip->open( $tmp ) ) {
-        return new WP_Error( 'open_failed', 'Could not open ZIP file.' );
+    if (true !== $zip->open($tmp)) {
+        return new WP_Error('open_failed', 'Could not open ZIP file.');
     }
 
-    // Detect top-level folder
+    // -----------------------------
+    // Detect root folder inside ZIP
+    // -----------------------------
     $root_folder = '';
-    for ( $i = 0; $i < $zip->numFiles; $i++ ) {
-        $stat = $zip->statIndex( $i );
-        if ( ! $stat || empty( $stat['name'] ) ) {
-            continue;
-        }
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $stat = $zip->statIndex($i);
+        if (! $stat || empty($stat['name'])) continue;
+
         $name_in_zip = $stat['name'];
 
-        // First directory
-        if ( substr( $name_in_zip, -1 ) === '/' ) {
-            $root_folder = trim( $name_in_zip, '/' );
+        if (substr($name_in_zip, -1) === '/') {
+            $root_folder = trim($name_in_zip, '/');
             break;
         }
     }
 
-    if ( ! $root_folder ) {
+    if (! $root_folder) {
         $zip->close();
-        return new WP_Error( 'no_root_folder', 'ZIP must contain a root folder (e.g. lezar-templates/).' );
+        return new WP_Error('no_root_folder', 'ZIP must contain a root folder (e.g. lezar-templates/).');
     }
 
-    // Require *-templates in the folder name
-    if ( ! str_ends_with( $root_folder, '-templates' ) ) {
+    // Must follow naming rule
+    if (! str_ends_with($root_folder, '-templates')) {
         $zip->close();
-        return new WP_Error( 'invalid_folder', 'Root folder must end with "-templates" (e.g. lezar-templates).' );
+        return new WP_Error('invalid_folder', 'Root folder must end with "-templates".');
     }
 
-    $target_dir = trailingslashit( BASE47_HE_PATH . $root_folder );
+    // -----------------------------
+    // Determine install location
+    // -----------------------------
+    $root       = base47_he_get_themes_root(); // returns ['dir' => ..., 'url' => ...]
+    $themes_dir = $root['dir'];
 
-    if ( file_exists( $target_dir ) ) {
+    $target_dir = trailingslashit($themes_dir . $root_folder);
+
+    if (file_exists($target_dir)) {
         $zip->close();
-        return new WP_Error( 'exists', 'A theme folder with this name already exists.' );
+        return new WP_Error('exists', 'A theme with this name already exists.');
     }
 
-    // Extract into plugin directory
-    if ( ! $zip->extractTo( BASE47_HE_PATH ) ) {
+    // -----------------------------
+    // Extract ONLY into uploads dir
+    // -----------------------------
+    if (! $zip->extractTo($themes_dir)) {
         $zip->close();
-        return new WP_Error( 'extract_failed', 'Could not extract ZIP into plugin directory.' );
+        return new WP_Error('extract_failed', 'Could not extract ZIP into themes directory.');
     }
 
     $zip->close();
 
-    // Safety: ensure extracted folder exists
-    if ( ! is_dir( $target_dir ) ) {
-        return new WP_Error( 'no_target', 'Theme folder not found after extraction.' );
+    if (! is_dir($target_dir)) {
+        return new WP_Error('no_target', 'Theme folder not found after extraction.');
     }
 
     return $root_folder;
 }
-
 /**
- * Recursively delete a folder inside the plugin directory.
+ * Delete a theme folder from the uploads/base47-themes directory.
+ *
+ * Example slug:
+ *   'lezar-templates'
+ *   'redox-templates'
+ *
+ * Returns true on success, WP_Error on failure.
  */
 function base47_he_delete_theme_folder( $slug ) {
-    $sets = base47_he_get_template_sets( true );
 
-    if ( ! isset( $sets[ $slug ] ) ) {
+    // Get root theme directory
+    $root = base47_he_get_themes_root(); // ['dir' => '/path/', 'url' => '...']
+    $themes_dir = $root['dir'];
+
+    // Full path of the theme set to delete
+    $target = realpath( $themes_dir . $slug );
+
+    // Validate target exists
+    if ( ! $target || ! is_dir( $target ) ) {
         return new WP_Error( 'not_found', 'Theme set not found.' );
     }
 
-    $dir = $sets[ $slug ]['path'];
-
-    // Safety: ensure directory is inside THIS plugin folder
-    $plugin_root = realpath( BASE47_HE_PATH );
-    $target      = realpath( $dir );
-
-    if ( ! $target || strpos( $target, $plugin_root ) !== 0 ) {
-        return new WP_Error( 'unsafe_path', 'Refusing to delete folder outside plugin directory.' );
+    // Safety: ensure we ONLY delete inside base47-themes directory
+    $themes_root_real = realpath( $themes_dir );
+    if ( strpos( $target, $themes_root_real ) !== 0 ) {
+        return new WP_Error( 'unsafe_path', 'Refusing to delete outside theme directory.' );
     }
 
-    $deleted = base47_he_rrmdir( $target );
-
-    if ( ! $deleted ) {
-        return new WP_Error( 'delete_failed', 'Could not delete theme folder. Check file permissions.' );
+    // Delete recursively
+    if ( ! base47_he_rrmdir( $target ) ) {
+        return new WP_Error( 'delete_failed', 'Could not delete theme folder. Check permissions.' );
     }
 
     return true;
