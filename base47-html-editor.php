@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.1
+Version: 2.6.3
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.1' );
+define( 'BASE47_HE_VERSION', '2.6.3' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -1132,103 +1132,268 @@ function base47_he_editor_page() {
     <?php
 }
 
-/** THEME MANAGER (toggle switches) */
+/** THEME MANAGER (toggle switches + install/delete/scan) */
 function base47_he_settings_page() {
-    if ( ! current_user_can( 'manage_options' ) ) return;
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
 
-    $sets   = base47_he_get_template_sets();
-    $active = base47_he_get_active_sets();
+    $sets        = base47_he_get_template_sets();
+    $active      = base47_he_get_active_sets();
+    $notices     = [];
 
+    // --------------------------------------------------
+    // HANDLE FORM ACTIONS
+    // --------------------------------------------------
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
         check_admin_referer( BASE47_HE_OPT_SETTINGS_NONCE );
 
-        $new_active = isset( $_POST['mivon_active_sets'] ) && is_array( $_POST['base47_active_sets'] )
-            ? array_values( array_intersect( array_keys( $sets ), array_map( 'sanitize_text_field', $_POST['mivon_active_sets'] ) ) )
-            : [];
+        $action = isset( $_POST['base47_he_theme_action'] )
+            ? sanitize_text_field( wp_unslash( $_POST['base47_he_theme_action'] ) )
+            : 'save';
 
-        if ( empty( $new_active ) && ! empty( $sets ) ) {
-            $first      = array_key_first( $sets );
-            $new_active = [ $first ];
+        switch ( $action ) {
+
+            case 'install_theme':
+                $result = base47_he_install_theme_from_upload();
+                if ( is_wp_error( $result ) ) {
+                    $notices[] = [
+                        'type' => 'error',
+                        'msg'  => $result->get_error_message(),
+                    ];
+                } else {
+                    $notices[] = [
+                        'type' => 'updated',
+                        'msg'  => sprintf(
+                            'Theme <strong>%s</strong> installed successfully.',
+                            esc_html( $result )
+                        ),
+                    ];
+                    base47_he_refresh_theme_caches();
+                    $sets   = base47_he_get_template_sets( true );
+                    $active = base47_he_get_active_sets();
+                }
+                break;
+
+            case 'delete_theme':
+                $slug = isset( $_POST['base47_delete_theme'] )
+                    ? sanitize_text_field( wp_unslash( $_POST['base47_delete_theme'] ) )
+                    : '';
+
+                if ( ! $slug ) {
+                    $notices[] = [
+                        'type' => 'error',
+                        'msg'  => 'No theme selected for deletion.',
+                    ];
+                    break;
+                }
+
+                $result = base47_he_delete_theme_folder( $slug );
+                if ( is_wp_error( $result ) ) {
+                    $notices[] = [
+                        'type' => 'error',
+                        'msg'  => $result->get_error_message(),
+                    ];
+                } else {
+                    $notices[] = [
+                        'type' => 'updated',
+                        'msg'  => sprintf(
+                            'Theme <strong>%s</strong> deleted successfully.',
+                            esc_html( $slug )
+                        ),
+                    ];
+                    base47_he_refresh_theme_caches();
+                    $sets   = base47_he_get_template_sets( true );
+                    $active = base47_he_get_active_sets();
+                }
+                break;
+
+            case 'scan_themes':
+                base47_he_refresh_theme_caches();
+                $sets   = base47_he_get_template_sets( true );
+                $active = base47_he_get_active_sets();
+                $notices[] = [
+                    'type' => 'updated',
+                    'msg'  => 'Theme list refreshed successfully.',
+                ];
+                break;
+
+            case 'save':
+            default:
+                // Active sets
+                $new_active = isset( $_POST['base47_active_sets'] ) && is_array( $_POST['base47_active_sets'] )
+                    ? array_values( array_intersect(
+                        array_keys( $sets ),
+                        array_map( 'sanitize_text_field', $_POST['base47_active_sets'] )
+                    ) )
+                    : [];
+
+                if ( empty( $new_active ) && ! empty( $sets ) ) {
+                    $first      = array_key_first( $sets );
+                    $new_active = [ $first ];
+                }
+
+                update_option( BASE47_HE_OPT_ACTIVE_THEMES, $new_active );
+                $active = $new_active;
+
+                // Manifest preferences
+                $use_manifest = isset( $_POST['base47_use_manifest'] ) && is_array( $_POST['base47_use_manifest'] )
+                    ? array_values( array_intersect(
+                        array_keys( $sets ),
+                        array_map( 'sanitize_text_field', $_POST['base47_use_manifest'] )
+                    ) )
+                    : [];
+
+                update_option( BASE47_HE_OPT_USE_MANIFEST, $use_manifest );
+
+                $notices[] = [
+                    'type' => 'updated',
+                    'msg'  => 'Settings saved.',
+                ];
+                break;
         }
-        update_option( BASE47_HE_OPT_ACTIVE_THEMES, $new_active );
-
-        // Save manifest preferences
-        $use_manifest = isset( $_POST['base47_use_manifest'] ) && is_array( $_POST['base47_use_manifest'] )
-            ? array_values( array_intersect( array_keys( $sets ), array_map( 'sanitize_text_field', $_POST['base47_use_manifest'] ) ) )
-            : [];
-        update_option( BASE47_HE_OPT_USE_MANIFEST, $use_manifest );
-
-        add_settings_error( 'base47_he_settings', 'base47_he_saved', 'Settings saved.', 'updated' );
-        $active = $new_active;
     }
 
     $use_manifest_sets = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
-    $manifests = base47_he_get_all_manifests();
+    $manifests         = base47_he_get_all_manifests();
 
-    settings_errors( 'base47_he_settings' );
     ?>
     <div class="wrap base47-he-wrap">
         <h1>Theme Manager</h1>
-        <p>Toggle which theme sets are <strong>Active</strong>. Only active sets are exposed as shortcodes and appear in Live Editor & Shortcodes.</p>
+        <p>
+            Toggle which theme sets are <strong>Active</strong>. Only active sets are exposed as shortcodes
+            and appear in Live Editor &amp; Shortcodes.
+        </p>
         <p style="background:#fff3cd;padding:12px;border-left:4px solid #ffc107;margin:16px 0;">
-            <strong>💡 Asset Loading:</strong> Choose <strong>Manifest</strong> for simple/light themes with selective asset loading, or <strong>Loader</strong> (default) for heavy themes that need all assets. Loader is faster for complex themes like Base47, Lezar, Bfolio.
+            <strong>? Asset Loading:</strong>
+            Choose <strong>Loader</strong> for heavy themes (Base47, Lezar, Bfolio, etc.),
+            or <strong>Manifest</strong> for lightweight themes with a manifest.json.
         </p>
 
-        <form method="post">
+        <?php
+        // NOTICES
+        foreach ( $notices as $notice ) {
+            $class = $notice['type'] === 'error' ? 'notice notice-error' : 'notice notice-success';
+            echo '<div class="' . esc_attr( $class ) . '"><p>' . wp_kses_post( $notice['msg'] ) . '</p></div>';
+        }
+        ?>
+
+        <!-- TOP ACTION BAR: INSTALL + SCAN -->
+        <div style="margin:20px 0;padding:15px;border:1px solid #ddd;background:#fff;border-radius:6px;">
+            <h2 style="margin-top:0;">Theme Actions</h2>
+            <form method="post" enctype="multipart/form-data" style="margin-bottom:12px;">
+                <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
+                <input type="hidden" name="base47_he_theme_action" value="install_theme">
+                <label for="base47_theme_zip" style="display:inline-block;margin-right:8px;">
+                    <strong>Install Theme (ZIP):</strong>
+                </label>
+                <input type="file" name="base47_theme_zip" id="base47_theme_zip" accept=".zip">
+                <button type="submit" class="button button-primary" style="margin-left:6px;">
+                    Upload &amp; Install
+                </button>
+                <p class="description" style="margin-top:6px;">
+                    ZIP must contain a folder like <code>lezar-templates/</code> or <code>bfolio-templates/</code>.
+                </p>
+            </form>
+
+            <form method="post" style="margin-top:10px;">
+                <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
+                <input type="hidden" name="base47_he_theme_action" value="scan_themes">
+                <button type="submit" class="button">
+                    Scan Themes
+                </button>
+                <span class="description" style="margin-left:8px;">
+                    Refresh the list after uploading theme folders via FTP.
+                </span>
+            </form>
+        </div>
+
+        <!-- MAIN SETTINGS FORM (ACTIVE + ASSET MODE + DELETE) -->
+        <form method="post" style="margin-top:20px;">
             <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
+            <input type="hidden" name="base47_he_theme_action" value="save">
+
+            <h2>Installed Theme Sets</h2>
 
             <div class="base47-he-grid" style="margin-top:16px;">
                 <?php if ( empty( $sets ) ) : ?>
-                    <p>No *-templates folders found in the plugin directory.</p>
-                <?php else : foreach ( $sets as $slug => $set ) :
-                    $is_active = in_array( $slug, $active, true );
-                    $use_manifest = in_array( $slug, $use_manifest_sets, true );
-                    $has_manifest = isset( $manifests[ $slug ] );
-                ?>
-                    <div class="base47-box">
-                        <h3><?php echo esc_html( $slug ); ?></h3>
-                        <p class="base47-muted">Path: <code><?php echo esc_html( $set['path'] ); ?></code></p>
-                        
-                        <div style="margin:12px 0;">
-                            <strong>Active:</strong>
-                            <label class="base47-switch" title="<?php echo $is_active ? 'Active' : 'Inactive'; ?>" style="margin-left:8px;">
-                                <input type="checkbox"
-                                       name="base47_active_sets[]"
-                                       value="<?php echo esc_attr( $slug ); ?>"
-                                       <?php checked( $is_active ); ?>>
-                                <span class="base47-slider"></span>
-                            </label>
-                        </div>
+                    <p>No <code>*-templates</code> folders found in the plugin directory. Install a theme via ZIP or FTP.</p>
+                <?php else : ?>
+                    <?php foreach ( $sets as $slug => $set ) :
+                        $is_active   = in_array( $slug, $active, true );
+                        $use_manifest = in_array( $slug, $use_manifest_sets, true );
+                        $has_manifest = isset( $manifests[ $slug ] );
+                    ?>
+                        <div class="base47-box">
+                            <h3><?php echo esc_html( $slug ); ?></h3>
+                            <p class="base47-muted">
+                                Path: <code><?php echo esc_html( $set['path'] ); ?></code>
+                            </p>
 
-                        <div style="margin:12px 0;padding-top:8px;border-top:1px solid #eee;">
-                            <strong>Asset Loading:</strong>
-                            <div style="margin-top:8px;">
-                                <label style="display:inline-flex;align-items:center;margin-right:16px;">
-                                    <input type="radio" 
-                                           name="asset_mode_<?php echo esc_attr( $slug ); ?>" 
-                                           value="loader" 
-                                           <?php checked( !$use_manifest ); ?>
-                                           onchange="document.querySelector('input[name=\'base47_use_manifest[]\'][value=\'<?php echo esc_attr( $slug ); ?>\']').checked = false;">
-                                    <span style="margin-left:4px;">🚀 Loader (Fast)</span>
+                            <!-- ACTIVE TOGGLE -->
+                            <div style="margin:12px 0;">
+                                <strong>Active:</strong>
+                                <label class="base47-switch" title="<?php echo $is_active ? 'Active' : 'Inactive'; ?>" style="margin-left:8px;">
+                                    <input type="checkbox"
+                                           name="base47_active_sets[]"
+                                           value="<?php echo esc_attr( $slug ); ?>"
+                                           <?php checked( $is_active ); ?>>
+                                    <span class="base47-slider"></span>
                                 </label>
-                                <label style="display:inline-flex;align-items:center;">
-                                    <input type="radio" 
-                                           name="asset_mode_<?php echo esc_attr( $slug ); ?>" 
-                                           value="manifest" 
+                            </div>
+
+                            <!-- ASSET MODE -->
+                            <div style="margin:12px 0;padding-top:8px;border-top:1px solid #eee;">
+                                <strong>Asset Loading:</strong>
+                                <div style="margin-top:8px;">
+                                    <label style="display:inline-flex;align-items:center;margin-right:16px;">
+                                        <input type="radio"
+                                               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+                                               value="loader"
+                                               <?php checked( ! $use_manifest ); ?>
+                                               onchange="(function(field){ if(field){ field.checked = false; } })(document.querySelector('input[name=&quot;base47_use_manifest[]&quot;][value=&quot;<?php echo esc_attr( $slug ); ?>&quot;]'));"
+                                        >
+                                        <span style="margin-left:4px;">? Loader (Fast)</span>
+                                    </label>
+                                    <label style="display:inline-flex;align-items:center;">
+                                        <input type="radio"
+                                               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+                                               value="manifest"
+                                               <?php checked( $use_manifest ); ?>
+                                               <?php disabled( ! $has_manifest ); ?>
+                                               onchange="(function(field){ if(field){ field.checked = true; } })(document.querySelector('input[name=&quot;base47_use_manifest[]&quot;][value=&quot;<?php echo esc_attr( $slug ); ?>&quot;]'));"
+                                        >
+                                        <span style="margin-left:4px;">?? Manifest <?php echo $has_manifest ? '' : '(No manifest.json)'; ?></span>
+                                    </label>
+
+                                    <!-- real option field -->
+                                    <input type="checkbox"
+                                           name="base47_use_manifest[]"
+                                           value="<?php echo esc_attr( $slug ); ?>"
                                            <?php checked( $use_manifest ); ?>
-                                           <?php disabled( !$has_manifest ); ?>
-                                           onchange="document.querySelector('input[name=\'base47_use_manifest[]\'][value=\'<?php echo esc_attr( $slug ); ?>\']').checked = true;">
-                                    <span style="margin-left:4px;">⚙️ Manifest <?php echo $has_manifest ? '' : '(No manifest.json)'; ?></span>
-                                </label>
-                                <input type="checkbox" 
-                                       name="base47_use_manifest[]" 
-                                       value="<?php echo esc_attr( $slug ); ?>" 
-                                       <?php checked( $use_manifest ); ?>
-                                       style="display:none;">
+                                           style="display:none;">
+                                </div>
+                            </div>
+
+                            <!-- DELETE THEME -->
+                            <div style="margin-top:12px;padding-top:8px;border-top:1px solid #eee;">
+                                <strong>Danger Zone:</strong>
+                                <p class="base47-muted" style="margin:6px 0 8px;">
+                                    Permanently delete this theme folder from the plugin.
+                                </p>
+                                <form method="post"
+                                      onsubmit="return confirm('Delete theme <?php echo esc_js( $slug ); ?>? This cannot be undone.');">
+                                    <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
+                                    <input type="hidden" name="base47_he_theme_action" value="delete_theme">
+                                    <input type="hidden" name="base47_delete_theme" value="<?php echo esc_attr( $slug ); ?>">
+                                    <button type="submit" class="button button-link-delete">
+                                        Delete Theme
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
 
             <p style="margin-top:16px;">
@@ -1238,7 +1403,156 @@ function base47_he_settings_page() {
     </div>
     <?php
 }
+	
+	/**
+ * Install a theme from uploaded ZIP.
+ *
+ * Expects a ZIP containing exactly one top-level folder like:
+ *   lezar-templates/
+ *   bfolio-templates/
+ *
+ * Returns WP_Error on failure, or the installed slug (e.g. 'lezar-templates') on success.
+ */
+function base47_he_install_theme_from_upload() {
+    if ( ! isset( $_FILES['base47_theme_zip'] ) || empty( $_FILES['base47_theme_zip']['name'] ) ) {
+        return new WP_Error( 'no_file', 'No ZIP file uploaded.' );
+    }
 
+    $file = $_FILES['base47_theme_zip'];
+
+    if ( ! empty( $file['error'] ) ) {
+        return new WP_Error( 'upload_error', 'Upload error: ' . intval( $file['error'] ) );
+    }
+
+    $name      = $file['name'];
+    $tmp       = $file['tmp_name'];
+    $extension = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
+
+    if ( $extension !== 'zip' ) {
+        return new WP_Error( 'invalid_type', 'File must be a .zip archive.' );
+    }
+
+    if ( ! class_exists( 'ZipArchive' ) ) {
+        return new WP_Error( 'no_zip', 'ZipArchive is not available on this server.' );
+    }
+
+    $zip = new ZipArchive();
+    if ( true !== $zip->open( $tmp ) ) {
+        return new WP_Error( 'open_failed', 'Could not open ZIP file.' );
+    }
+
+    // Detect top-level folder
+    $root_folder = '';
+    for ( $i = 0; $i < $zip->numFiles; $i++ ) {
+        $stat = $zip->statIndex( $i );
+        if ( ! $stat || empty( $stat['name'] ) ) {
+            continue;
+        }
+        $name_in_zip = $stat['name'];
+
+        // First directory
+        if ( substr( $name_in_zip, -1 ) === '/' ) {
+            $root_folder = trim( $name_in_zip, '/' );
+            break;
+        }
+    }
+
+    if ( ! $root_folder ) {
+        $zip->close();
+        return new WP_Error( 'no_root_folder', 'ZIP must contain a root folder (e.g. lezar-templates/).' );
+    }
+
+    // Require *-templates in the folder name
+    if ( ! str_ends_with( $root_folder, '-templates' ) ) {
+        $zip->close();
+        return new WP_Error( 'invalid_folder', 'Root folder must end with "-templates" (e.g. lezar-templates).' );
+    }
+
+    $target_dir = trailingslashit( BASE47_HE_PATH . $root_folder );
+
+    if ( file_exists( $target_dir ) ) {
+        $zip->close();
+        return new WP_Error( 'exists', 'A theme folder with this name already exists.' );
+    }
+
+    // Extract into plugin directory
+    if ( ! $zip->extractTo( BASE47_HE_PATH ) ) {
+        $zip->close();
+        return new WP_Error( 'extract_failed', 'Could not extract ZIP into plugin directory.' );
+    }
+
+    $zip->close();
+
+    // Safety: ensure extracted folder exists
+    if ( ! is_dir( $target_dir ) ) {
+        return new WP_Error( 'no_target', 'Theme folder not found after extraction.' );
+    }
+
+    return $root_folder;
+}
+
+/**
+ * Recursively delete a folder inside the plugin directory.
+ */
+function base47_he_delete_theme_folder( $slug ) {
+    $sets = base47_he_get_template_sets( true );
+
+    if ( ! isset( $sets[ $slug ] ) ) {
+        return new WP_Error( 'not_found', 'Theme set not found.' );
+    }
+
+    $dir = $sets[ $slug ]['path'];
+
+    // Safety: ensure directory is inside THIS plugin folder
+    $plugin_root = realpath( BASE47_HE_PATH );
+    $target      = realpath( $dir );
+
+    if ( ! $target || strpos( $target, $plugin_root ) !== 0 ) {
+        return new WP_Error( 'unsafe_path', 'Refusing to delete folder outside plugin directory.' );
+    }
+
+    $deleted = base47_he_rrmdir( $target );
+
+    if ( ! $deleted ) {
+        return new WP_Error( 'delete_failed', 'Could not delete theme folder. Check file permissions.' );
+    }
+
+    return true;
+}
+
+/**
+ * Simple recursive rmdir helper.
+ */
+function base47_he_rrmdir( $dir ) {
+    if ( ! is_dir( $dir ) ) {
+        return true;
+    }
+
+    $items = scandir( $dir );
+    if ( ! $items ) {
+        return false;
+    }
+
+    foreach ( $items as $item ) {
+        if ( $item === '.' || $item === '..' ) {
+            continue;
+        }
+        $path = $dir . DIRECTORY_SEPARATOR . $item;
+        if ( is_dir( $path ) ) {
+            if ( ! base47_he_rrmdir( $path ) ) {
+                return false;
+            }
+        } else {
+            if ( ! @unlink( $path ) ) {
+                return false;
+            }
+        }
+    }
+
+    return @rmdir( $dir );
+}
+
+	
 function base47_he_changelog_page() {
     $file    = BASE47_HE_PATH . 'changelog.txt';
     $content = file_exists( $file )
