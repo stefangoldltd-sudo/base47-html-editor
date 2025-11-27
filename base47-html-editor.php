@@ -192,15 +192,14 @@ function base47_he_get_active_sets() {
     // Filter to only those that still exist
     $active = array_values( array_intersect( array_keys( $all ), $opt ) );
 
-    // If nothing persisted, fall back to sane default:
-if ( empty( $active ) ) {
-    if ( ! empty( $all ) ) {
+    // If nothing persisted, fall back to sane default
+    if ( empty( $active ) && ! empty( $all ) ) {
         $active = [ array_key_first( $all ) ];
         update_option( BASE47_HE_OPT_ACTIVE_THEMES, $active );
     }
-}
 
-return $active;
+    return $active;
+}
 
 /** True if a set slug is active. */
 function base47_he_is_set_active( $set_slug ) {
