@@ -410,3 +410,40 @@
 .tm-hidden-manifest {
     display: none;
 }
+
+/* ============================================
+   FIX: Thumbnail layout & spacing
+   ============================================ */
+
+.base47-tm-thumbnail {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 180px !important;   
+    border-radius: 14px !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 14px 0 18px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+/* Make card inner layout vertical so nothing overlaps */
+.base47-tm-card-inner {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Prevent card-main (title row) from pushing sideways */
+.base47-tm-card-main {
+    align-items: flex-start !important;
+}
+
+/* Footer spacing fix */
+.base47-tm-footer {
+    margin-top: 16px !important;
+}
+
+/* Hide thumbnail when missing */
+.base47-tm-thumbnail[src=""],
+.base47-tm-thumbnail:not([src]) {
+    display: none !important;
+}

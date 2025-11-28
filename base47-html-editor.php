@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.7.0
+Version: 2.7.1
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.7.0' );
+define( 'BASE47_HE_VERSION', '2.7.1' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -1618,119 +1618,109 @@ function base47_he_render_theme_manager_section() {
 
                     <div class="base47-tm-card-bg"></div>
 
-                    <div class="base47-tm-card-inner">
+<div class="base47-tm-card-inner">
 
-                        <div class="base47-tm-badge">
-                            <span class="base47-tm-badge-dot"></span>
-                            <span class="base47-tm-badge-text">
-                                <?php echo $is_active ? 'Active' : 'Disabled'; ?>
-                            </span>
-                        </div>
+    <div class="base47-tm-badge">
+        <span class="base47-tm-badge-dot"></span>
+        <span class="base47-tm-badge-text">
+            <?php echo $is_active ? 'Active' : 'Disabled'; ?>
+        </span>
+    </div>
 
-                        <div class="base47-tm-card-main">
+    <div class="base47-tm-card-main">
 
-                            <?php if ( !empty( $info['thumbnail'] ) ) : ?>
+        <div class="base47-tm-logo">
+            <span class="base47-tm-logo-inner">
+                <?php echo esc_html( $first_letter ); ?>
+            </span>
+        </div>
 
-                                 <div class="base47-tm-thumb">
-                                    <img src="<?php echo esc_url( $theme['url'] . $info['thumbnail'] ); ?>" alt="">
-                               </div>
+        <div class="base47-tm-text">
+            <h3 class="base47-tm-name"><?php echo esc_html( $info['label'] ); ?></h3>
 
-                          <?php else : ?>
+            <div class="base47-tm-meta">
+                <span class="base47-tm-meta-item">
+                    <span class="dashicons dashicons-admin-appearance"></span>
+                    Version <?php echo esc_html( $info['version'] ); ?>
+                </span>
+                <span class="base47-tm-meta-sep">•</span>
+                <span class="base47-tm-meta-item">
+                    <span class="dashicons dashicons-media-spreadsheet"></span>
+                    <?php echo esc_html( $templates ); ?> templates
+                </span>
+            </div>
 
-                                 <div class="base47-tm-logo">
-                                   <span class="base47-tm-logo-inner">
-                              <?php echo esc_html( $first_letter ); ?>
-                        </span>
-                     </div>
+            <?php if ( ! empty( $info['description'] ) ) : ?>
+                <p class="base47-tm-description"><?php echo esc_html( $info['description'] ); ?></p>
+            <?php endif; ?>
+        </div>
 
-                      <?php endif; ?>
-							
-                            <div class="base47-tm-text">
-                                <h3 class="base47-tm-name"><?php echo esc_html( $info['label'] ); ?></h3>
+    </div><!-- /.base47-tm-card-main -->
 
-                                <div class="base47-tm-meta">
-                                    <span class="base47-tm-meta-item">
-                                        <span class="dashicons dashicons-admin-appearance"></span>
-                                        Version <?php echo esc_html( $info['version'] ); ?>
-                                    </span>
-                                    <span class="base47-tm-meta-sep">•</span>
-                                    <span class="base47-tm-meta-item">
-                                        <span class="dashicons dashicons-media-spreadsheet"></span>
-                                        <?php echo esc_html( $templates ); ?> templates
-                                    </span>
-                                </div>
+    <?php if ( ! empty( $info['thumbnail'] ) ) : ?>
+        <div class="base47-tm-thumb">
+            <img
+                class="base47-tm-thumbnail"
+                src="<?php echo esc_url( $theme['url'] . ltrim( $info['thumbnail'], '/' ) ); ?>"
+                alt="<?php echo esc_attr( $info['label'] ); ?>">
+        </div>
+    <?php endif; ?>
 
-                                <?php if ( ! empty( $info['description'] ) ) : ?>
-                                    <p class="base47-tm-description"><?php echo esc_html( $info['description'] ); ?></p>
-                                <?php endif; ?>
+    <div class="base47-tm-footer">
+        <label class="base47-tm-toggle">
+            <input type="checkbox"
+                   class="base47-tm-toggle-input"
+                   data-theme="<?php echo esc_attr( $slug ); ?>"
+                   <?php checked( $is_active ); ?> />
 
-                            </div>
-                        </div>
+            <span class="base47-tm-toggle-track">
+                <span class="base47-tm-toggle-thumb"></span>
+            </span>
 
-                        <div class="base47-tm-footer">
+            <span class="base47-tm-toggle-label">
+                <?php echo $is_active ? 'Enabled' : 'Disabled'; ?>
+            </span>
+        </label>
 
-                            <!-- Toggle (AJAX) -->
-                            <label class="base47-tm-toggle">
-                                <input type="checkbox"
-                                       class="base47-tm-toggle-input"
-                                       data-theme="<?php echo esc_attr( $slug ); ?>"
-                                       <?php checked( $is_active ); ?> />
+        <button type="button" class="button button-secondary base47-tm-details-btn" disabled>
+            <span class="dashicons dashicons-visibility"></span>
+            Coming soon
+        </button>
+    </div>
 
-                                <span class="base47-tm-toggle-track">
-                                    <span class="base47-tm-toggle-thumb"></span>
-                                </span>
+    <div class="base47-tm-asset-modes">
+        <?php
+        $use_manifest_arr = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
+        $use_manifest     = in_array( $slug, $use_manifest_arr, true );
 
-                                <span class="base47-tm-toggle-label">
-                                    <?php echo $is_active ? 'Enabled' : 'Disabled'; ?>
-                                </span>
-                            </label>
+        $manifest_path = trailingslashit( $theme['path'] ) . 'manifest.json';
+        $has_manifest  = file_exists( $manifest_path );
+        ?>
+        <label class="tm-mode">
+            <input type="radio"
+                   name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+                   value="loader"
+                   <?php checked( ! $use_manifest ); ?>>
+            <span>Loader (fast & simple)</span>
+        </label>
 
-                            <!-- Future feature button -->
-                            <button type="button" class="button button-secondary base47-tm-details-btn" disabled>
-                                <span class="dashicons dashicons-visibility"></span>
-                                Coming soon
-                            </button>
-							
-                        </div>
+        <label class="tm-mode">
+            <input type="radio"
+                   name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+                   value="manifest"
+                   <?php checked( $use_manifest ); ?>
+                   <?php disabled( ! $has_manifest ); ?>>
+            <span>Manifest (advanced)</span>
+        </label>
 
-						<!-- Loader / Manifest mode -->
-<div class="base47-tm-asset-modes">
+        <input type="checkbox"
+               class="tm-hidden-manifest"
+               name="base47_use_manifest[]"
+               value="<?php echo esc_attr( $slug ); ?>"
+               <?php checked( $use_manifest ); ?>>
+    </div>
 
-    <?php
-    $use_manifest_arr = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
-    $use_manifest     = in_array( $slug, $use_manifest_arr, true );
-
-    $manifest_path = trailingslashit( $theme['path'] ) . 'manifest.json';
-    $has_manifest  = file_exists( $manifest_path );
-    ?>
-
-    <label class="tm-mode">
-        <input type="radio"
-               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
-               value="loader"
-               <?php checked( ! $use_manifest ); ?>>
-        <span>Loader (fast & simple)</span>
-    </label>
-
-    <label class="tm-mode">
-        <input type="radio"
-               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
-               value="manifest"
-               <?php checked( $use_manifest ); ?>
-               <?php disabled( ! $has_manifest ); ?>>
-        <span>Manifest (advanced)</span>
-    </label>
-
-    <!-- Hidden field that actually stores the option -->
-    <input type="checkbox"
-           class="tm-hidden-manifest"
-           name="base47_use_manifest[]"
-           value="<?php echo esc_attr( $slug ); ?>"
-           <?php checked( $use_manifest ); ?>>
-</div>
-						
-                    </div>
-                </div>
+</div><!-- /.base47-tm-card-inner -->
 
             <?php endforeach; ?>
         </div>
