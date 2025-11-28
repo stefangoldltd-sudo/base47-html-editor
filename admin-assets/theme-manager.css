@@ -284,6 +284,20 @@
         background 0.24s ease;
 }
 
+.base47-tm-thumb {
+    margin: 12px 0;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.base47-tm-thumb img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+}
+
 /* Checked state */
 .base47-tm-card.is-active .base47-tm-toggle-track {
     background:
@@ -342,4 +356,57 @@
 .base47-tm-card.is-saving {
     pointer-events: none;
     opacity: 0.7;
+}
+
+/* ============================================
+   Loader / Manifest Mode (Asset Modes)
+   ============================================ */
+
+.base47-tm-asset-modes {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    color: #e5e7eb;
+    font-size: 12px;
+}
+
+/* Radio option rows */
+.base47-tm-asset-modes .tm-mode {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.base47-tm-asset-modes .tm-mode input[type="radio"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--base47-tm-accent, #7C5CFF);
+}
+
+.base47-tm-asset-modes .tm-mode span {
+    opacity: 0.9;
+}
+
+/* Disabled manifest radio (no manifest.json) */
+.base47-tm-asset-modes .tm-mode input:disabled + span {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* Hidden checkbox storing the actual option */
+.tm-hidden-manifest {
+    display: none;
 }

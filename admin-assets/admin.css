@@ -284,3 +284,21 @@
         height: 6px;
     }
 }
+
+.base47-tm-asset-modes {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.base47-tm-asset-modes .tm-mode {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.tm-hidden-manifest {
+    display: none;
+}

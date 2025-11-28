@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.6.4
+Version: 2.7.0
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.6.4' );
+define( 'BASE47_HE_VERSION', '2.7.0' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -60,19 +60,13 @@ const BASE47_HE_OPT_ACTIVE_THEMES  = 'base47_active_themes';     // array of act
 const BASE47_HE_OPT_USE_MANIFEST   = 'base47_use_manifest';      // array of sets using manifest
 const BASE47_HE_OPT_SETTINGS_NONCE = 'base47_he_settings_nonce';
 
+
 /* --------------------------------------------------------------------------
 | DISCOVERY  find all template sets 
 -------------------------------------------------------------------------- */
 /**
  * Discover theme sets (*-templates folders) with smart caching.
- *
- * - Uses static cache (per request) so multiple calls are cheap.
- * - Uses transient cache (between requests) to avoid repeated glob().
- * - Detects folder add/remove using a signature of folder names.
- *
- * IMPORTANT:
- * This ONLY caches folder structure (paths + URLs), NOT template contents.
- * Live Editor still reads actual HTML files from disk, so changes are instant.
+ * Now ALSO loads metadata from theme.json inside each folder.
  */
 function base47_he_get_template_sets( $force = false ) {
 
@@ -106,13 +100,26 @@ function base47_he_get_template_sets( $force = false ) {
     $sets = [];
 
     foreach ( glob( $themes_dir . '*-templates', GLOB_ONLYDIR ) as $dir ) {
-        $base = basename( $dir );
 
-        $sets[ $base ] = [
-            'slug' => $base,
-            'path' => trailingslashit( $dir ),
-            'url'  => trailingslashit( $themes_url . $base ),
-        ];
+        $slug = basename( $dir );
+
+      // ------------------------------------------------
+// NEW: Load metadata from theme.json
+// ------------------------------------------------
+$meta = base47_he_load_theme_metadata( $dir );
+
+$sets[ $slug ] = [
+    'slug'        => $slug,
+    'path'        => trailingslashit( $dir ),
+    'url'         => trailingslashit( $themes_url . $slug ),
+
+    // Metadata from theme.json (or empty fallback)
+    'label'       => $meta['label']       ?? $slug,
+    'description' => $meta['description'] ?? '',
+    'version'     => $meta['version']     ?? '1.0.0',
+    'accent'      => $meta['accent']      ?? '#7C5CFF',
+    'thumbnail'   => $meta['thumbnail']   ?? '',
+];
     }
 
     ksort( $sets, SORT_NATURAL | SORT_FLAG_CASE );
@@ -125,6 +132,7 @@ function base47_he_get_template_sets( $force = false ) {
     $static = $sets;
     return $sets;
 }
+
 
 /**
  * Get list of templates per theme set.
@@ -1589,12 +1597,13 @@ function base47_he_render_theme_manager_section() {
         <div class="base47-tm-grid">
             <?php foreach ( $themes as $slug => $theme ) :
 
-                $info = [
-                    'label'       => $meta[ $slug ]['label']       ?? $slug,
-                    'version'     => $meta[ $slug ]['version']     ?? '1.0.0',
-                    'description' => $meta[ $slug ]['description'] ?? '',
-                    'accent'      => $meta[ $slug ]['accent']      ?? '#7C5CFF',
-                ];
+                 $info = [
+                          'label'       => $theme['label']       ?? $slug,
+                          'version'     => $theme['version']     ?? '1.0.0',
+                          'description' => $theme['description'] ?? '',
+                          'accent'      => $theme['accent']      ?? '#7C5CFF',
+                          'thumbnail'   => $theme['thumbnail']   ?? '',
+                       ];
 
                 $is_active    = in_array( $slug, $active_themes, true );
                 $templates    = base47_he_count_theme_templates( $slug );
@@ -1620,12 +1629,22 @@ function base47_he_render_theme_manager_section() {
 
                         <div class="base47-tm-card-main">
 
-                            <div class="base47-tm-logo">
-                                <span class="base47-tm-logo-inner">
-                                    <?php echo esc_html( $first_letter ); ?>
-                                </span>
-                            </div>
+                            <?php if ( !empty( $info['thumbnail'] ) ) : ?>
 
+                                 <div class="base47-tm-thumb">
+                                    <img src="<?php echo esc_url( $theme['url'] . $info['thumbnail'] ); ?>" alt="">
+                               </div>
+
+                          <?php else : ?>
+
+                                 <div class="base47-tm-logo">
+                                   <span class="base47-tm-logo-inner">
+                              <?php echo esc_html( $first_letter ); ?>
+                        </span>
+                     </div>
+
+                      <?php endif; ?>
+							
                             <div class="base47-tm-text">
                                 <h3 class="base47-tm-name"><?php echo esc_html( $info['label'] ); ?></h3>
 
@@ -1764,6 +1783,34 @@ function base47_he_changelog_page() {
         : "â€¢ 2.3.0 â€” Special Widgets admin page, Redox slider v1 integration.\nâ€¢ 2.1.0 â€” Theme Manager (toggle switches), active-only shortcodes, safer defaults.\nâ€¢ 2.0.x â€” Multi-set foundations.\n";
 
     echo '<div class="wrap base47-he-wrap"><h1>Changelog</h1><pre class="base47-he-changelog">' . esc_html( $content ) . '</pre></div>';
+}
+
+
+
+/**
+ * Load theme metadata from theme.json inside a theme folder.
+ *
+ * This function looks for a file named "theme.json" inside the given path.
+ * If found, it reads the file, decodes the JSON, and returns the metadata
+ * (name, version, colors, thumbnail, etc.) as an array.
+ *
+ * If the file is missing or invalid, it returns an empty array so nothing breaks.
+ */
+function base47_he_load_theme_metadata( $path ) {
+    $file = trailingslashit( $path ) . 'theme.json';
+
+    // No metadata file ? return empty fallback
+    if ( ! file_exists( $file ) ) {
+        return [];
+    }
+
+    // Read JSON file
+    $json = file_get_contents( $file );
+
+    // Decode JSON into array (or empty array if invalid)
+    $data = json_decode( $json, true );
+
+    return is_array( $data ) ? $data : [];
 }
 
 
