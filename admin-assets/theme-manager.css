@@ -1,7 +1,9 @@
 /* ============================================
-   Base47 Theme Manager – Glass UI (FIXED + CLEAN)
+   Base47 Theme Manager – Glass UI (v2.7.2.1)
+   CLEAN + FINAL + FIXED
    ============================================ */
 
+/* Wrapper */
 .base47-tm-wrap {
     margin-top: 30px;
     position: relative;
@@ -19,7 +21,21 @@
     margin: 0 0 6px;
 }
 
-/* GRID — FINAL VERSION */
+.base47-tm-subtitle {
+    color: #cbd5e1; /* FIX: readable gray */
+    font-size: 13px;
+    opacity: 0.95;
+}
+
+/* Default theme dropdown (FIX #2) */
+#base47_default_theme {
+    min-width: 260px !important;
+    padding: 8px 14px !important;
+    height: 40px !important;
+    font-size: 14px !important;
+}
+
+/* GRID — FINAL */
 .base47-tm-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
@@ -27,7 +43,7 @@
     margin-top: 20px;
 }
 
-/* Glass Card */
+/* Card */
 .base47-tm-card {
     position: relative;
     overflow: hidden;
@@ -49,7 +65,6 @@
     pointer-events: none;
 }
 
-/* Inner content vertical layout */
 .base47-tm-card-inner {
     position: relative;
     z-index: 2;
@@ -64,7 +79,6 @@
     border: 1px solid rgba(255,255,255,0.08);
     backdrop-filter: blur(18px);
 
-    /* important */
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -83,16 +97,23 @@
     color: #e5e7eb;
 }
 
+.base47-tm-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--base47-tm-accent, #7C5CFF);
+}
+
 /* Text */
 .base47-tm-text {
     flex: 1;
 }
 
 .base47-tm-name {
-    margin: 0 0 4px;
+    margin: 0;
     font-size: 15px;
     font-weight: 600;
-    color: #f9fafb;
+    color: #fff; /* brighter */
 }
 
 .base47-tm-meta {
@@ -100,7 +121,14 @@
     flex-wrap: wrap;
     gap: 6px;
     font-size: 11px;
-    color: #9ca3af;
+    color: #cbd5e1; /* FIX #1: readable */
+}
+
+.base47-tm-description {
+    font-size: 13px;
+    color: #e2e8f0 !important; /* FIX #1: brighter */
+    opacity: 1;
+    line-height: 1.4;
 }
 
 /* Thumbnail */
@@ -113,13 +141,13 @@
 }
 
 .base47-tm-thumb img {
-    width: 100%;
-    height: 100%;
+    width: 50%;
+    height: 50%;
     object-fit: cover;
     display: block;
 }
 
-/* Toggle section */
+/* Footer */
 .base47-tm-footer {
     display: flex;
     align-items: center;
@@ -127,7 +155,7 @@
     margin-top: 6px;
 }
 
-/* Loader / Manifest */
+/* Toggle (Loader / Manifest) */
 .base47-tm-asset-modes {
     margin-top: 12px;
     padding: 12px 14px;
@@ -141,14 +169,14 @@
     font-size: 12px;
 }
 
-/* Layout for footer right section: uninstall + coming soon */
+/* Footer right = uninstall + coming soon */
 .base47-tm-footer-right {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-/* Uninstall button style (matches WP delete link vibe) */
+/* Uninstall Button */
 .base47-tm-uninstall-btn {
     border: none;
     background: none;
