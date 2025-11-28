@@ -185,4 +185,79 @@ $(document).on('click','.base47-load-preview-btn',function(e){
     }
   });
 });
+	
+    /**
+     * Uninstall theme
+     */
+    $(document).on('click', '.base47-tm-uninstall-btn', function (e) {
+        e.preventDefault();
+
+        var $btn   = $(this);
+        var slug   = $btn.data('theme');
+        var $card  = $btn.closest('.base47-tm-card');
+
+        if (!slug) {
+            return;
+        }
+
+        if (!confirm('Are you sure you want to uninstall this theme? This will delete its folder from the server.')) {
+            return;
+        }
+
+        $btn.prop('disabled', true).text('Uninstalling…');
+
+        $.post(
+            base47_he_admin.ajax_url,
+            {
+                action: 'base47_he_uninstall_theme',
+                theme: slug,
+                nonce: base47_he_admin.nonce
+            }
+        )
+        .done(function (resp) {
+            if (resp && resp.success) {
+                // Remove the card from the UI
+                $card.slideUp(200, function () {
+                    $(this).remove();
+                });
+            } else {
+                alert((resp && resp.data && resp.data.message) ? resp.data.message : 'Error uninstalling theme.');
+                $btn.prop('disabled', false).text('Uninstall');
+            }
+        })
+        .fail(function () {
+            alert('Ajax error while uninstalling theme.');
+            $btn.prop('disabled', false).text('Uninstall');
+        });
+    });
+
+});
+	
+
+    // Default Theme Selector
+    $('#base47_default_theme').on('change', function () {
+
+        let selected = $(this).val();
+
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: {
+                action: 'base47_set_default_theme',
+                theme: selected,
+                _wpnonce: base47_admin.nonce
+            },
+            success: function (response) {
+                if (response.success) {
+                    console.log('Default theme updated:', selected);
+                } else {
+                    alert('Could not save default theme.');
+                }
+            }
+        });
+
+    });
+
+});
+	
 });

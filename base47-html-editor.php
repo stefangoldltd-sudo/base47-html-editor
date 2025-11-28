@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.7.1
+Version: 2.7.2
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.7.1' );
+define( 'BASE47_HE_VERSION', '2.7.2' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -325,10 +325,20 @@ function base47_he_migrate_options() {
 }
 
 function base47_he_activate() {
-    // Run migration first
+
+    // 1?? Run migration first — ensures the folder exists
     base47_he_migrate_options();
-    // Ensure default active sets saved
+
+    // 2?? Ensure default active sets saved
     base47_he_get_active_sets();
+
+    // 3?? Ensure default theme exists
+    $sets = base47_he_get_template_sets(true); // force scan
+    $default = get_option('base47_default_theme', '');
+
+    if ( empty($default) && ! empty($sets) ) {
+        update_option('base47_default_theme', array_key_first($sets));
+    }
 }
 register_activation_hook( __FILE__, 'base47_he_activate' );
 
@@ -559,6 +569,12 @@ function base47_he_get_all_manifests() {
  */
 function base47_he_enqueue_assets_for_set( $set_slug ) {
 
+	// Ensure default theme always loads assets
+$default = get_option('base47_default_theme', '');
+if ( empty($set_slug) && ! empty($default) ) {
+    $set_slug = $default;
+}
+	
     // Only enqueue for active sets
     if ( ! base47_he_is_set_active( $set_slug ) ) {
         return;
@@ -684,7 +700,14 @@ function base47_he_enqueue_assets_for_set( $set_slug ) {
 
 function base47_he_render_template( $filename, $set_slug = '' ) {
     $sets = base47_he_get_template_sets();
-
+	
+	// DEFAULT THEME FALLBACK
+if ( empty( $set_slug ) ) {
+    $default = get_option('base47_default_theme', '');
+    if ( ! empty($default) ) {
+        $set_slug = $default;
+    }
+}
     if ( empty( $set_slug ) ) {
         $info = base47_he_locate_template( $filename );
         if ( ! $info ) return '';
@@ -1540,6 +1563,82 @@ function base47_he_delete_theme_folder( $slug ) {
 }
 
 /**
+ * AJAX: Uninstall a theme (delete folder + cleanup options)
+ */
+add_action( 'wp_ajax_base47_he_uninstall_theme', 'base47_he_ajax_uninstall_theme' );
+
+function base47_he_ajax_uninstall_theme() {
+
+    // Basic security
+    check_ajax_referer( 'base47_he_nonce', 'nonce' );
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
+    }
+
+    $slug = isset( $_POST['theme'] ) ? sanitize_key( $_POST['theme'] ) : '';
+
+    if ( empty( $slug ) ) {
+        wp_send_json_error( [ 'message' => 'Missing theme slug.' ] );
+    }
+
+    // Get all template sets so we can find the path of this theme
+    $themes = base47_he_get_template_sets();
+
+    if ( ! isset( $themes[ $slug ] ) || empty( $themes[ $slug ]['path'] ) ) {
+        wp_send_json_error( [ 'message' => 'Theme not found.' ] );
+    }
+
+    $theme_path = $themes[ $slug ]['path'];
+
+    // Recursively delete folder
+    base47_he_rrmdir( $theme_path );
+
+    // Remove from "active themes" option
+    $active_themes = get_option( 'base47_active_themes', [] );
+    if ( is_array( $active_themes ) ) {
+        $active_themes = array_diff( $active_themes, [ $slug ] );
+        update_option( 'base47_active_themes', array_values( $active_themes ) );
+    }
+
+    // Remove from "use manifest" option
+    $use_manifest = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
+    if ( is_array( $use_manifest ) ) {
+        $use_manifest = array_diff( $use_manifest, [ $slug ] );
+        update_option( BASE47_HE_OPT_USE_MANIFEST, array_values( $use_manifest ) );
+    }
+
+    wp_send_json_success( [ 'message' => 'Theme uninstalled.', 'slug' => $slug ] );
+}
+
+/**
+ * Helper: recursive remove directory
+ */
+if ( ! function_exists( 'base47_he_rrmdir' ) ) {
+    function base47_he_rrmdir( $dir ) {
+
+        if ( ! is_dir( $dir ) ) {
+            return;
+        }
+
+        $items = scandir( $dir );
+        foreach ( $items as $item ) {
+            if ( $item === '.' || $item === '..' ) {
+                continue;
+            }
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+
+            if ( is_dir( $path ) ) {
+                base47_he_rrmdir( $path );
+            } else {
+                @unlink( $path );
+            }
+        }
+
+        @rmdir( $dir );
+    }
+}
+/**
  * Base47 Theme metadata (labels, version, description, accent colors)
  */
 function base47_he_theme_metadata() {
@@ -1594,6 +1693,26 @@ function base47_he_render_theme_manager_section() {
             </p>
         </div>
 
+		<?php
+// Default Theme Selector
+$default_theme = get_option('base47_default_theme', array_key_first($themes));
+?>
+
+<div class="base47-default-theme-row" style="margin-bottom:20px;">
+    <label for="base47_default_theme" style="font-weight:600; margin-right:10px;">
+        Default Theme:
+    </label>
+
+    <select id="base47_default_theme" style="padding:6px 10px; border-radius:6px;">
+        <?php foreach ( $themes as $slug => $t ) : ?>
+            <option value="<?php echo esc_attr($slug); ?>"
+                <?php selected( $slug, $default_theme ); ?>>
+                <?php echo esc_html( $t['label'] ); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+		
         <div class="base47-tm-grid">
             <?php foreach ( $themes as $slug => $theme ) :
 
@@ -1620,6 +1739,7 @@ function base47_he_render_theme_manager_section() {
 
 <div class="base47-tm-card-inner">
 
+    <!-- Status badge -->
     <div class="base47-tm-badge">
         <span class="base47-tm-badge-dot"></span>
         <span class="base47-tm-badge-text">
@@ -1627,8 +1747,8 @@ function base47_he_render_theme_manager_section() {
         </span>
     </div>
 
+    <!-- Header row: logo + text (name, version, templates, description) -->
     <div class="base47-tm-card-main">
-
         <div class="base47-tm-logo">
             <span class="base47-tm-logo-inner">
                 <?php echo esc_html( $first_letter ); ?>
@@ -1654,19 +1774,19 @@ function base47_he_render_theme_manager_section() {
                 <p class="base47-tm-description"><?php echo esc_html( $info['description'] ); ?></p>
             <?php endif; ?>
         </div>
+    </div>
 
-    </div><!-- /.base47-tm-card-main -->
-
+    <!-- Thumbnail (always under the info) -->
     <?php if ( ! empty( $info['thumbnail'] ) ) : ?>
         <div class="base47-tm-thumb">
-            <img
-                class="base47-tm-thumbnail"
-                src="<?php echo esc_url( $theme['url'] . ltrim( $info['thumbnail'], '/' ) ); ?>"
-                alt="<?php echo esc_attr( $info['label'] ); ?>">
+            <img src="<?php echo esc_url( $theme['url'] . $info['thumbnail'] ); ?>" alt="">
         </div>
     <?php endif; ?>
 
+    <!-- Footer: toggle + uninstall + “coming soon” -->
     <div class="base47-tm-footer">
+
+        <!-- Toggle (AJAX) -->
         <label class="base47-tm-toggle">
             <input type="checkbox"
                    class="base47-tm-toggle-input"
@@ -1682,13 +1802,25 @@ function base47_he_render_theme_manager_section() {
             </span>
         </label>
 
-        <button type="button" class="button button-secondary base47-tm-details-btn" disabled>
-            <span class="dashicons dashicons-visibility"></span>
-            Coming soon
-        </button>
+        <div class="base47-tm-footer-right">
+            <!-- Uninstall theme -->
+            <button type="button"
+                    class="button-link-delete base47-tm-uninstall-btn"
+                    data-theme="<?php echo esc_attr( $slug ); ?>">
+                Uninstall
+            </button>
+
+            <!-- Future feature button -->
+            <button type="button" class="button button-secondary base47-tm-details-btn" disabled>
+                <span class="dashicons dashicons-visibility"></span>
+                Coming soon
+            </button>
+        </div>
     </div>
 
+    <!-- Loader / Manifest mode -->
     <div class="base47-tm-asset-modes">
+
         <?php
         $use_manifest_arr = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
         $use_manifest     = in_array( $slug, $use_manifest_arr, true );
@@ -1696,12 +1828,13 @@ function base47_he_render_theme_manager_section() {
         $manifest_path = trailingslashit( $theme['path'] ) . 'manifest.json';
         $has_manifest  = file_exists( $manifest_path );
         ?>
+
         <label class="tm-mode">
             <input type="radio"
                    name="asset_mode_<?php echo esc_attr( $slug ); ?>"
                    value="loader"
                    <?php checked( ! $use_manifest ); ?>>
-            <span>Loader (fast & simple)</span>
+            <span>Loader (fast &amp; simple)</span>
         </label>
 
         <label class="tm-mode">
@@ -1713,6 +1846,7 @@ function base47_he_render_theme_manager_section() {
             <span>Manifest (advanced)</span>
         </label>
 
+        <!-- Hidden field that actually stores the option -->
         <input type="checkbox"
                class="tm-hidden-manifest"
                name="base47_use_manifest[]"
@@ -2304,3 +2438,23 @@ function base47_he_ajax_toggle_theme() {
     ] );
 }
 add_action( 'wp_ajax_base47_toggle_theme', 'base47_he_ajax_toggle_theme' );
+
+
+/**
+ * Save default theme (AJAX)
+ */
+function base47_he_ajax_set_default_theme() {
+
+    check_ajax_referer( 'base47_he_nonce', '_wpnonce' );
+
+    if ( empty($_POST['theme']) ) {
+        wp_send_json_error('Missing theme');
+    }
+
+    $theme = sanitize_text_field($_POST['theme']);
+
+    update_option('base47_default_theme', $theme);
+
+    wp_send_json_success(['saved' => $theme]);
+}
+add_action('wp_ajax_base47_set_default_theme', 'base47_he_ajax_set_default_theme');
