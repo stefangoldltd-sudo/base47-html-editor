@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.7.2.1
+Version: 2.8.0
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.7.2.1' );
+define( 'BASE47_HE_VERSION', '2.8.0' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -1421,6 +1421,19 @@ function base47_he_settings_page() {
                 </span>
             </form>
         </div>
+		
+		<!-- Rebuild all caches -->
+<form method="post" style="margin-top:10px;">
+    <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
+    <button type="button"
+            id="base47-rebuild-caches-btn"
+            class="button button-secondary">
+        Rebuild All Caches
+    </button>
+    <span class="description" style="margin-left:8px;">
+        Clears and regenerates all template + theme caches.
+    </span>
+</form>
 
         <!-- GLASS THEME MANAGER -->
         <?php base47_he_render_theme_manager_section(); ?>
@@ -2458,3 +2471,22 @@ function base47_he_ajax_set_default_theme() {
     wp_send_json_success(['saved' => $theme]);
 }
 add_action('wp_ajax_base47_set_default_theme', 'base47_he_ajax_set_default_theme');
+
+
+/**
+ * AJAX: Rebuild ALL Base47 caches (sets + templates)
+ */
+add_action('wp_ajax_base47_rebuild_caches', 'base47_he_ajax_rebuild_caches');
+
+function base47_he_ajax_rebuild_caches() {
+    check_ajax_referer('base47_he_nonce', 'nonce');
+
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(['message' => 'Permission denied']);
+    }
+
+    // Force-refresh all caches
+    base47_he_refresh_theme_caches();
+
+    wp_send_json_success(['message' => 'All caches rebuilt']);
+}

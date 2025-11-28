@@ -74,3 +74,29 @@ jQuery(function ($) {
     });
 
 });
+
+jQuery(document).ready(function($) {
+
+    $("#base47-rebuild-caches-btn").on("click", function () {
+
+        if (!confirm("Rebuild all caches now?")) {
+            return;
+        }
+
+        $(this).prop("disabled", true).text("Rebuilding...");
+
+        $.post(base47ThemeManager.ajaxUrl, {
+            action: "base47_rebuild_caches",
+            nonce: base47ThemeManager.nonce
+        }, function (response) {
+
+            alert(response.success ? "Caches rebuilt successfully!" : "Failed: " + response.data.message);
+
+            $("#base47-rebuild-caches-btn")
+                .prop("disabled", false)
+                .text("Rebuild All Caches");
+        });
+
+    });
+
+});
