@@ -2,10 +2,11 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.6.1
+Version: 2.6.6.2
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
+
 
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -13,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.6.1' );
+define( 'BASE47_HE_VERSION', '2.6.6.2' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -1521,13 +1522,13 @@ function base47_he_theme_metadata() {
         'mivon-templates' => [
             'label'       => 'Mivon – Multi-Purpose Theme',
             'version'     => '1.0.0',
-            'description' => 'One-pager & portfolio layouts.',
+            'description' => 'One-page and portfolio layouts.',
             'accent'      => '#7C5CFF',
         ],
         'lezar-templates' => [
             'label'       => 'Lezar – Clinic Theme',
             'version'     => '1.0.0',
-            'description' => 'Medical & aesthetic clinic pages.',
+            'description' => 'Medical and aesthetic clinic pages.',
             'accent'      => '#FF5F8A',
         ],
         'redox-templates' => [
@@ -1539,18 +1540,20 @@ function base47_he_theme_metadata() {
         'bfolio-templates' => [
             'label'       => 'B-Folio – Minimal Portfolio',
             'version'     => '1.0.0',
-            'description' => 'Clean personal portfolio & case-study pages.',
+            'description' => 'Clean personal portfolio and case-study pages.',
             'accent'      => '#F8C542',
         ],
     ];
 }
+
+
 /**
  * Render Theme Manager (glass UI)
  */
 function base47_he_render_theme_manager_section() {
 
-    $themes        = base47_he_get_template_sets();       // real sets from uploads
-    $meta          = base47_he_theme_metadata();          // pretty names/descriptions/accents
+    $themes        = base47_he_get_template_sets();       // real uploaded sets
+    $meta          = base47_he_theme_metadata();          // metadata for UI
     $active_themes = get_option( 'base47_active_themes', [] );
 
     if ( ! is_array( $active_themes ) ) {
@@ -1558,37 +1561,39 @@ function base47_he_render_theme_manager_section() {
     }
     ?>
     <div class="base47-he-wrap base47-tm-wrap">
+
         <div class="base47-tm-header">
             <h2 class="base47-tm-title">Theme Manager</h2>
             <p class="base47-tm-subtitle">
-                ??? ???? ?????????? ???? ??????. ?? ???? ?????? ?????? ??????? &amp; ????? – ??? ????? ?? ???? ???? ????.
+                Choose which theme sets are active. Only active themes load templates and assets.
             </p>
         </div>
 
         <div class="base47-tm-grid">
             <?php foreach ( $themes as $slug => $theme ) :
 
-                // MERGE BASE DATA + METADATA
                 $info = [
-                    'label'       => $meta[$slug]['label']       ?? $slug,
-                    'version'     => $meta[$slug]['version']     ?? '1.0.0',
-                    'description' => $meta[$slug]['description'] ?? '',
-                    'accent'      => $meta[$slug]['accent']      ?? '#7C5CFF',
+                    'label'       => $meta[ $slug ]['label']       ?? $slug,
+                    'version'     => $meta[ $slug ]['version']     ?? '1.0.0',
+                    'description' => $meta[ $slug ]['description'] ?? '',
+                    'accent'      => $meta[ $slug ]['accent']      ?? '#7C5CFF',
                 ];
 
-                $is_active     = in_array( $slug, $active_themes, true );
-                $templates     = base47_he_count_theme_templates( $slug );
-                $accent        = $info['accent'];
-                $first_letter  = strtoupper( mb_substr( $slug, 0, 1 ) );
+                $is_active    = in_array( $slug, $active_themes, true );
+                $templates    = base47_he_count_theme_templates( $slug );
+                $accent       = $info['accent'];
+                $first_letter = strtoupper( mb_substr( $slug, 0, 1 ) );
                 ?>
+                
                 <div class="base47-tm-card <?php echo $is_active ? 'is-active' : 'is-inactive'; ?>"
                      data-theme="<?php echo esc_attr( $slug ); ?>"
                      data-active="<?php echo $is_active ? '1' : '0'; ?>"
                      style="--base47-tm-accent: <?php echo esc_attr( $accent ); ?>;">
-                    
+
                     <div class="base47-tm-card-bg"></div>
 
                     <div class="base47-tm-card-inner">
+
                         <div class="base47-tm-badge">
                             <span class="base47-tm-badge-dot"></span>
                             <span class="base47-tm-badge-text">
@@ -1597,6 +1602,7 @@ function base47_he_render_theme_manager_section() {
                         </div>
 
                         <div class="base47-tm-card-main">
+
                             <div class="base47-tm-logo">
                                 <span class="base47-tm-logo-inner">
                                     <?php echo esc_html( $first_letter ); ?>
@@ -1604,9 +1610,7 @@ function base47_he_render_theme_manager_section() {
                             </div>
 
                             <div class="base47-tm-text">
-                                <h3 class="base47-tm-name">
-                                    <?php echo esc_html( $info['label'] ); ?>
-                                </h3>
+                                <h3 class="base47-tm-name"><?php echo esc_html( $info['label'] ); ?></h3>
 
                                 <div class="base47-tm-meta">
                                     <span class="base47-tm-meta-item">
@@ -1621,14 +1625,15 @@ function base47_he_render_theme_manager_section() {
                                 </div>
 
                                 <?php if ( ! empty( $info['description'] ) ) : ?>
-                                    <p class="base47-tm-description">
-                                        <?php echo esc_html( $info['description'] ); ?>
-                                    </p>
+                                    <p class="base47-tm-description"><?php echo esc_html( $info['description'] ); ?></p>
                                 <?php endif; ?>
+
                             </div>
                         </div>
 
                         <div class="base47-tm-footer">
+
+                            <!-- Toggle (AJAX) -->
                             <label class="base47-tm-toggle">
                                 <input type="checkbox"
                                        class="base47-tm-toggle-input"
@@ -1644,21 +1649,24 @@ function base47_he_render_theme_manager_section() {
                                 </span>
                             </label>
 
+                            <!-- Future feature button -->
                             <button type="button" class="button button-secondary base47-tm-details-btn" disabled>
                                 <span class="dashicons dashicons-visibility"></span>
                                 Coming soon
                             </button>
+
                         </div>
+
                     </div>
                 </div>
+
             <?php endforeach; ?>
         </div>
 
         <div class="base47-tm-footer-note">
-            <p>
-                ???: ???? ???? ?? ?? ?? ???? ???? ????? ?? ???? – ??? ?-Base47 ???? ?? ????? ?
-            </p>
+            <p>Tip: keep only the themes you use enabled. Fewer active themes = faster Base47.</p>
         </div>
+
     </div>
     <?php
 }
@@ -1769,29 +1777,49 @@ return array_key_first($sets) ?: '';
 
 
 function base47_he_ajax_preview() {
-    check_admin_referer( 'base47_he_preview' );
+
+    // Correct AJAX nonce check
+    check_ajax_referer( 'base47_he_preview', 'nonce' );
 
     $file = isset( $_GET['file'] ) ? sanitize_text_field( wp_unslash( $_GET['file'] ) ) : '';
     $set  = isset( $_GET['set'] )  ? sanitize_text_field( wp_unslash( $_GET['set'] ) )  : '';
 
     if ( ! $file ) wp_die( 'Template not specified.' );
 
-    $sets = base47_he_get_template_sets();
-    if ( empty( $set ) ) {
-        $info = base47_he_locate_template( $file );
-        if ( ! $info ) wp_die( 'Template not found.' );
-        $set      = $info['set'];
-        $full     = $info['path'];
-        $base_url = $info['url'];
-    } else {
-        if ( ! isset( $sets[ $set ] ) ) wp_die( 'Template set not found.' );
-        $full     = $sets[ $set ]['path'] . $file;
-        $base_url = $sets[ $set ]['url'];
-        if ( ! file_exists( $full ) ) wp_die( 'Template not found.' );
+    // FIX: use the new correct option name
+    $active = get_option( 'base47_active_themes', [] );
+    if ( ! is_array( $active ) ) {
+        $active = [];
     }
 
+    // FIX: fallback if nothing active
+    if ( empty( $active ) ) {
+        $sets = base47_he_get_template_sets();
+        $active = [ array_key_first( $sets ) ];
+    }
+
+    // FIX: If “set” empty, use the first ACTIVE set
+    if ( empty( $set ) ) {
+        $set = $active[0];
+    }
+
+    $sets = base47_he_get_template_sets();
+
+    // Validate chosen set
+    if ( ! isset( $sets[ $set ] ) ) {
+        wp_die( 'Template set not found.' );
+    }
+
+    // Build full path
+    $full = $sets[ $set ]['path'] . $file;
+    $base_url = $sets[ $set ]['url'];
+
+    if ( ! file_exists( $full ) ) wp_die( 'Template not found.' );
+
+    // Process HTML
     $html = file_get_contents( $full );
     $html = base47_he_rewrite_assets( $html, $base_url, true );
+
     echo $html;
     exit;
 }
