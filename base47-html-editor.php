@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.6
+Version: 2.6.6.1
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.6' );
+define( 'BASE47_HE_VERSION', '2.6.6.1' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -1243,25 +1243,24 @@ function base47_he_editor_page() {
     <?php
 }
 
-/** THEME MANAGER (toggle switches + install/delete/scan) */
+
+/** THEME MANAGER (glass UI + install/delete/scan) */
 function base47_he_settings_page() {
     if ( ! current_user_can( 'manage_options' ) ) {
         return;
     }
 
-    $sets        = base47_he_get_template_sets();
-    $active      = base47_he_get_active_sets();
-    $notices     = [];
+    $notices = [];
 
     // --------------------------------------------------
-    // HANDLE FORM ACTIONS
+    // HANDLE FORM ACTIONS (install / delete / scan)
     // --------------------------------------------------
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
         check_admin_referer( BASE47_HE_OPT_SETTINGS_NONCE );
 
         $action = isset( $_POST['base47_he_theme_action'] )
             ? sanitize_text_field( wp_unslash( $_POST['base47_he_theme_action'] ) )
-            : 'save';
+            : '';
 
         switch ( $action ) {
 
@@ -1281,8 +1280,6 @@ function base47_he_settings_page() {
                         ),
                     ];
                     base47_he_refresh_theme_caches();
-                    $sets   = base47_he_get_template_sets( true );
-                    $active = base47_he_get_active_sets();
                 }
                 break;
 
@@ -1314,72 +1311,26 @@ function base47_he_settings_page() {
                         ),
                     ];
                     base47_he_refresh_theme_caches();
-                    $sets   = base47_he_get_template_sets( true );
-                    $active = base47_he_get_active_sets();
                 }
                 break;
 
             case 'scan_themes':
                 base47_he_refresh_theme_caches();
-                $sets   = base47_he_get_template_sets( true );
-                $active = base47_he_get_active_sets();
                 $notices[] = [
                     'type' => 'updated',
                     'msg'  => 'Theme list refreshed successfully.',
                 ];
                 break;
 
-            case 'save':
-            default:
-                // Active sets
-                $new_active = isset( $_POST['base47_active_sets'] ) && is_array( $_POST['base47_active_sets'] )
-                    ? array_values( array_intersect(
-                        array_keys( $sets ),
-                        array_map( 'sanitize_text_field', $_POST['base47_active_sets'] )
-                    ) )
-                    : [];
-
-                if ( empty( $new_active ) && ! empty( $sets ) ) {
-                    $first      = array_key_first( $sets );
-                    $new_active = [ $first ];
-                }
-
-                update_option( BASE47_HE_OPT_ACTIVE_THEMES, $new_active );
-                $active = $new_active;
-
-                // Manifest preferences
-                $use_manifest = isset( $_POST['base47_use_manifest'] ) && is_array( $_POST['base47_use_manifest'] )
-                    ? array_values( array_intersect(
-                        array_keys( $sets ),
-                        array_map( 'sanitize_text_field', $_POST['base47_use_manifest'] )
-                    ) )
-                    : [];
-
-                update_option( BASE47_HE_OPT_USE_MANIFEST, $use_manifest );
-
-                $notices[] = [
-                    'type' => 'updated',
-                    'msg'  => 'Settings saved.',
-                ];
-                break;
+            // NOTE:
+            // We no longer "save" active themes here.
+            // Active/inactive is handled live via AJAX (base47_he_ajax_toggle_theme).
         }
     }
-
-    $use_manifest_sets = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
-    $manifests         = base47_he_get_all_manifests();
 
     ?>
     <div class="wrap base47-he-wrap">
         <h1>Theme Manager</h1>
-        <p>
-            Toggle which theme sets are <strong>Active</strong>. Only active sets are exposed as shortcodes
-            and appear in Live Editor &amp; Shortcodes.
-        </p>
-        <p style="background:#fff3cd;padding:12px;border-left:4px solid #ffc107;margin:16px 0;">
-            <strong>? Asset Loading:</strong>
-            Choose <strong>Loader</strong> for heavy themes (Base47, Lezar, Bfolio, etc.),
-            or <strong>Manifest</strong> for lightweight themes with a manifest.json.
-        </p>
 
         <?php
         // NOTICES
@@ -1392,6 +1343,8 @@ function base47_he_settings_page() {
         <!-- TOP ACTION BAR: INSTALL + SCAN -->
         <div style="margin:20px 0;padding:15px;border:1px solid #ddd;background:#fff;border-radius:6px;">
             <h2 style="margin-top:0;">Theme Actions</h2>
+
+            <!-- Install ZIP -->
             <form method="post" enctype="multipart/form-data" style="margin-bottom:12px;">
                 <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
                 <input type="hidden" name="base47_he_theme_action" value="install_theme">
@@ -1407,6 +1360,7 @@ function base47_he_settings_page() {
                 </p>
             </form>
 
+            <!-- Scan themes -->
             <form method="post" style="margin-top:10px;">
                 <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
                 <input type="hidden" name="base47_he_theme_action" value="scan_themes">
@@ -1419,102 +1373,12 @@ function base47_he_settings_page() {
             </form>
         </div>
 
-        <!-- MAIN SETTINGS FORM (ACTIVE + ASSET MODE + DELETE) -->
-        <form method="post" style="margin-top:20px;">
-            <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
-            <input type="hidden" name="base47_he_theme_action" value="save">
+        <!-- GLASS THEME MANAGER -->
+        <?php base47_he_render_theme_manager_section(); ?>
 
-            <h2>Installed Theme Sets</h2>
-
-            <div class="base47-he-grid" style="margin-top:16px;">
-                <?php if ( empty( $sets ) ) : ?>
-                    <p>No <code>*-templates</code> folders found in the plugin directory. Install a theme via ZIP or FTP.</p>
-                <?php else : ?>
-                    <?php foreach ( $sets as $slug => $set ) :
-                        $is_active   = in_array( $slug, $active, true );
-                        $use_manifest = in_array( $slug, $use_manifest_sets, true );
-                        $has_manifest = isset( $manifests[ $slug ] );
-                    ?>
-                        <div class="base47-box">
-                            <h3><?php echo esc_html( $slug ); ?></h3>
-                            <p class="base47-muted">
-                                Path: <code><?php echo esc_html( $set['path'] ); ?></code>
-                            </p>
-
-                            <!-- ACTIVE TOGGLE -->
-                            <div style="margin:12px 0;">
-                                <strong>Active:</strong>
-                                <label class="base47-switch" title="<?php echo $is_active ? 'Active' : 'Inactive'; ?>" style="margin-left:8px;">
-                                    <input type="checkbox"
-                                           name="base47_active_sets[]"
-                                           value="<?php echo esc_attr( $slug ); ?>"
-                                           <?php checked( $is_active ); ?>>
-                                    <span class="base47-slider"></span>
-                                </label>
-                            </div>
-
-                            <!-- ASSET MODE -->
-                            <div style="margin:12px 0;padding-top:8px;border-top:1px solid #eee;">
-                                <strong>Asset Loading:</strong>
-                                <div style="margin-top:8px;">
-                                    <label style="display:inline-flex;align-items:center;margin-right:16px;">
-                                        <input type="radio"
-                                               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
-                                               value="loader"
-                                               <?php checked( ! $use_manifest ); ?>
-                                               onchange="(function(field){ if(field){ field.checked = false; } })(document.querySelector('input[name=&quot;base47_use_manifest[]&quot;][value=&quot;<?php echo esc_attr( $slug ); ?>&quot;]'));"
-                                        >
-                                        <span style="margin-left:4px;">? Loader (Fast)</span>
-                                    </label>
-                                    <label style="display:inline-flex;align-items:center;">
-                                        <input type="radio"
-                                               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
-                                               value="manifest"
-                                               <?php checked( $use_manifest ); ?>
-                                               <?php disabled( ! $has_manifest ); ?>
-                                               onchange="(function(field){ if(field){ field.checked = true; } })(document.querySelector('input[name=&quot;base47_use_manifest[]&quot;][value=&quot;<?php echo esc_attr( $slug ); ?>&quot;]'));"
-                                        >
-                                        <span style="margin-left:4px;">?? Manifest <?php echo $has_manifest ? '' : '(No manifest.json)'; ?></span>
-                                    </label>
-
-                                    <!-- real option field -->
-                                    <input type="checkbox"
-                                           name="base47_use_manifest[]"
-                                           value="<?php echo esc_attr( $slug ); ?>"
-                                           <?php checked( $use_manifest ); ?>
-                                           style="display:none;">
-                                </div>
-                            </div>
-
-                            <!-- DELETE THEME -->
-                            <div style="margin-top:12px;padding-top:8px;border-top:1px solid #eee;">
-                                <strong>Danger Zone:</strong>
-                                <p class="base47-muted" style="margin:6px 0 8px;">
-                                    Permanently delete this theme folder from the plugin.
-                                </p>
-                                <form method="post"
-                                      onsubmit="return confirm('Delete theme <?php echo esc_js( $slug ); ?>? This cannot be undone.');">
-                                    <?php wp_nonce_field( BASE47_HE_OPT_SETTINGS_NONCE ); ?>
-                                    <input type="hidden" name="base47_he_theme_action" value="delete_theme">
-                                    <input type="hidden" name="base47_delete_theme" value="<?php echo esc_attr( $slug ); ?>">
-                                    <button type="submit" class="button button-link-delete">
-                                        Delete Theme
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-
-            <p style="margin-top:16px;">
-                <button type="submit" class="button button-primary">Save Changes</button>
-            </p>
-        </form>
     </div>
     <?php
 }
-	
 /**
  * Install a theme from uploaded ZIP (V3 – uploads directory).
  *
@@ -1687,7 +1551,7 @@ function base47_he_render_theme_manager_section() {
 
     $themes        = base47_he_get_template_sets();       // real sets from uploads
     $meta          = base47_he_theme_metadata();          // pretty names/descriptions/accents
-    $active_themes = get_option( 'base47_he_active_themes', [] );
+    $active_themes = get_option( 'base47_active_themes', [] );
 
     if ( ! is_array( $active_themes ) ) {
         $active_themes = [];
@@ -2300,7 +2164,7 @@ function base47_he_ajax_toggle_theme() {
         wp_send_json_error( __( 'Unknown theme.', 'base47' ) );
     }
 
-    $active_themes = get_option( 'base47_he_active_themes', [] );
+    $active_themes = get_option( 'base47_active_themes', [] );
     if ( ! is_array( $active_themes ) ) {
         $active_themes = [];
     }
@@ -2313,7 +2177,7 @@ function base47_he_ajax_toggle_theme() {
         $active_themes = array_values( array_diff( $active_themes, [ $theme ] ) );
     }
 
-    update_option( 'base47_he_active_themes', $active_themes );
+    update_option( 'base47_active_themes', $active_themes );
 
     wp_send_json_success( [
         'theme'         => $theme,
