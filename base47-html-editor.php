@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.6.3
+Version: 2.6.6.4
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.6.3' );
+define( 'BASE47_HE_VERSION', '2.6.6.4' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -1671,9 +1671,45 @@ function base47_he_render_theme_manager_section() {
                                 <span class="dashicons dashicons-visibility"></span>
                                 Coming soon
                             </button>
-
+							
                         </div>
 
+						<!-- Loader / Manifest mode -->
+<div class="base47-tm-asset-modes">
+
+    <?php
+    $use_manifest_arr = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
+    $use_manifest     = in_array( $slug, $use_manifest_arr, true );
+
+    $manifest_path = trailingslashit( $theme['path'] ) . 'manifest.json';
+    $has_manifest  = file_exists( $manifest_path );
+    ?>
+
+    <label class="tm-mode">
+        <input type="radio"
+               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+               value="loader"
+               <?php checked( ! $use_manifest ); ?>>
+        <span>Loader (fast & simple)</span>
+    </label>
+
+    <label class="tm-mode">
+        <input type="radio"
+               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+               value="manifest"
+               <?php checked( $use_manifest ); ?>
+               <?php disabled( ! $has_manifest ); ?>>
+        <span>Manifest (advanced)</span>
+    </label>
+
+    <!-- Hidden field that actually stores the option -->
+    <input type="checkbox"
+           class="tm-hidden-manifest"
+           name="base47_use_manifest[]"
+           value="<?php echo esc_attr( $slug ); ?>"
+           <?php checked( $use_manifest ); ?>>
+</div>
+						
                     </div>
                 </div>
 
