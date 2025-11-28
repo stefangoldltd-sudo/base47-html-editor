@@ -157,33 +157,32 @@ jQuery(function($){
       $('body').removeClass('base47-he-dragging');
     });
   }
+	
+/* =======================================================
+   LAZY PREVIEW – Shortcode Page (FIXED)
+======================================================= */
+$(document).on('click','.base47-load-preview-btn',function(e){
+  e.preventDefault();
 
-  /* =======================================================
-     LAZY PREVIEW – Shortcode Page
-  ======================================================= */
-  $(document).on('click','.base47-load-preview-btn',function(e){
-    e.preventDefault();
+  const btn  = $(this);
+  const file = btn.data('file');
+  const set  = btn.data('set');
+  const card = btn.closest('.base47-he-template-box');
+  const iframe = card.find('.base47-he-template-iframe').get(0);
 
-    const btn  = $(this);
-    const file = btn.data('file');
-    const set  = btn.data('set');
-    const card = btn.closest('.base47-he-template-box');
-    const iframe = card.find('.base47-he-template-iframe').get(0);
+  btn.text('Loading...').prop('disabled',true);
 
-    btn.text('Loading...').prop('disabled',true);
+  $.post(BASE47_HE_DATA.ajax_url,{
+    action:'base47_he_lazy_preview',
+    nonce: BASE47_HE_DATA.nonce,     // ✅ CORRECT NONCE (matches PHP)
+    file: file,
+    set:  set
+  },function(res){
+    btn.text('Load preview').prop('disabled',false);
 
-    $.post(BASE47_HE_DATA.ajax_url,{
-      action:'base47_he_lazy_preview',
-      nonce: BASE47_HE_DATA.preview_nonce,
-      file:file,
-      set:set
-    },function(res){
-      btn.text('Load preview').prop('disabled',false);
-      if(res.success && res.data.html){
-        const doc = iframe.contentWindow.document;
-        doc.open(); doc.write(res.data.html); doc.close();
-      }
-    });
+    if(res.success && res.data.html){
+      iframe.srcdoc = res.data.html;   // cleaner, faster, safer
+    }
   });
-
+});
 });

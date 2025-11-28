@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.6.6.2
+Version: 2.6.6.3
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.6.6.2' );
+define( 'BASE47_HE_VERSION', '2.6.6.3' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -910,51 +910,68 @@ function base47_he_admin_assets( $hook ) {
     return;
 }
 
-    // Existing admin CSS/JS for Base47
-    wp_enqueue_style(
-        'base47-he-admin',
-        BASE47_HE_URL . 'admin-assets/admin.css',
-        [],
-        BASE47_HE_VERSION
-    );
+ // Existing admin CSS/JS for Base47
+wp_enqueue_style(
+    'base47-he-admin',
+    BASE47_HE_URL . 'admin-assets/admin.css',
+    [],
+    BASE47_HE_VERSION
+);
 
-    wp_enqueue_script(
-        'base47-he-admin',
-        BASE47_HE_URL . 'admin-assets/admin.js',
-        [ 'jquery' ],
-        BASE47_HE_VERSION,
-        true
-    );
+wp_enqueue_script(
+    'base47-he-admin',
+    BASE47_HE_URL . 'admin-assets/admin.js',
+    [ 'jquery' ],
+    BASE47_HE_VERSION,
+    true
+);
 
-    // NEW: Theme Manager glass CSS
-    wp_enqueue_style(
-        'base47-he-theme-manager',
-        BASE47_HE_URL . 'admin-assets/theme-manager.css',
-        [ 'base47-he-admin' ],
-        BASE47_HE_VERSION
-    );
+/**
+ * LOCALIZE ? admin.js (IMPORTANT)
+ * Provides AJAX + NONCE for editor + lazy preview
+ */
+wp_localize_script(
+    'base47-he-admin',
+    'BASE47_HE_DATA',
+    [
+        'ajax_url'     => admin_url('admin-ajax.php'),
+        'nonce'        => wp_create_nonce('base47_he_preview'), // ? FIXED
+        'default_set'  => base47_he_detect_default_theme(),
+    ]
+);
 
-    // NEW: Theme Manager JS
-    wp_enqueue_script(
-        'base47-he-theme-manager',
-        BASE47_HE_URL . 'admin-assets/theme-manager.js',
-        [ 'jquery' ],
-        BASE47_HE_VERSION,
-        true
-    );
 
-    wp_localize_script(
-        'base47-he-theme-manager',
-        'base47ThemeManager',
-        [
-            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-            'nonce'   => wp_create_nonce( 'base47_theme_manager' ),
-        ]
-    );
+// NEW: Theme Manager glass CSS
+wp_enqueue_style(
+    'base47-he-theme-manager',
+    BASE47_HE_URL . 'admin-assets/theme-manager.css',
+    [ 'base47-he-admin' ],
+    BASE47_HE_VERSION
+);
+
+// NEW: Theme Manager JS
+wp_enqueue_script(
+    'base47-he-theme-manager',
+    BASE47_HE_URL . 'admin-assets/theme-manager.js',
+    [ 'jquery' ],
+    BASE47_HE_VERSION,
+    true
+);
+
+/**
+ * LOCALIZE ? theme-manager.js
+ * (Used only for toggling themes ON/OFF)
+ */
+wp_localize_script(
+    'base47-he-theme-manager',
+    'base47ThemeManager',
+    [
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce'   => wp_create_nonce('base47_theme_manager'),
+    ]
+);
 }
 add_action( 'admin_enqueue_scripts', 'base47_he_admin_assets' );
-
-
 
 /* --------------------------------------------------------------------------
 | ADMIN PAGES (existing)
