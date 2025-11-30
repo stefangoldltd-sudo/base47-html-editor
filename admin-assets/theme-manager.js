@@ -52,29 +52,37 @@ jQuery(function ($) {
         });
     });
 
-    /* --------------------------
-       LOADER / MANIFEST SWITCH
-    --------------------------- */
+/* --------------------------
+   LOADER / MANIFEST / SMART++
+   RADIO BUTTONS
+--------------------------- */
+$('.base47-tm-grid').on('change', '.tm-mode input[type=radio]', function () {
 
-    $('.base47-tm-grid').on('change', 'input[type=radio]', function () {
+    let $radio = $(this);
+    let mode   = $radio.val();                 // loader / manifest / smart
+    let $card  = $radio.closest('.base47-tm-card');
 
-        let $radio  = $(this);
-        let mode    = $radio.val();
+    // Hidden fields
+    let $hiddenManifest = $card.find('.tm-hidden-manifest');
+    let $hiddenSmart    = $card.find('.tm-hidden-smart');
 
-        // Get entire card
-        let $card   = $radio.closest('.base47-tm-card');
-        let $hidden = $card.find('.tm-hidden-manifest');
+    // Reset both first
+    $hiddenManifest.prop('checked', false);
+    $hiddenSmart.prop('checked', false);
 
-        // If manifest selected → check hidden field  
-        if (mode === 'manifest') {
-            $hidden.prop('checked', true);
-        } else {
-            $hidden.prop('checked', false);
-        }
-    });
-
+    // Apply correct one
+    if (mode === 'manifest') {
+        $hiddenManifest.prop('checked', true);
+    }
+    else if (mode === 'smart') {
+        $hiddenSmart.prop('checked', true);
+    }
+    // loader → both unchecked
 });
 
+/* --------------------------
+   REBUILD CACHES BUTTON
+--------------------------- */
 jQuery(document).ready(function($) {
 
     $("#base47-rebuild-caches-btn").on("click", function () {
@@ -90,7 +98,8 @@ jQuery(document).ready(function($) {
             nonce: base47ThemeManager.nonce
         }, function (response) {
 
-            alert(response.success ? "Caches rebuilt successfully!" : "Failed: " + response.data.message);
+            alert(response.success ? "Caches rebuilt successfully!" :
+                "Failed: " + response.data.message);
 
             $("#base47-rebuild-caches-btn")
                 .prop("disabled", false)

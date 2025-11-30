@@ -1,51 +1,74 @@
 <?php
-
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Add Logs page to sidebar
+ * Register Logs page inside Base47 menu
  */
 add_action( 'admin_menu', 'base47_he_register_logs_page' );
 function base47_he_register_logs_page() {
+
     add_submenu_page(
-        'base47-html-editor',
-        'Logs',
-        'Logs',
-        'manage_options',
-        'base47-logs',
-        'base47_he_render_logs_page'
+        'base47-he-dashboard',     // parent slug
+        'Logs',                    // page title
+        'Logs',                    // menu title
+        'manage_options',          // capability
+        'base47-he-logs',          // menu slug
+        'base47_he_render_logs_page' // callback FIXED
     );
 }
 
 /**
- * Render Logs UI
+ * Render the Logs Page
  */
 function base47_he_render_logs_page() {
 
     $logs = esc_textarea( base47_he_get_logs() );
     ?>
 
-    <div class="base47-he-wrap">
-        <h1 class="base47-tm-title">Base47 Logs</h1>
-        <p class="base47-tm-subtitle">System events, installs, cache operations & errors.</p>
+    <div class="wrap base47-he-wrap">
+        <h1>Base47 Logs</h1>
+        <p class="description">System events, installs, cache rebuilds & errors.</p>
 
-        <div class="base47-logs-container">
-            <textarea readonly class="base47-logs-box"><?php echo $logs; ?></textarea>
-        </div>
+        <textarea readonly
+                  style="width:100%;height:420px;margin-top:20px;font-family:monospace;"><?php echo $logs; ?></textarea>
 
-        <button id="base47-clear-logs" class="button button-danger">
+        <button id="base47-clear-logs" class="button button-secondary" style="margin-top:10px;">
             Clear Logs
         </button>
 
-        <span id="base47-logs-status" style="margin-left: 10px; color: #6ee7b7;"></span>
+        <span id="base47-logs-status"
+              style="margin-left:10px;font-weight:600;color:#10b981;"></span>
     </div>
+
+    <script>
+    jQuery(function($){
+
+        $('#base47-clear-logs').on('click', function(){
+
+            $.post(ajaxurl, {
+                action: 'base47_clear_logs',
+                nonce: '<?php echo wp_create_nonce("base47-he-logs"); ?>'
+            }, function(response){
+
+                if(response.success){
+                    $('textarea').val('');
+                    $('#base47-logs-status').text('Logs cleared ✔');
+                } else {
+                    $('#base47-logs-status').text('Error clearing logs ❌');
+                }
+
+            });
+
+        });
+
+    });
+    </script>
 
     <?php
 }
 
-
 /**
- * AJAX → Clear logs
+ * AJAX: Clear Logs
  */
 add_action( 'wp_ajax_base47_clear_logs', 'base47_he_ajax_clear_logs' );
 function base47_he_ajax_clear_logs() {

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.8.1
+Version: 2.8.2
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.8.1' );
+define( 'BASE47_HE_VERSION', '2.8.2' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -58,7 +58,9 @@ new Base47_GitHub_Updater(
 | calling helper
 -------------------------------------------------------------------------- */
 
-
+// Core loader + manifest engine
+require_once BASE47_HE_PATH . 'inc/core-loader.php';
+// Logging
 require_once BASE47_HE_PATH . 'inc/helpers-logs.php';
 require_once BASE47_HE_PATH . 'inc/admin-logs-page.php';
 
@@ -69,6 +71,7 @@ require_once BASE47_HE_PATH . 'inc/admin-logs-page.php';
 -------------------------------------------------------------------------- */
 const BASE47_HE_OPT_ACTIVE_THEMES  = 'base47_active_themes';     // array of active set slugs
 const BASE47_HE_OPT_USE_MANIFEST   = 'base47_use_manifest';      // array of sets using manifest
+const BASE47_HE_OPT_USE_SMART_LOADER = 'base47_he_use_smart_loader'; 
 const BASE47_HE_OPT_SETTINGS_NONCE = 'base47_he_settings_nonce';
 
 
@@ -157,7 +160,7 @@ $sets[ $slug ] = [
  *   'redox-templates' => [ ... ],
  * ]
  *
- * STRUCTURE ONLY ñ CONTENT IS NOT CACHED.
+ * STRUCTURE ONLY ? CONTENT IS NOT CACHED.
  */
 function base47_he_get_template_list( $force = false ) {
 
@@ -337,7 +340,7 @@ function base47_he_migrate_options() {
 
 function base47_he_activate() {
 
-    // 1?? Run migration first ó ensures the folder exists
+    // 1?? Run migration first ? ensures the folder exists
     base47_he_migrate_options();
 
     // 2?? Ensure default active sets saved
@@ -361,445 +364,6 @@ function base47_he_filename_to_slug( $filename ) {
     $slug = sanitize_title_with_dashes( $base );
     return $slug ?: ( 'tpl-' . md5( $filename ) );
 }
-
-function base47_he_rewrite_assets( $html, $base_url, $add_ver = true ) {
-
-    $base = trailingslashit( $base_url );
-
-    // Catch ALL patterns of asset usage
-    $patterns = [
-        // src and href absolute
-        '#src="/assets/#i',
-        '#src=\'/assets/#i',
-        '#href="/assets/#i',
-        '#href=\'/assets/#i',
-
-        // src and href relative
-        '#src="assets/#i',
-        '#src=\'assets/#i',
-        '#href="assets/#i',
-        '#href=\'assets/#i',
-
-        // url(...)
-        '#url\("/assets/#i',
-        '#url\(\'/assets/#i',
-        '#url\(/assets/#i',
-
-        '#url\("assets/#i',
-        '#url\(\'assets/#i',
-        '#url\(assets/#i',
-
-        // data-background
-        '#data-background="/assets/#i',
-        '#data-background=\'/assets/#i',
-        '#data-background="assets/#i',
-        '#data-background=\'assets/#i',
-    ];
-
-    $replacements = [
-        'src="' . $base . 'assets/',
-        "src='" . $base . 'assets/',
-        'href="' . $base . 'assets/',
-        "href='" . $base . 'assets/',
-
-        'src="' . $base . 'assets/',
-        "src='" . $base . 'assets/',
-        'href="' . $base . 'assets/',
-        "href='" . $base . 'assets/',
-
-        'url("' . $base . 'assets/',
-        "url('" . $base . 'assets/',
-        'url(' . $base . 'assets/',
-
-        'url("' . $base . 'assets/',
-        "url('" . $base . 'assets/',
-        'url(' . $base . 'assets/',
-
-        'data-background="' . $base . 'assets/',
-        "data-background='" . $base . 'assets/',
-        'data-background="' . $base . 'assets/',
-        "data-background='" . $base . 'assets/',
-    ];
-
-    // Rewrite the HTML
-    $html = preg_replace( $patterns, $replacements, $html );
-
-    // Optionally add version for cache busting
-    if ( $add_ver ) {
-        $ver = time();
-        $html = preg_replace_callback(
-            '#\b(src|href)=["\']('.preg_quote($base,'#').'assets/[^"\']+)#i',
-            function( $m ) use ( $ver ) {
-                $url = $m[2];
-                if ( strpos( $url, '?ver=' ) === false ) {
-                    $url .= ( strpos( $url, '?' ) === false ? '?ver=' : '&ver=' ) . $ver;
-                }
-                return $m[1] . '="' . $url . '"';
-            },
-            $html
-        );
-    }
-
-    return $html;
-}
-
-/** Strip outer html/head/body while preserving inline styles/scripts. Also remove external assets tags. */
-function base47_he_strip_shell( $html ) {
-    $head = '';
-    if ( preg_match( '#<head\b[^>]*>(.*?)</head>#is', $html, $m ) ) {
-        $head = $m[1];
-    }
-
-    $body = $html;
-    if ( preg_match( '#<body\b[^>]*>(.*?)</body>#is', $html, $m2 ) ) {
-        $body = $m2[1];
-    } else {
-        $body = preg_replace( '#^.*?<html\b[^>]*>#is', '', $body );
-        $body = preg_replace( '#</html>.*$#is', '', $body );
-    }
-
-    $inline = [];
-    if ( $head ) {
-        if ( preg_match_all( '#<style\b[^>]*>.*?</style>#is', $head, $ms ) ) {
-            $inline = array_merge( $inline, $ms[0] );
-        }
-        if ( preg_match_all( '#<script(?![^>]*\bsrc=)[^>]*>.*?</script>#is', $head, $ms ) ) {
-            $inline = array_merge( $inline, $ms[0] );
-        }
-    }
-
-    $body = preg_replace( '#<link[^>]+href=["\']/?assets/[^>]+>#i', '', $body );
-    $body = preg_replace( '#<script[^>]+src=["\']/?assets/[^>]+></script>#i', '', $body );
-    $body = preg_replace( '#<(?:!DOCTYPE|/?:?html|/?:?head|/?:?body)[^>]*>#i', '', $body );
-
-    return implode( "\n", $inline ) . "\n" . $body;
-}
-
-/** General asset URL helper for a given set and relative path (e.g. 'assets/css/main.css'). */
-function base47_he_asset_url( $set_slug, $relative ) {
-    $sets = base47_he_get_template_sets();
-    if ( ! isset( $sets[ $set_slug ] ) ) return '';
-    return trailingslashit( $sets[ $set_slug ]['url'] ) . ltrim( $relative, '/' );
-}
-
-/* Deprecated set-specific shortcuts (kept for back-compat) */
-function base47_he_asset( $relative_path ) { return plugins_url( $relative_path, __FILE__ ); }
-function base47_bfolio_asset( $file )       { return plugins_url( 'bfolio-rtl-templates/assets/' . ltrim( $file, '/' ), __FILE__ ); }
-function base47_asset( $file )              { return plugins_url( 'mivon-templates/assets/' . ltrim( $file, '/' ), __FILE__ ); }
-
-
-/**
- * Discover all manifest.json files inside each themeís folder
- * located in /wp-content/uploads/base47-themes/.
- *
- * Expected structure:
- *
- *   /wp-content/uploads/base47-themes/{set}-templates/
- *       ??? manifest.json
- *       ??? assets/
- *       ?     ??? css/
- *       ?     ??? js/
- *       ?     ??? img/
- *       ?     ??? vendor/
- *       ??? home-1.html
- *       ??? about.html
- *       ??? ...
- *
- * Each theme must follow the naming rule:
- *      {slug}-templates
- *
- * This loader supports:
- *   ï Unlimited themes
- *   ï Auto-loading manifest.json if present
- *   ï Fallback to loader mode for themes without manifest.json
- *
- * Manifest files define:
- *   {
- *     "name": "Redox Theme",
- *     "version": "1.0.0",
- *     "assets": {
- *         "css": [...],
- *         "js":  [...]
- *     }
- *   }
- *
- * NOTE:
- *   The plugin no longer stores themes inside its own /plugins directory.
- *   Themes now live permanently in uploads/base47-themes/
- *   so plugin updates will NEVER delete theme folders again.
- */
-function base47_he_get_all_manifests() {
-    static $cache = null;
-    if ( $cache !== null ) return $cache;
-
-    $cache = [];
-
-    // NEW ROOT
-    $root      = base47_he_get_themes_root();
-    $themes_dir = $root['dir'];
-    $themes_url = $root['url'];
-
-    foreach ( glob( $themes_dir . '*-template*', GLOB_ONLYDIR ) as $template_dir ) {
-
-        $set_folder = basename( $template_dir );
-        $manifest   = $template_dir . '/manifest.json';
-
-        if ( ! file_exists( $manifest ) ) continue;
-
-        $raw  = file_get_contents( $manifest );
-        $data = json_decode( $raw, true );
-        if ( ! is_array( $data ) ) continue;
-
-        $set_slug = $set_folder;
-
-        // NEW PATHS
-        $base_url  = trailingslashit( $themes_url . $set_folder . '/assets' );
-        $base_path = trailingslashit( $themes_dir . $set_folder . '/assets' );
-
-        $data['_base_url']      = $base_url;
-        $data['_base_path']     = $base_path;
-        $data['_set_slug']      = $set_slug;
-        $data['_handle_prefix'] = ! empty( $data['handle_prefix'] )
-            ? sanitize_key( $data['handle_prefix'] )
-            : 'base47-' . sanitize_key( $set_slug );
-
-        $cache[ $set_slug ] = $data;
-    }
-
-    return $cache;
-}
-
-
-/**
- * Enqueue assets for a given set.
- *
- * 1. If there is a manifest for this set õ use it (Option 2).
- * 2. If no manifest õ fall back to old "assets/css/*.css" + "assets/js/*.js".
- *
- * $set_slug is the folder name, e.g. "lezar-templates", "mivon-templates".
- */
-function base47_he_enqueue_assets_for_set( $set_slug ) {
-
-	// Ensure default theme always loads assets
-$default = get_option('base47_default_theme', '');
-if ( empty($set_slug) && ! empty($default) ) {
-    $set_slug = $default;
-}
-	
-    // Only enqueue for active sets
-    if ( ! base47_he_is_set_active( $set_slug ) ) {
-        return;
-    }
-
-    $sets = base47_he_get_template_sets();
-    if ( ! isset( $sets[ $set_slug ] ) ) {
-        return;
-    }
-
-    // Check if this set is configured to use manifest
-    $use_manifest_sets = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
-    $use_manifest = in_array( $set_slug, $use_manifest_sets, true );
-
-    /* -------------------------------------------------
-     * 1) Try manifest-based loading (only if enabled for this set)
-     * ------------------------------------------------- */
-    $manifests    = base47_he_get_all_manifests();
-    $manifest_key = $set_slug; // use full folder name e.g. "lezar-templates"
-
-    if ( $use_manifest && isset( $manifests[ $manifest_key ] ) ) {
-
-        $m         = $manifests[ $manifest_key ];
-        $base_url  = trailingslashit( $m['_base_url'] );   // .../assets/
-        $base_path = trailingslashit( $m['_base_path'] );  // filesystem path to /assets/
-        $prefix    = $m['_handle_prefix'];
-
-        // Allow both:
-        //  - "css": [...]
-        //  - "global": { "css": [...], "js": [...] }
-        $css_list = array();
-        $js_list  = array();
-
-        if ( ! empty( $m['css'] ) && is_array( $m['css'] ) ) {
-            $css_list = $m['css'];
-        } elseif ( ! empty( $m['global']['css'] ) && is_array( $m['global']['css'] ) ) {
-            $css_list = $m['global']['css'];
-        }
-
-        if ( ! empty( $m['js'] ) && is_array( $m['js'] ) ) {
-            $js_list = $m['js'];
-        } elseif ( ! empty( $m['global']['js'] ) && is_array( $m['global']['js'] ) ) {
-            $js_list = $m['global']['js'];
-        }
-
-        // CSS from manifest
-        foreach ( $css_list as $relative ) {
-            $relative = ltrim( $relative, '/\\' );
-            $file     = $base_path . $relative;
-            if ( ! file_exists( $file ) ) {
-                continue;
-            }
-            $handle = $prefix . '-css-' . md5( $relative );
-            wp_enqueue_style(
-                $handle,
-                $base_url . $relative,
-                array(),
-                @filemtime( $file )
-            );
-        }
-
-        // JS from manifest
-        foreach ( $js_list as $relative ) {
-            $relative = ltrim( $relative, '/\\' );
-            $file     = $base_path . $relative;
-            if ( ! file_exists( $file ) ) {
-                continue;
-            }
-            $handle = $prefix . '-js-' . md5( $relative );
-            wp_enqueue_script(
-                $handle,
-                $base_url . $relative,
-                array( 'jquery' ),
-                @filemtime( $file ),
-                true
-            );
-        }
-
-        // Done, no need for fallback
-        return;
-    }
-
-
-	
-	
-    /* -------------------------------------------------
-     * 2) Fallback: old simple loader
-     * ------------------------------------------------- */
-    $css_dir = trailingslashit( $sets[ $set_slug ]['path'] ) . 'assets/css/';
-    $js_dir  = trailingslashit( $sets[ $set_slug ]['path'] ) . 'assets/js/';
-
-    if ( is_dir( $css_dir ) ) {
-        foreach ( glob( $css_dir . '*.css' ) as $f ) {
-            $handle = 'base47-he-css-' . md5( $set_slug . $f );
-            wp_enqueue_style(
-                $handle,
-                $sets[ $set_slug ]['url'] . 'assets/css/' . basename( $f ),
-                array(),
-                @filemtime( $f )
-            );
-        }
-    }
-
-    if ( is_dir( $js_dir ) ) {
-        foreach ( glob( $js_dir . '*.js' ) as $f ) {
-            $handle = 'base47-he-js-' . md5( $set_slug . $f );
-            wp_enqueue_script(
-                $handle,
-                $sets[ $set_slug ]['url'] . 'assets/js/' . basename( $f ),
-                array( 'jquery' ),
-                @filemtime( $f ),
-                true
-            );
-        }
-    }
-}
-
-
-
-/* --------------------------------------------------------------------------
-| RENDERING
--------------------------------------------------------------------------- */
-
-function base47_he_render_template( $filename, $set_slug = '' ) {
-    $sets = base47_he_get_template_sets();
-	
-	// DEFAULT THEME FALLBACK
-if ( empty( $set_slug ) ) {
-    $default = get_option('base47_default_theme', '');
-    if ( ! empty($default) ) {
-        $set_slug = $default;
-    }
-}
-    if ( empty( $set_slug ) ) {
-        $info = base47_he_locate_template( $filename );
-        if ( ! $info ) return '';
-        $set_slug = $info['set'];
-        $full     = $info['path'];
-        $base_url = $info['url'];
-    } else {
-        if ( ! isset( $sets[ $set_slug ] ) ) return '';
-        $full     = $sets[ $set_slug ]['path'] . $filename;
-        $base_url = $sets[ $set_slug ]['url'];
-        if ( ! file_exists( $full ) ) return '';
-    }
-
-    // If set is inactive õ do not render
-    if ( ! base47_he_is_set_active( $set_slug ) ) {
-        return '<!-- Base47 HTML: "'.$set_slug.'" is inactive. Enable it in Settings õ Theme Manager. -->';
-    }
-
-    $html = file_get_contents( $full );
-    $html = base47_he_strip_shell( $html );
-    $html = base47_he_rewrite_assets( $html, $base_url, true );
-
-    // √¢≈ì‚Ä¶ allow nested shortcodes inside the HTML template
-    $html = do_shortcode( $html );
-
-    base47_he_enqueue_assets_for_set( $set_slug );
-    return $html;
-}
-
-/* --------------------------------------------------------------------------
-| SHORTCODES register ONLY for active sets
--------------------------------------------------------------------------- */
-function base47_he_register_shortcodes() {
-    $all = base47_he_get_all_templates( false ); // active only
-
-    foreach ( $all as $item ) {
-        $set  = $item['set'];
-        $file = $item['file'];
-        $slug = base47_he_filename_to_slug( $file );
-
-        if ( $set === 'base47-templates' || $set === 'mivon-templates' ) {
-            $shortcode = 'base47-' . $slug;
-        } else {
-            $set_clean = str_replace( ['-templates','-templetes'], '', $set );
-            $shortcode = 'base47-' . $set_clean . '-' . $slug;
-        }
-
-        add_shortcode( $shortcode, function( $atts = [], $content = '' ) use ( $file, $set ) {
-            return base47_he_render_template( $file, $set );
-        } );
-    }
-}
-add_action( 'init', 'base47_he_register_shortcodes', 20 );
-
-/* --------------------------------------------------------------------------
-| BACKWARD COMPATIBILITY: Legacy mivon-* shortcodes
--------------------------------------------------------------------------- */
-function base47_he_register_legacy_shortcodes() {
-    $all = base47_he_get_all_templates( false ); // active only
-
-    foreach ( $all as $item ) {
-        $set  = $item['set'];
-        $file = $item['file'];
-        $slug = base47_he_filename_to_slug( $file );
-
-        if ( $set === 'base47-templates' || $set === 'mivon-templates' ) {
-            $legacy_shortcode = 'mivon-' . $slug;
-        } else {
-            $set_clean = str_replace( ['-templates','-templetes'], '', $set );
-            $legacy_shortcode = 'mivon-' . $set_clean . '-' . $slug;
-        }
-
-        add_shortcode( $legacy_shortcode, function( $atts = [], $content = '' ) use ( $file, $set, $legacy_shortcode ) {
-            if ( defined('WP_DEBUG') && WP_DEBUG ) {
-                error_log( "Base47 HTML Editor: Legacy shortcode [$legacy_shortcode] is deprecated. Use [base47-*] shortcodes instead." );
-            }
-            return base47_he_render_template( $file, $set );
-        } );
-    }
-}
-add_action( 'init', 'base47_he_register_legacy_shortcodes', 21 );
 
 /* --------------------------------------------------------------------------
 | SPECIAL WIDGETS ADMIN PAGE (AUTO)
@@ -1076,7 +640,7 @@ function base47_he_templates_page() {
     <h1>Shortcodes</h1>
     <p>
         Only <strong>active</strong> theme sets are listed.<br>
-        Previews are now <strong>lazy-loaded</strong> ó click <em>Load preview</em>.
+        Previews are now <strong>lazy-loaded</strong> ? click <em>Load preview</em>.
     </p>
 
     <?php foreach ( $active as $set_slug ) : ?>
@@ -1453,7 +1017,7 @@ function base47_he_settings_page() {
     <?php
 }
 /**
- * Install a theme from uploaded ZIP (V3 ñ uploads directory).
+ * Install a theme from uploaded ZIP (V3 ? uploads directory).
  *
  * Expects ZIP structure:
  *   /{slug}-templates/
@@ -1662,38 +1226,6 @@ if ( ! function_exists( 'base47_he_rrmdir' ) ) {
         @rmdir( $dir );
     }
 }
-/**
- * Base47 Theme metadata (labels, version, description, accent colors)
- */
-function base47_he_theme_metadata() {
-    return [
-        'mivon-templates' => [
-            'label'       => 'Mivon ñ Multi-Purpose Theme',
-            'version'     => '1.0.0',
-            'description' => 'One-page and portfolio layouts.',
-            'accent'      => '#7C5CFF',
-        ],
-        'lezar-templates' => [
-            'label'       => 'Lezar ñ Clinic Theme',
-            'version'     => '1.0.0',
-            'description' => 'Medical and aesthetic clinic pages.',
-            'accent'      => '#FF5F8A',
-        ],
-        'redox-templates' => [
-            'label'       => 'Redox ñ Portfolio Slider',
-            'version'     => '1.0.0',
-            'description' => 'Full-screen hero sliders and bold portfolio layouts.',
-            'accent'      => '#00E0C6',
-        ],
-        'bfolio-templates' => [
-            'label'       => 'B-Folio ñ Minimal Portfolio',
-            'version'     => '1.0.0',
-            'description' => 'Clean personal portfolio and case-study pages.',
-            'accent'      => '#F8C542',
-        ],
-    ];
-}
-
 
 /**
  * Render Theme Manager (glass UI)
@@ -1754,131 +1286,167 @@ $default_theme = get_option('base47_default_theme', array_key_first($themes));
                 $first_letter = strtoupper( mb_substr( $slug, 0, 1 ) );
                 ?>
                 
-                <div class="base47-tm-card <?php echo $is_active ? 'is-active' : 'is-inactive'; ?>"
-                     data-theme="<?php echo esc_attr( $slug ); ?>"
-                     data-active="<?php echo $is_active ? '1' : '0'; ?>"
-                     style="--base47-tm-accent: <?php echo esc_attr( $accent ); ?>;">
+<div class="base47-tm-card <?php echo $is_active ? 'is-active' : 'is-inactive'; ?>"
+     data-theme="<?php echo esc_attr( $slug ); ?>"
+     data-active="<?php echo $is_active ? '1' : '0'; ?>"
+     style="--base47-tm-accent: <?php echo esc_attr( $accent ); ?>;">
 
-                    <div class="base47-tm-card-bg"></div>
+    <div class="base47-tm-card-bg"></div>
 
-<div class="base47-tm-card-inner">
+    <div class="base47-tm-card-inner">
 
-    <!-- Status badge -->
-    <div class="base47-tm-badge">
-        <span class="base47-tm-badge-dot"></span>
-        <span class="base47-tm-badge-text">
-            <?php echo $is_active ? 'Active' : 'Disabled'; ?>
-        </span>
-    </div>
-
-    <!-- Header row: logo + text (name, version, templates, description) -->
-    <div class="base47-tm-card-main">
-        <div class="base47-tm-logo">
-            <span class="base47-tm-logo-inner">
-                <?php echo esc_html( $first_letter ); ?>
+        <!-- Badge -->
+        <div class="base47-tm-badge">
+            <span class="base47-tm-badge-dot"></span>
+            <span class="base47-tm-badge-text">
+                <?php echo $is_active ? 'Active' : 'Disabled'; ?>
             </span>
         </div>
 
-        <div class="base47-tm-text">
-            <h3 class="base47-tm-name"><?php echo esc_html( $info['label'] ); ?></h3>
+        <!-- MAIN INFO ROW -->
+        <div class="base47-tm-card-main">
 
-            <div class="base47-tm-meta">
-                <span class="base47-tm-meta-item">
-                    <span class="dashicons dashicons-admin-appearance"></span>
-                    Version <?php echo esc_html( $info['version'] ); ?>
-                </span>
-                <span class="base47-tm-meta-sep">ï</span>
-                <span class="base47-tm-meta-item">
-                    <span class="dashicons dashicons-media-spreadsheet"></span>
-                    <?php echo esc_html( $templates ); ?> templates
+            <div class="base47-tm-logo">
+                <span class="base47-tm-logo-inner">
+                    <?php echo esc_html( $first_letter ); ?>
                 </span>
             </div>
 
-            <?php if ( ! empty( $info['description'] ) ) : ?>
-                <p class="base47-tm-description"><?php echo esc_html( $info['description'] ); ?></p>
-            <?php endif; ?>
+            <div class="base47-tm-text">
+                <h3 class="base47-tm-name"><?php echo esc_html( $info['label'] ); ?></h3>
+
+                <div class="base47-tm-meta">
+                    <span class="base47-tm-meta-item">
+                        <span class="dashicons dashicons-admin-appearance"></span>
+                        Version <?php echo esc_html( $info['version'] ); ?>
+                    </span>
+
+                    <span class="base47-tm-meta-sep">ï</span>
+
+                    <span class="base47-tm-meta-item">
+                        <span class="dashicons dashicons-media-spreadsheet"></span>
+                        <?php echo esc_html( $templates ); ?> templates
+                    </span>
+                </div>
+
+                <?php if ( ! empty( $info['description'] ) ) : ?>
+                    <p class="base47-tm-description">
+                        <?php echo esc_html( $info['description'] ); ?>
+                    </p>
+                <?php endif; ?>
+            </div>
         </div>
-    </div>
 
-    <!-- Thumbnail (always under the info) -->
-    <?php if ( ! empty( $info['thumbnail'] ) ) : ?>
-        <div class="base47-tm-thumb">
-            <img src="<?php echo esc_url( $theme['url'] . $info['thumbnail'] ); ?>" alt="">
+        <!-- THUMBNAIL -->
+        <?php if ( ! empty( $info['thumbnail'] ) ) : ?>
+            <div class="base47-tm-thumb">
+                <img src="<?php echo esc_url( $theme['url'] . $info['thumbnail'] ); ?>" alt="">
+            </div>
+        <?php endif; ?>
+
+        <!-- FOOTER -->
+        <div class="base47-tm-footer">
+
+            <!-- Toggle -->
+            <label class="base47-tm-toggle">
+                <input type="checkbox"
+                       class="base47-tm-toggle-input"
+                       data-theme="<?php echo esc_attr( $slug ); ?>"
+                       <?php checked( $is_active ); ?> />
+
+                <span class="base47-tm-toggle-track">
+                    <span class="base47-tm-toggle-thumb"></span>
+                </span>
+
+                <span class="base47-tm-toggle-label">
+                    <?php echo $is_active ? 'Enabled' : 'Disabled'; ?>
+                </span>
+            </label>
+
+            <div class="base47-tm-footer-right">
+
+                <!-- Uninstall -->
+                <button type="button"
+                        class="button-link-delete base47-tm-uninstall-btn"
+                        data-theme="<?php echo esc_attr( $slug ); ?>">
+                    Uninstall
+                </button>
+
+                <!-- Coming soon -->
+                <button type="button" class="button button-secondary base47-tm-details-btn" disabled>
+                    <span class="dashicons dashicons-visibility"></span>
+                    Coming soon
+                </button>
+            </div>
+
         </div>
-    <?php endif; ?>
 
-    <!-- Footer: toggle + uninstall + ìcoming soonî -->
-    <div class="base47-tm-footer">
+  <!-- ASSET MODES -->
+<div class="base47-tm-asset-modes">
 
-        <!-- Toggle (AJAX) -->
-        <label class="base47-tm-toggle">
-            <input type="checkbox"
-                   class="base47-tm-toggle-input"
-                   data-theme="<?php echo esc_attr( $slug ); ?>"
-                   <?php checked( $is_active ); ?> />
-
-            <span class="base47-tm-toggle-track">
-                <span class="base47-tm-toggle-thumb"></span>
-            </span>
-
-            <span class="base47-tm-toggle-label">
-                <?php echo $is_active ? 'Enabled' : 'Disabled'; ?>
-            </span>
-        </label>
-
-        <div class="base47-tm-footer-right">
-            <!-- Uninstall theme -->
-            <button type="button"
-                    class="button-link-delete base47-tm-uninstall-btn"
-                    data-theme="<?php echo esc_attr( $slug ); ?>">
-                Uninstall
-            </button>
-
-            <!-- Future feature button -->
-            <button type="button" class="button button-secondary base47-tm-details-btn" disabled>
-                <span class="dashicons dashicons-visibility"></span>
-                Coming soon
-            </button>
-        </div>
-    </div>
-
-    <!-- Loader / Manifest mode -->
-    <div class="base47-tm-asset-modes">
-
-        <?php
+    <?php
+        // Existing options
         $use_manifest_arr = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
-        $use_manifest     = in_array( $slug, $use_manifest_arr, true );
+
+        // NEW: Smart Loader++
+        $smart_loader_arr = get_option( BASE47_HE_OPT_USE_SMART_LOADER, [] );
+
+        $use_manifest = in_array( $slug, $use_manifest_arr, true );
+        $use_smart    = in_array( $slug, $smart_loader_arr, true );
 
         $manifest_path = trailingslashit( $theme['path'] ) . 'manifest.json';
         $has_manifest  = file_exists( $manifest_path );
-        ?>
+    ?>
 
-        <label class="tm-mode">
-            <input type="radio"
-                   name="asset_mode_<?php echo esc_attr( $slug ); ?>"
-                   value="loader"
-                   <?php checked( ! $use_manifest ); ?>>
-            <span>Loader (fast &amp; simple)</span>
-        </label>
+    <!-- 1) Classic Loader (default) -->
+    <label class="tm-mode">
+        <input type="radio"
+               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+               value="loader"
+               <?php checked( ! $use_manifest && ! $use_smart ); ?>>
+        <span>Loader (default)</span>
+    </label>
 
-        <label class="tm-mode">
-            <input type="radio"
-                   name="asset_mode_<?php echo esc_attr( $slug ); ?>"
-                   value="manifest"
-                   <?php checked( $use_manifest ); ?>
-                   <?php disabled( ! $has_manifest ); ?>>
-            <span>Manifest (advanced)</span>
-        </label>
+    <!-- 2) Manifest -->
+    <label class="tm-mode">
+        <input type="radio"
+               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+               value="manifest"
+               <?php checked( $use_manifest ); ?>
+               <?php disabled( ! $has_manifest ); ?>>
+        <span>Manifest</span>
+    </label>
 
-        <!-- Hidden field that actually stores the option -->
-        <input type="checkbox"
-               class="tm-hidden-manifest"
-               name="base47_use_manifest[]"
-               value="<?php echo esc_attr( $slug ); ?>"
-               <?php checked( $use_manifest ); ?>>
-    </div>
+    <!-- 3) Smart Loader++ -->
+    <label class="tm-mode">
+        <input type="radio"
+               name="asset_mode_<?php echo esc_attr( $slug ); ?>"
+               value="smart"
+               <?php checked( $use_smart ); ?>>
+        <span>Smart Loader++</span>
+    </label>
 
-</div><!-- /.base47-tm-card-inner -->
+    <!-- Hidden save fields -->
+
+    <!-- Manifest save -->
+    <input type="checkbox"
+           class="tm-hidden-manifest"
+           name="base47_use_manifest[]"
+           value="<?php echo esc_attr( $slug ); ?>"
+           <?php checked( $use_manifest ); ?>>
+
+    <!-- Smart Loader save -->
+    <input type="checkbox"
+           class="tm-hidden-smart"
+           name="base47_he_use_smart_loader[]"
+           value="<?php echo esc_attr( $slug ); ?>"
+           <?php checked( $use_smart ); ?>>
+</div>
+		
+		
+    </div> <!-- END card inner -->
+
+</div> <!-- END card -->
 
             <?php endforeach; ?>
         </div>
@@ -1928,7 +1496,7 @@ function base47_he_changelog_page() {
     $file    = BASE47_HE_PATH . 'changelog.txt';
     $content = file_exists( $file )
         ? file_get_contents( $file )
-        : "√¢‚Ç¨¬¢ 2.3.0 √¢‚Ç¨‚Äù Special Widgets admin page, Redox slider v1 integration.\n√¢‚Ç¨¬¢ 2.1.0 √¢‚Ç¨‚Äù Theme Manager (toggle switches), active-only shortcodes, safer defaults.\n√¢‚Ç¨¬¢ 2.0.x √¢‚Ç¨‚Äù Multi-set foundations.\n";
+        : "‚Ä¢ 2.3.0 ‚Äî Special Widgets admin page, Redox slider v1 integration.\n‚Ä¢ 2.1.0 ‚Äî Theme Manager (toggle switches), active-only shortcodes, safer defaults.\n‚Ä¢ 2.0.x ‚Äî Multi-set foundations.\n";
 
     echo '<div class="wrap base47-he-wrap"><h1>Changelog</h1><pre class="base47-he-changelog">' . esc_html( $content ) . '</pre></div>';
 }
@@ -2046,7 +1614,7 @@ function base47_he_ajax_preview() {
         $active = [ array_key_first( $sets ) ];
     }
 
-    // FIX: If ìsetî empty, use the first ACTIVE set
+    // FIX: If ?set? empty, use the first ACTIVE set
     if ( empty( $set ) ) {
         $set = $active[0];
     }
@@ -2406,7 +1974,7 @@ function base47_he_preview_modal() {
         <div id="base47-modal-wrapper">
             <div id="base47-modal-header">
                 <span id="base47-modal-title">Preview</span>
-                <button id="base47-modal-close">◊</button>
+                <button id="base47-modal-close">?</button>
             </div>
 
             <div id="base47-modal-body">
