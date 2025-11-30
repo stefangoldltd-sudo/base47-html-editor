@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Render the Logs Page
+ * Render the Logs Page (called from main plugin menu)
  */
 function base47_he_render_logs_page() {
 
@@ -25,7 +25,6 @@ function base47_he_render_logs_page() {
     </div>
 
     <script>
-		
     jQuery(function($){
 
         $('#base47-clear-logs').on('click', function(){
@@ -35,7 +34,7 @@ function base47_he_render_logs_page() {
                 nonce: '<?php echo wp_create_nonce("base47-he-logs"); ?>'
             }, function(response){
 
-                if(response.success){
+                if (response.success){
                     $('textarea').val('');
                     $('#base47-logs-status').text('Logs cleared ✔');
                 } else {
@@ -56,9 +55,10 @@ function base47_he_render_logs_page() {
  * AJAX: Clear Logs
  */
 add_action( 'wp_ajax_base47_clear_logs', 'base47_he_ajax_clear_logs' );
+
 function base47_he_ajax_clear_logs() {
 
-    check_ajax_referer( 'base47-he-logs', 'nonce' ); // FIXED
+    check_ajax_referer( 'base47-he-logs', 'nonce' );
 
     base47_he_clear_logs();
 

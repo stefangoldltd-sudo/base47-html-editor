@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.8.6.2
+Version: 2.8.6.3
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,9 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.8.6.2' );
+define( 'BASE47_HE_VERSION', '2.8.6.3' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
+
+
+function base47_he_get_nonce() {
+    return wp_create_nonce('base47_he');
+}
 
 /**
  * Central storage location for user themes.
@@ -602,8 +607,8 @@ wp_localize_script(
     'BASE47_HE_DATA',
     [
         'ajax_url'     => admin_url('admin-ajax.php'),
-        'nonce'        => wp_create_nonce('base47_he_preview'), // ? FIXED
-        'default_set'  => base47_he_detect_default_theme(),
+        'nonce'        => wp_create_nonce('base47_he'),
+		'default_set'  => base47_he_detect_default_theme(),
     ]
 );
 
@@ -634,8 +639,8 @@ wp_localize_script(
     'base47ThemeManager',
     [
         'ajaxUrl' => admin_url('admin-ajax.php'),
-        'nonce'   => wp_create_nonce('base47_theme_manager'),
-    ]
+        'nonce'   => wp_create_nonce('base47_he'),   
+	]
 );
 }
 add_action( 'admin_enqueue_scripts', 'base47_he_admin_assets' );
@@ -1269,8 +1274,8 @@ add_action( 'wp_ajax_base47_he_uninstall_theme', 'base47_he_ajax_uninstall_theme
 function base47_he_ajax_uninstall_theme() {
 
     // Basic security
-    check_ajax_referer( 'base47_he_nonce', 'nonce' );
-
+check_ajax_referer( 'base47_he', 'nonce' );
+	
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
     }
@@ -1617,8 +1622,9 @@ function base47_he_load_theme_metadata( $path ) {
 | AJAX: Lazy Template Preview (For Shortcodes Page)
 -------------------------------------------------------------------------- */
 function base47_he_ajax_lazy_preview() {
-    check_ajax_referer( 'base47_he_preview', 'nonce' );
-
+	
+check_ajax_referer( 'base47_he', 'nonce' );
+	
     $file = isset($_POST['file']) ? sanitize_text_field( wp_unslash($_POST['file']) ) : '';
     $set  = isset($_POST['set'])  ? sanitize_text_field( wp_unslash($_POST['set']) )  : '';
 
@@ -1678,8 +1684,7 @@ return array_key_first($sets) ?: '';
 function base47_he_ajax_preview() {
 
     // Correct AJAX nonce check
-    check_ajax_referer( 'base47_he_preview', 'nonce' );
-
+check_ajax_referer( 'base47_he', 'nonce' );
     $file = isset( $_GET['file'] ) ? sanitize_text_field( wp_unslash( $_GET['file'] ) ) : '';
     $set  = isset( $_GET['set'] )  ? sanitize_text_field( wp_unslash( $_GET['set'] ) )  : '';
 
@@ -1726,8 +1731,9 @@ add_action( 'wp_ajax_base47_he_preview',        'base47_he_ajax_preview' );
 add_action( 'wp_ajax_nopriv_base47_he_preview', 'base47_he_ajax_preview' );
 
 function base47_he_ajax_get_template() {
-    check_ajax_referer( 'base47_he_editor', 'nonce' );
-
+	
+check_ajax_referer( 'base47_he', 'nonce' );
+	
     $file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
     $set  = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
 
@@ -1759,8 +1765,9 @@ function base47_he_ajax_get_template() {
 add_action( 'wp_ajax_base47_he_get_template', 'base47_he_ajax_get_template' );
 
 function base47_he_ajax_save_template() {
-    check_ajax_referer( 'base47_he_editor', 'nonce' );
-
+	
+check_ajax_referer( 'base47_he', 'nonce' );
+	
     $file    = isset( $_POST['file'] )    ? sanitize_text_field( wp_unslash( $_POST['file'] ) )    : '';
     $set     = isset( $_POST['set'] )     ? sanitize_text_field( wp_unslash( $_POST['set'] ) )     : '';
     $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
@@ -1786,8 +1793,8 @@ function base47_he_ajax_save_template() {
 add_action( 'wp_ajax_base47_he_save_template', 'base47_he_ajax_save_template' );
 
 add_action( 'wp_ajax_base47_he_live_preview', function() {
-    check_ajax_referer( 'base47_he_editor', 'nonce' );
-
+check_ajax_referer( 'base47_he', 'nonce' );
+	
     $file    = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
     $set     = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
     $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
@@ -1839,8 +1846,8 @@ function base47_he_count_theme_templates( $folder_name ) {
  */
 add_action('wp_ajax_base47_set_asset_mode', function() {
 
-    check_ajax_referer('base47_theme_manager', 'nonce');
-
+check_ajax_referer( 'base47_he', 'nonce' );
+	
     if (!current_user_can('manage_options')) {
         wp_send_json_error('Permission denied.');
     }
@@ -2160,8 +2167,8 @@ add_action( 'wp_ajax_base47_toggle_theme', 'base47_he_ajax_toggle_theme' );
  */
 function base47_he_ajax_set_default_theme() {
 
-    check_ajax_referer( 'base47_he_nonce', '_wpnonce' );
-
+check_ajax_referer( 'base47_he', 'nonce' );
+	
     if ( empty($_POST['theme']) ) {
         wp_send_json_error('Missing theme');
     }
