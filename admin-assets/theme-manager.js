@@ -79,6 +79,89 @@ $('.base47-tm-grid').on('change', '.tm-mode input[type=radio]', function () {
     }
     // loader → both unchecked
 });
+	
+	/* --------------------------
+   SAVE ASSET MODE (AJAX)
+--------------------------- */
+$('.base47-tm-grid').on('change', '.tm-mode input[type=radio]', function () {
+
+    let $radio = $(this);
+    let mode   = $radio.val();
+    let $card  = $radio.closest('.base47-tm-card');
+    let theme  = $card.data('theme');
+
+    // Hidden fields
+    let $hiddenManifest = $card.find('.tm-hidden-manifest');
+    let $hiddenSmart    = $card.find('.tm-hidden-smart');
+
+    // Reset both first
+    $hiddenManifest.prop('checked', false);
+    $hiddenSmart.prop('checked', false);
+
+    // Apply correct one
+    if (mode === 'manifest') {
+        $hiddenManifest.prop('checked', true);
+    }
+    else if (mode === 'smart') {
+        $hiddenSmart.prop('checked', true);
+    }
+
+    // AJAX SAVE
+    $.post(
+        base47ThemeManager.ajaxUrl,
+        {
+            action: 'base47_set_asset_mode',
+            nonce:  base47ThemeManager.nonce,
+            theme:  theme,
+            mode:   mode
+        }
+    )
+    .fail(function () {
+        alert('Failed to save asset mode.');
+    });
+});
+	
+	
+	/* --------------------------
+   SAVE ASSET MODE (AJAX)
+--------------------------- */
+$('.base47-tm-grid').on('change', '.tm-mode input[type=radio]', function () {
+
+    let $radio = $(this);
+    let mode   = $radio.val();
+    let $card  = $radio.closest('.base47-tm-card');
+    let theme  = $card.data('theme');
+
+    // Hidden fields
+    let $hiddenManifest = $card.find('.tm-hidden-manifest');
+    let $hiddenSmart    = $card.find('.tm-hidden-smart');
+
+    // Reset both first
+    $hiddenManifest.prop('checked', false);
+    $hiddenSmart.prop('checked', false);
+
+    // Apply correct one
+    if (mode === 'manifest') {
+        $hiddenManifest.prop('checked', true);
+    }
+    else if (mode === 'smart') {
+        $hiddenSmart.prop('checked', true);
+    }
+
+    // AJAX SAVE
+    $.post(
+        base47ThemeManager.ajaxUrl,
+        {
+            action: 'base47_set_asset_mode',
+            nonce:  base47ThemeManager.nonce,
+            theme:  theme,
+            mode:   mode
+        }
+    )
+    .fail(function () {
+        alert('Failed to save asset mode.');
+    });
+});
 
 /* --------------------------
    REBUILD CACHES BUTTON

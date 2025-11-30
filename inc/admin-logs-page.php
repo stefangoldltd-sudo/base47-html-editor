@@ -8,12 +8,12 @@ add_action( 'admin_menu', 'base47_he_register_logs_page' );
 function base47_he_register_logs_page() {
 
     add_submenu_page(
-        'base47-he-dashboard',     // parent slug
-        'Logs',                    // page title
-        'Logs',                    // menu title
-        'manage_options',          // capability
-        'base47-he-logs',          // menu slug
-        'base47_he_render_logs_page' // callback FIXED
+        'base47-html-editor',        
+        'Logs',
+        'Logs',
+        'manage_options',
+        'base47-he-logs',
+        'base47_he_render_logs_page'
     );
 }
 
@@ -72,6 +72,8 @@ function base47_he_render_logs_page() {
  */
 add_action( 'wp_ajax_base47_clear_logs', 'base47_he_ajax_clear_logs' );
 function base47_he_ajax_clear_logs() {
+
+    check_ajax_referer( 'base47-he-logs', 'nonce' ); // FIXED
 
     base47_he_clear_logs();
 

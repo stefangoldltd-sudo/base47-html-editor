@@ -356,47 +356,56 @@ function base47_he_activate() {
 }
 register_activation_hook( __FILE__, 'base47_he_activate' );
 
-
 /**
- * Register shortcodes using new format:
+ * Register shortcodes using unified format:
  * [base47-{theme}-{template}]
+ *
+ * Plus backward compatibility:
+ *  - [base47-{template}]  (old Base47 / Mivon style)
+ *  - [mivon-{template}]   (very old Mivon plugin)
  */
-add_action('init', function() {
+add_action( 'init', function() {
 
     $sets = base47_he_get_template_sets();
-    if ( empty($sets) ) return;
+    if ( empty( $sets ) ) return;
 
-    foreach ($sets as $set_slug => $set) {
+    foreach ( $sets as $set_slug => $set ) {
 
-        // Extract theme name: mivon, redox, lezar, bfolio
-        $theme_prefix = str_replace(['-templates','-templetes'], '', $set_slug);
+        // theme prefix = mivon, redox, lezar, bfolio
+        $theme_prefix = str_replace([ '-templates', '-templetes' ], '', $set_slug);
 
         foreach (glob($set['path'] . '*.html') as $file_path) {
 
             $file = basename($file_path);
             $slug = base47_he_filename_to_slug($file);
 
-            // FINAL shortcode format
+            // FINAL shortcode format – ALWAYS theme + template
             $shortcode = 'base47-' . $theme_prefix . '-' . $slug;
 
             add_shortcode($shortcode, function() use ($set, $file) {
-
                 $full     = $set['path'] . $file;
                 $base_url = $set['url'];
 
                 if (!file_exists($full)) return '';
 
                 $html = file_get_contents($full);
-
-                // Rewrite <img>, <script>, <link>, <video> URLs
                 $html = base47_he_rewrite_assets($html, $base_url, false);
-
                 return $html;
             });
+
+            // BACKWARD COMPATIBILITY — ONLY for old Mivon/Base47 shortcodes
+            if ($theme_prefix === 'mivon') {
+                add_shortcode('mivon-' . $slug, function() use ($set, $file) {
+                    $full     = $set['path'] . $file;
+                    $base_url = $set['url'];
+                    if (!file_exists($full)) return '';
+                    $html = file_get_contents($full);
+                    return base47_he_rewrite_assets($html, $base_url, false);
+                });
+            }
         }
     }
 });
-
 /* --------------------------------------------------------------------------
 | UTILITIES
 -------------------------------------------------------------------------- */
@@ -751,15 +760,11 @@ function base47_he_templates_page() {
 
                 <?php foreach ( $files as $file ) :
 
-                    $slug = base47_he_filename_to_slug( $file );
+$slug = base47_he_filename_to_slug( $file );
 
-                    // Shortcode naming
-                    if ( $set_slug === 'base47-templates' || $set_slug === 'mivon-templates' ) {
-                        $shortcode = '[base47-' . $slug . ']';
-                    } else {
-                        $set_clean = str_replace( ['-templates','-templetes'], '', $set_slug );
-                        $shortcode = '[base47-' . $set_clean . '-' . $slug . ']';
-                    }
+// Unified shortcode naming for ALL themes
+$set_clean = str_replace( [ '-templates', '-templetes' ], '', $set_slug );
+$shortcode = '[base47-' . $set_clean . '-' . $slug . ']';
 
                     // Classic preview
                     $preview_url = admin_url(
@@ -1817,6 +1822,46 @@ function base47_he_count_theme_templates( $folder_name ) {
 
     return count( $files );
 }
+
+/**
+ * AJAX: Save asset mode (loader / manifest / smart)
+ */
+add_action('wp_ajax_base47_set_asset_mode', function() {
+
+    check_ajax_referer('base47_theme_manager', 'nonce');
+
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied.');
+    }
+
+    $theme = sanitize_text_field($_POST['theme'] ?? '');
+    $mode  = sanitize_text_field($_POST['mode'] ?? '');
+
+    if (!$theme) {
+        wp_send_json_error('Missing theme slug.');
+    }
+
+    // Load existing
+    $manifest = get_option(BASE47_HE_OPT_USE_MANIFEST, []);
+    $smart    = get_option(BASE47_HE_OPT_USE_SMART_LOADER, []);
+
+    // Remove theme from both arrays first
+    $manifest = array_diff($manifest, [$theme]);
+    $smart    = array_diff($smart, [$theme]);
+
+    // Apply new mode
+    if ($mode === 'manifest') {
+        $manifest[] = $theme;
+    } elseif ($mode === 'smart') {
+        $smart[] = $theme;
+    }
+
+    update_option(BASE47_HE_OPT_USE_MANIFEST, array_values($manifest));
+    update_option(BASE47_HE_OPT_USE_SMART_LOADER, array_values($smart));
+
+    wp_send_json_success(['theme' => $theme, 'mode' => $mode]);
+});
+
 
 /* --------------------------------------------------------------------------
 | ADMIN LAYOUT FIX
