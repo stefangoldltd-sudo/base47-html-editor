@@ -16,7 +16,7 @@ jQuery(function ($) {
         const original = btn.text();
 
         navigator.clipboard.writeText(sc).then(() => {
-            btn.text('Copied ?').css('background', '#2ecc71');
+            btn.text('Copied').css('background', '#2ecc71');
             setTimeout(() => {
                 btn.text(original).css('background', '');
             }, 1200);

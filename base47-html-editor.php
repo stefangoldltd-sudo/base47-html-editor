@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.8.6
+Version: 2.8.6.1
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.8.6' );
+define( 'BASE47_HE_VERSION', '2.8.6.1' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -541,6 +541,16 @@ function base47_he_admin_menu() {
         'manage_options',
         'base47-special-widgets',
         'base47_special_widgets_page'
+    );
+	
+	  // Logs
+    add_submenu_page(
+        'base47-he-dashboard',
+        'Logs',
+        'Logs',
+        'manage_options',
+        'base47-he-logs',
+        'base47_he_render_logs_page'
     );
 
     // Changelog

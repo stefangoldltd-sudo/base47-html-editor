@@ -191,3 +191,62 @@
 .base47-tm-uninstall-btn:hover {
     color: #f87171;
 }
+
+/* ======================================================
+   FIXES: HIDE INTERNAL CHECKBOXES + RESTORE REAL TOGGLE
+   ====================================================== */
+
+/* 1) Hide hidden checkboxes (manifest + smart loader) */
+.base47-tm-card .tm-hidden-manifest,
+.base47-tm-card .tm-hidden-smart {
+    display: none !important;
+}
+
+/* 2) Hide the RAW checkbox for the active/inactive switch */
+.base47-tm-card .base47-tm-toggle-input {
+    display: none !important;
+}
+
+/* 3) But keep the visual toggle styled properly */
+.base47-tm-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+/* Toggle track */
+.base47-tm-toggle-track {
+    width: 42px;
+    height: 22px;
+    background: #475569;
+    border-radius: 50px;
+    position: relative;
+    transition: background 0.25s ease;
+}
+
+/* Toggle thumb */
+.base47-tm-toggle-thumb {
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: all 0.25s ease;
+}
+
+/* ACTIVE card → toggle ON */
+.base47-tm-card.is-active .base47-tm-toggle-track {
+    background: #34d399 !important;
+}
+
+.base47-tm-card.is-active .base47-tm-toggle-thumb {
+    transform: translateX(20px);
+}
+
+/* 4) Hide any stray checkmarks that appear near uninstall or footer */
+.base47-tm-card input[type="checkbox"] {
+    display: none !important;
+}

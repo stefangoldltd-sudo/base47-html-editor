@@ -51,62 +51,34 @@ jQuery(function ($) {
             $card.removeClass('is-saving');
         });
     });
-
-/* --------------------------
-   LOADER / MANIFEST / SMART++
-   RADIO BUTTONS
---------------------------- */
+/* ---------------------------------------------------------
+   ASSET MODES — ONE UNIFIED HANDLER (loader/manifest/smart)
+---------------------------------------------------------- */
 $('.base47-tm-grid').on('change', '.tm-mode input[type=radio]', function () {
 
     let $radio = $(this);
-    let mode   = $radio.val();                 // loader / manifest / smart
-    let $card  = $radio.closest('.base47-tm-card');
-
-    // Hidden fields
-    let $hiddenManifest = $card.find('.tm-hidden-manifest');
-    let $hiddenSmart    = $card.find('.tm-hidden-smart');
-
-    // Reset both first
-    $hiddenManifest.prop('checked', false);
-    $hiddenSmart.prop('checked', false);
-
-    // Apply correct one
-    if (mode === 'manifest') {
-        $hiddenManifest.prop('checked', true);
-    }
-    else if (mode === 'smart') {
-        $hiddenSmart.prop('checked', true);
-    }
-    // loader → both unchecked
-});
-	
-	/* --------------------------
-   SAVE ASSET MODE (AJAX)
---------------------------- */
-$('.base47-tm-grid').on('change', '.tm-mode input[type=radio]', function () {
-
-    let $radio = $(this);
-    let mode   = $radio.val();
+    let mode   = $radio.val();        // loader / manifest / smart
     let $card  = $radio.closest('.base47-tm-card');
     let theme  = $card.data('theme');
 
-    // Hidden fields
+    // Hidden fields for saving (stay hidden in UI)
     let $hiddenManifest = $card.find('.tm-hidden-manifest');
     let $hiddenSmart    = $card.find('.tm-hidden-smart');
 
-    // Reset both first
+    // Reset both hidden checkboxes
     $hiddenManifest.prop('checked', false);
     $hiddenSmart.prop('checked', false);
 
-    // Apply correct one
+    // Apply new mode to hidden fields
     if (mode === 'manifest') {
         $hiddenManifest.prop('checked', true);
     }
     else if (mode === 'smart') {
         $hiddenSmart.prop('checked', true);
     }
+    // loader = both unchecked
 
-    // AJAX SAVE
+    // AJAX SAVE MODE
     $.post(
         base47ThemeManager.ajaxUrl,
         {
@@ -114,13 +86,16 @@ $('.base47-tm-grid').on('change', '.tm-mode input[type=radio]', function () {
             nonce:  base47ThemeManager.nonce,
             theme:  theme,
             mode:   mode
+        },
+        function(response) {
+            if (!response || !response.success) {
+                alert('Error saving asset mode.');
+            }
         }
-    )
-    .fail(function () {
+    ).fail(function () {
         alert('Failed to save asset mode.');
     });
 });
-	
 	
 	/* --------------------------
    SAVE ASSET MODE (AJAX)

@@ -14,6 +14,51 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 
 /* -------------------------------------------------
+| MANIFEST DISCOVERY (REQUIRED)
+--------------------------------------------------*/
+
+if ( ! function_exists( 'base47_he_get_all_manifests' ) ) {
+
+    function base47_he_get_all_manifests() {
+
+        $sets = base47_he_get_template_sets();
+        $manifests = [];
+
+        foreach ( $sets as $slug => $set ) {
+
+            $manifest_file = trailingslashit( $set['path'] ) . 'manifest.json';
+
+            if ( ! file_exists( $manifest_file ) ) {
+                continue;
+            }
+
+            $json = file_get_contents( $manifest_file );
+            if ( ! $json ) continue;
+
+            $data = json_decode( $json, true );
+            if ( ! is_array( $data ) ) continue;
+
+            /* Auto-build helper fields (old behaviour) */
+            $manifests[ $slug ] = array_merge( $data, [
+                '_set_slug'      => $slug,
+                '_base_url'      => trailingslashit( $set['url'] ) . 'assets/',
+                '_base_path'     => trailingslashit( $set['path'] ) . 'assets/',
+                '_handle_prefix' => 'base47-' . sanitize_key( $slug ),
+            ]);
+        }
+
+        return $manifests;
+    }
+}
+
+if ( ! function_exists( 'base47_he_get_manifest_for_set' ) ) {
+    function base47_he_get_manifest_for_set( $slug ) {
+        $all = base47_he_get_all_manifests();
+        return $all[ $slug ] ?? null;
+    }
+}
+
+/* -------------------------------------------------
 | MANIFEST + FLAGS
 --------------------------------------------------*/
 

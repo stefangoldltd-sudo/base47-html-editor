@@ -2,22 +2,6 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Register Logs page inside Base47 menu
- */
-add_action( 'admin_menu', 'base47_he_register_logs_page' );
-function base47_he_register_logs_page() {
-
-    add_submenu_page(
-        'base47-html-editor',        
-        'Logs',
-        'Logs',
-        'manage_options',
-        'base47-he-logs',
-        'base47_he_render_logs_page'
-    );
-}
-
-/**
  * Render the Logs Page
  */
 function base47_he_render_logs_page() {
@@ -41,6 +25,7 @@ function base47_he_render_logs_page() {
     </div>
 
     <script>
+		
     jQuery(function($){
 
         $('#base47-clear-logs').on('click', function(){
