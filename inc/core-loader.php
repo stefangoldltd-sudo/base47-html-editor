@@ -199,10 +199,14 @@ function base47_he_enqueue_assets_for_set( $set_slug ) {
         $set_slug = $default;
     }
 
-    if ( ! base47_he_is_set_active( $set_slug ) ) return;
+    if ( ! base47_he_is_set_active( $set_slug ) ) {
+        return;
+    }
 
     $sets = base47_he_get_template_sets();
-    if ( ! isset( $sets[$set_slug] ) ) return;
+    if ( ! isset( $sets[ $set_slug ] ) ) {
+        return;
+    }
 
     $use_manifest = base47_he_theme_uses_manifest( $set_slug );
     $use_smart    = base47_he_theme_uses_smart( $set_slug );
@@ -210,25 +214,59 @@ function base47_he_enqueue_assets_for_set( $set_slug ) {
     $manifests    = base47_he_get_all_manifests();
     $manifest_key = $set_slug;
 
-    $theme_path = trailingslashit( $sets[$set_slug]['path'] );
-    $theme_url  = trailingslashit( $sets[$set_slug]['url'] );
+    $theme_path = trailingslashit( $sets[ $set_slug ]['path'] );
+    $theme_url  = trailingslashit( $sets[ $set_slug ]['url'] );
 
+    // Common directories
+    $css_dir   = $theme_path . 'assets/css/';
+    $js_dir    = $theme_path . 'assets/js/';
+    $libs_dir  = $theme_path . 'assets/libs/';
+
+    /**
+     * Helper: enqueue assets/libs (one level deep)
+     */
+    $enqueue_libs = function( $prefix ) use ( $libs_dir, $theme_path, $theme_url ) {
+
+        if ( ! is_dir( $libs_dir ) ) {
+            return;
+        }
+
+        // CSS: assets/libs/*/*.css
+        foreach ( glob( $libs_dir . '*/*.css' ) as $file ) {
+            $relative = str_replace( $theme_path, '', $file );
+            wp_enqueue_style(
+                $prefix . '-lib-css-' . md5( $relative ),
+                $theme_url . $relative,
+                [],
+                filemtime( $file )
+            );
+        }
+
+        // JS: assets/libs/*/*.js
+        foreach ( glob( $libs_dir . '*/*.js' ) as $file ) {
+            $relative = str_replace( $theme_path, '', $file );
+            wp_enqueue_script(
+                $prefix . '-lib-js-' . md5( $relative ),
+                $theme_url . $relative,
+                [ 'jquery' ],
+                filemtime( $file ),
+                true
+            );
+        }
+    };
 
     /* ----------------------------
        1) SMART LOADER++ (first)
     -----------------------------*/
     if ( $use_smart ) {
 
-        $css_dir = $theme_path . 'assets/css/';
-        $js_dir  = $theme_path . 'assets/js/';
-
         if ( is_dir( $css_dir ) ) {
             foreach ( glob( $css_dir . '*.css' ) as $file ) {
                 wp_enqueue_style(
-                    'base47-smart-' . md5($file),
-                    $theme_url . 'assets/css/' . basename($file),
+                    'base47-smart-css-' . md5( $file ),
+                    $theme_url . 'assets/css/' . basename( $file ),
                     [],
-                    filemtime($file)
+                    filemtime( $file )
                 );
             }
         }
@@ -236,25 +274,27 @@ function base47_he_enqueue_assets_for_set( $set_slug ) {
         if ( is_dir( $js_dir ) ) {
             foreach ( glob( $js_dir . '*.js' ) as $file ) {
                 wp_enqueue_script(
-                    'base47-smart-' . md5($file),
-                    $theme_url . 'assets/js/' . basename($file),
-                    ['jquery'],
-                    filemtime($file),
+                    'base47-smart-js-' . md5( $file ),
+                    $theme_url . 'assets/js/' . basename( $file ),
+                    [ 'jquery' ],
+                    filemtime( $file ),
                     true
                 );
             }
         }
 
+        // 🔥 NEW: also enqueue assets/libs/*
+        $enqueue_libs( 'base47-smart' );
+
         return;
     }
-
 
     /* ----------------------------
        2) MANIFEST MODE
     -----------------------------*/
-    if ( $use_manifest && isset( $manifests[$manifest_key] ) ) {
+    if ( $use_manifest && isset( $manifests[ $manifest_key ] ) ) {
 
-        $m = $manifests[$manifest_key];
+        $m = $manifests[ $manifest_key ];
 
         $base_url  = trailingslashit( $m['_base_url'] );
         $base_path = trailingslashit( $m['_base_path'] );
@@ -264,49 +304,49 @@ function base47_he_enqueue_assets_for_set( $set_slug ) {
         $js_list  = $m['js']  ?? ( $m['global']['js']  ?? [] );
 
         foreach ( $css_list as $relative ) {
-            $relative = ltrim($relative, '/');
-            $file = $base_path . $relative;
+            $relative = ltrim( $relative, '/' );
+            $file     = $base_path . $relative;
             if ( file_exists( $file ) ) {
                 wp_enqueue_style(
-                    $prefix . '-css-' . md5($relative),
+                    $prefix . '-css-' . md5( $relative ),
                     $base_url . $relative,
                     [],
-                    filemtime($file)
+                    filemtime( $file )
                 );
             }
         }
 
         foreach ( $js_list as $relative ) {
-            $relative = ltrim($relative, '/');
-            $file = $base_path . $relative;
+            $relative = ltrim( $relative, '/' );
+            $file     = $base_path . $relative;
             if ( file_exists( $file ) ) {
                 wp_enqueue_script(
-                    $prefix . '-js-' . md5($relative),
+                    $prefix . '-js-' . md5( $relative ),
                     $base_url . $relative,
-                    ['jquery'],
-                    filemtime($file),
+                    [ 'jquery' ],
+                    filemtime( $file ),
                     true
                 );
             }
         }
 
+        // In manifest mode, libs should really come from manifest,
+        // but as a safety net we also load them if present
+        $enqueue_libs( $prefix );
+
         return;
     }
-
 
     /* ----------------------------
        3) FALLBACK LOADER
     -----------------------------*/
-    $css_dir = $theme_path . 'assets/css/';
-    $js_dir  = $theme_path . 'assets/js/';
-
     if ( is_dir( $css_dir ) ) {
         foreach ( glob( $css_dir . '*.css' ) as $file ) {
             wp_enqueue_style(
-                'base47-fallback-' . md5($file),
-                $theme_url . 'assets/css/' . basename($file),
+                'base47-fallback-css-' . md5( $file ),
+                $theme_url . 'assets/css/' . basename( $file ),
                 [],
-                filemtime($file)
+                filemtime( $file )
             );
         }
     }
@@ -314,16 +354,18 @@ function base47_he_enqueue_assets_for_set( $set_slug ) {
     if ( is_dir( $js_dir ) ) {
         foreach ( glob( $js_dir . '*.js' ) as $file ) {
             wp_enqueue_script(
-                'base47-fallback-' . md5($file),
-                $theme_url . 'assets/js/' . basename($file),
-                ['jquery'],
-                filemtime($file),
+                'base47-fallback-js-' . md5( $file ),
+                $theme_url . 'assets/js/' . basename( $file ),
+                [ 'jquery' ],
+                filemtime( $file ),
                 true
             );
         }
     }
-}
 
+    // 🔥 NEW: also enqueue assets/libs/*
+    $enqueue_libs( 'base47-fallback' );
+}
 
 /* -------------------------------------------------
 | RENDER TEMPLATE
