@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.8.2
+Version: 2.8.4
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.8.2' );
+define( 'BASE47_HE_VERSION', '2.8.4' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -579,6 +579,57 @@ wp_localize_script(
 }
 add_action( 'admin_enqueue_scripts', 'base47_he_admin_assets' );
 
+
+
+/**
+ * Safe theme metadata helper for Theme Manager cards.
+ * Reads /theme.json if present, otherwise falls back to nice defaults.
+ */
+function base47_he_theme_metadata( $slug ) {
+
+    // Default structure so array keys always exist
+    $meta = array(
+        'title'       => '',
+        'version'     => '',
+        'author'      => '',
+        'description' => '',
+        'tags'        => array(),
+    );
+
+    // Themes root
+    if ( ! function_exists( 'base47_he_get_themes_root' ) ) {
+        // If something went very wrong, just return defaults
+        $meta['title'] = ucwords( str_replace( array( '-', '_' ), ' ', $slug ) );
+        return $meta;
+    }
+
+    $root       = base47_he_get_themes_root();
+    $themes_dir = trailingslashit( $root['dir'] );
+
+    $theme_dir  = $themes_dir . $slug . '/';
+    $json_file  = $theme_dir . 'theme.json';
+
+    if ( file_exists( $json_file ) ) {
+        $raw = file_get_contents( $json_file );
+        $arr = json_decode( $raw, true );
+        if ( is_array( $arr ) ) {
+            $meta = array_merge( $meta, $arr );
+        }
+    }
+
+    // Fallback title if theme.json is missing/empty
+    if ( empty( $meta['title'] ) ) {
+        $pretty = preg_replace( '#-templates?$#', '', $slug );
+        $pretty = str_replace( array( '-', '_' ), ' ', $pretty );
+        $meta['title'] = ucwords( $pretty );
+    }
+
+    return $meta;
+}
+
+
+
+
 /* --------------------------------------------------------------------------
 | ADMIN PAGES (existing)
 -------------------------------------------------------------------------- */
@@ -866,6 +917,9 @@ function base47_he_editor_page() {
     </div>
     <?php
 }
+
+
+
 
 
 /** THEME MANAGER (glass UI + install/delete/scan) */
@@ -1199,33 +1253,6 @@ function base47_he_ajax_uninstall_theme() {
     wp_send_json_success( [ 'message' => 'Theme uninstalled.', 'slug' => $slug ] );
 }
 
-/**
- * Helper: recursive remove directory
- */
-if ( ! function_exists( 'base47_he_rrmdir' ) ) {
-    function base47_he_rrmdir( $dir ) {
-
-        if ( ! is_dir( $dir ) ) {
-            return;
-        }
-
-        $items = scandir( $dir );
-        foreach ( $items as $item ) {
-            if ( $item === '.' || $item === '..' ) {
-                continue;
-            }
-            $path = $dir . DIRECTORY_SEPARATOR . $item;
-
-            if ( is_dir( $path ) ) {
-                base47_he_rrmdir( $path );
-            } else {
-                @unlink( $path );
-            }
-        }
-
-        @rmdir( $dir );
-    }
-}
 
 /**
  * Render Theme Manager (glass UI)
