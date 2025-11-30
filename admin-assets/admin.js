@@ -26,16 +26,17 @@ jQuery(function ($) {
     /* ==========================
        ACTIVE SET HELPER
     ========================== */
-    function getActiveSet() {
-        let setVal = $set.val();
-        if (!setVal || setVal === 'undefined') {
-            setVal = (window.BASE47_HE_DATA && BASE47_HE_DATA.default_set)
-                ? BASE47_HE_DATA.default_set
-                : 'base47-templates';
-        }
-        return setVal;
+function getActiveSet() {
+    let setVal = $set.val();
+
+    if (!setVal || setVal === 'undefined') {
+        setVal = (window.BASE47_HE && BASE47_HE.default_set)
+            ? BASE47_HE.default_set
+            : 'base47-templates';
     }
 
+    return setVal;
+}
     /* ==========================
        LIVE PREVIEW (EDITOR)
     ========================== */
@@ -44,9 +45,9 @@ jQuery(function ($) {
         $code.on('input', function () {
             clearTimeout(timer);
             timer = setTimeout(function () {
-                $.post(BASE47_HE_DATA.ajax_url, {
-                    action: 'base47_he_live_preview',
-                    nonce:  BASE47_HE_DATA.nonce,
+                $.post(BASE47_HE.ajax_url, {
+	action: 'base47_he_live_preview',
+                    nonce:  BASE47_HE.nonce,
                     file:   $file.val(),
                     set:    getActiveSet(),
                     content: $code.val()
@@ -68,9 +69,9 @@ jQuery(function ($) {
     $('#base47-he-save').on('click', function (e) {
         e.preventDefault();
 
-        $.post(BASE47_HE_DATA.ajax_url, {
+        $.post(BASE47_HE.ajax_url, {
             action: 'base47_he_save_template',
-            nonce:  BASE47_HE_DATA.nonce,
+            nonce:  BASE47_HE.nonce,
             file:   $file.val(),
             set:    getActiveSet(),
             content: $code.val()
@@ -92,9 +93,9 @@ jQuery(function ($) {
     ========================== */
     $('#base47-he-restore').on('click', function (e) {
         e.preventDefault();
-        $.post(BASE47_HE_DATA.ajax_url, {
+        $.post(BASE47_HE.ajax_url, {
             action: 'base47_he_get_template',
-            nonce:  BASE47_HE_DATA.nonce,
+            nonce:  BASE47_HE.nonce,
             file:   $file.val(),
             set:    getActiveSet()
         }, function (resp) {
@@ -185,9 +186,9 @@ jQuery(function ($) {
 
         btn.text('Loading…').prop('disabled', true);
 
-        $.post(BASE47_HE_DATA.ajax_url, {
+        $.post(BASE47_HE.ajax_url, {
             action: 'base47_he_lazy_preview',
-            nonce:  BASE47_HE_DATA.nonce,
+            nonce:  BASE47_HE.nonce,
             file:   file,
             set:    set
         }, function (res) {
@@ -228,11 +229,11 @@ jQuery(function ($) {
         $btn.prop('disabled', true).text('Uninstalling…');
 
         $.post(
-            base47_he_admin.ajax_url,
+            BASE47_HE.ajax_url,
             {
                 action: 'base47_he_uninstall_theme',
                 theme:  slug,
-                nonce:  base47_he_admin.nonce
+                nonce: BASE47_HE.nonce
             }
         )
         .done(function (resp) {
@@ -259,12 +260,12 @@ jQuery(function ($) {
         const selected = $(this).val();
 
         $.ajax({
-            url:      ajaxurl,
+            url: BASE47_HE.ajax_url,
             method:   'POST',
             data: {
                 action:   'base47_set_default_theme',
                 theme:    selected,
-                _wpnonce: base47_admin.nonce
+                nonce: BASE47_HE.nonce
             },
             success: function (response) {
                 if (response && response.success) {
