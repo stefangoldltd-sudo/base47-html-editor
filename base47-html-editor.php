@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.8.4
+Version: 2.8.5
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.8.4' );
+define( 'BASE47_HE_VERSION', '2.8.5' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -355,6 +355,47 @@ function base47_he_activate() {
     }
 }
 register_activation_hook( __FILE__, 'base47_he_activate' );
+
+
+/**
+ * Register shortcodes using new format:
+ * [base47-{theme}-{template}]
+ */
+add_action('init', function() {
+
+    $sets = base47_he_get_template_sets();
+    if ( empty($sets) ) return;
+
+    foreach ($sets as $set_slug => $set) {
+
+        // Extract theme name: mivon, redox, lezar, bfolio
+        $theme_prefix = str_replace(['-templates','-templetes'], '', $set_slug);
+
+        foreach (glob($set['path'] . '*.html') as $file_path) {
+
+            $file = basename($file_path);
+            $slug = base47_he_filename_to_slug($file);
+
+            // FINAL shortcode format
+            $shortcode = 'base47-' . $theme_prefix . '-' . $slug;
+
+            add_shortcode($shortcode, function() use ($set, $file) {
+
+                $full     = $set['path'] . $file;
+                $base_url = $set['url'];
+
+                if (!file_exists($full)) return '';
+
+                $html = file_get_contents($full);
+
+                // Rewrite <img>, <script>, <link>, <video> URLs
+                $html = base47_he_rewrite_assets($html, $base_url, false);
+
+                return $html;
+            });
+        }
+    }
+});
 
 /* --------------------------------------------------------------------------
 | UTILITIES
@@ -1260,7 +1301,6 @@ function base47_he_ajax_uninstall_theme() {
 function base47_he_render_theme_manager_section() {
 
     $themes        = base47_he_get_template_sets();       // real uploaded sets
-    $meta          = base47_he_theme_metadata();          // metadata for UI
     $active_themes = get_option( 'base47_active_themes', [] );
 
     if ( ! is_array( $active_themes ) ) {
