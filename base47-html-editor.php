@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.9.0
+Version: 2.9.0.3
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.9.0' );
+define( 'BASE47_HE_VERSION', '2.9.0.3' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -589,55 +589,6 @@ add_action( 'admin_enqueue_scripts', 'base47_he_admin_assets' );
 
 
 
-/**
- * Safe theme metadata helper for Theme Manager cards.
- * Reads /theme.json if present, otherwise falls back to nice defaults.
- */
-function base47_he_theme_metadata( $slug ) {
-
-    // Default structure so array keys always exist
-    $meta = array(
-        'title'       => '',
-        'version'     => '',
-        'author'      => '',
-        'description' => '',
-        'tags'        => array(),
-    );
-
-    // Themes root
-    if ( ! function_exists( 'base47_he_get_themes_root' ) ) {
-        // If something went very wrong, just return defaults
-        $meta['title'] = ucwords( str_replace( array( '-', '_' ), ' ', $slug ) );
-        return $meta;
-    }
-
-    $root       = base47_he_get_themes_root();
-    $themes_dir = trailingslashit( $root['dir'] );
-
-    $theme_dir  = $themes_dir . $slug . '/';
-    $json_file  = $theme_dir . 'theme.json';
-
-    if ( file_exists( $json_file ) ) {
-        $raw = file_get_contents( $json_file );
-        $arr = json_decode( $raw, true );
-        if ( is_array( $arr ) ) {
-            $meta = array_merge( $meta, $arr );
-        }
-    }
-
-    // Fallback title if theme.json is missing/empty
-    if ( empty( $meta['title'] ) ) {
-        $pretty = preg_replace( '#-templates?$#', '', $slug );
-        $pretty = str_replace( array( '-', '_' ), ' ', $pretty );
-        $meta['title'] = ucwords( $pretty );
-    }
-
-    return $meta;
-}
-
-
-
-
 /* --------------------------------------------------------------------------
 | ADMIN PAGES - Moved to inc/admin-pages/
 -------------------------------------------------------------------------- */
@@ -649,215 +600,6 @@ function base47_he_theme_metadata( $slug ) {
 // Changelog: inc/admin-pages/changelog.php
 // Logs: inc/admin-pages/logs.php
 
-
-
-/** THEME MANAGER (glass UI + install/delete/scan) */
-function base47_he_settings_page() {
-    if ( ! current_user_can( 'manage_options' ) ) {
-        return;
-    }
-
-    $notices = [];
-
-    // --------------------------------------------------
-    // HANDLE FORM ACTIONS (install / delete / scan)
-    // --------------------------------------------------
-    if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-       check_admin_referer( 'base47_he', 'nonce' );
-		
-        $action = isset( $_POST['base47_he_theme_action'] )
-            ? sanitize_text_field( wp_unslash( $_POST['base47_he_theme_action'] ) )
-            : '';
-
-        switch ( $action ) {
-
-            case 'install_theme':
-                $result = base47_he_install_theme_from_upload();
-                if ( is_wp_error( $result ) ) {
-                    $notices[] = [
-                        'type' => 'error',
-                        'msg'  => $result->get_error_message(),
-                    ];
-                } else {
-                    $notices[] = [
-                        'type' => 'updated',
-                        'msg'  => sprintf(
-                            'Theme <strong>%s</strong> installed successfully.',
-                            esc_html( $result )
-                        ),
-                    ];
-                    base47_he_refresh_theme_caches();
-                }
-                break;
-
-            case 'delete_theme':
-                $slug = isset( $_POST['base47_delete_theme'] )
-                    ? sanitize_text_field( wp_unslash( $_POST['base47_delete_theme'] ) )
-                    : '';
-
-                if ( ! $slug ) {
-                    $notices[] = [
-                        'type' => 'error',
-                        'msg'  => 'No theme selected for deletion.',
-                    ];
-                    break;
-                }
-
-                $result = base47_he_delete_theme_folder( $slug );
-                if ( is_wp_error( $result ) ) {
-                    $notices[] = [
-                        'type' => 'error',
-                        'msg'  => $result->get_error_message(),
-                    ];
-                } else {
-                    $notices[] = [
-                        'type' => 'updated',
-                        'msg'  => sprintf(
-                            'Theme <strong>%s</strong> deleted successfully.',
-                            esc_html( $slug )
-                        ),
-                    ];
-                    base47_he_refresh_theme_caches();
-                }
-                break;
-
-            case 'scan_themes':
-                base47_he_refresh_theme_caches();
-                $notices[] = [
-                    'type' => 'updated',
-                    'msg'  => 'Theme list refreshed successfully.',
-                ];
-                break;
-
-            // NOTE:
-            // We no longer "save" active themes here.
-            // Active/inactive is handled live via AJAX (base47_he_ajax_toggle_theme).
-        }
-    }
-
-    ?>
-    <div class="wrap base47-he-wrap">
-        <h1>Theme Manager</h1>
-
-        <?php
-        // NOTICES
-        foreach ( $notices as $notice ) {
-            $class = $notice['type'] === 'error' ? 'notice notice-error' : 'notice notice-success';
-            echo '<div class="' . esc_attr( $class ) . '"><p>' . wp_kses_post( $notice['msg'] ) . '</p></div>';
-        }
-        ?>
-
-        <!-- TOP ACTION BAR: INSTALL + SCAN -->
-        <div style="margin:20px 0;padding:15px;border:1px solid #ddd;background:#fff;border-radius:6px;">
-            <h2 style="margin-top:0;">Theme Actions</h2>
-
-            <!-- Install ZIP -->
-            <form method="post" enctype="multipart/form-data" style="margin-bottom:12px;">
-                <?php wp_nonce_field( 'base47_he', 'nonce' ); ?>
-                <input type="hidden" name="base47_he_theme_action" value="install_theme">
-                <label for="base47_theme_zip" style="display:inline-block;margin-right:8px;">
-                    <strong>Install Theme (ZIP):</strong>
-                </label>
-                <input type="file" name="base47_theme_zip" id="base47_theme_zip" accept=".zip">
-                <button type="submit" class="button button-primary" style="margin-left:6px;">
-                    Upload &amp; Install
-                </button>
-                <p class="description" style="margin-top:6px;">
-                    ZIP must contain a folder like <code>lezar-templates/</code> or <code>bfolio-templates/</code>.
-                </p>
-            </form>
-
-            <!-- Scan themes -->
-            <form method="post" style="margin-top:10px;">
-                  <?php wp_nonce_field( 'base47_he', 'nonce' ); ?>
-				<input type="hidden" name="base47_he_theme_action" value="scan_themes">
-                <button type="submit" class="button">
-                    Scan Themes
-                </button>
-                <span class="description" style="margin-left:8px;">
-                    Refresh the list after uploading theme folders via FTP.
-                </span>
-            </form>
-        </div>
-		
-		<!-- Rebuild all caches -->
-<form method="post" style="margin-top:10px;">
-     <?php wp_nonce_field( 'base47_he', 'nonce' ); ?>
-    <button type="button"
-            id="base47-rebuild-caches-btn"
-            class="button button-secondary">
-        Rebuild All Caches
-    </button>
-    <span class="description" style="margin-left:8px;">
-
-        <div class="base47-tm-footer-note">
-            <p>Tip: keep only the themes you use enabled. Fewer active themes = faster Base47.</p>
-        </div>
-
-    </div>
-    <?php
-}
-
-/**
- * Simple recursive rmdir helper.
- */
-function base47_he_rrmdir( $dir ) {
-    if ( ! is_dir( $dir ) ) {
-        return true;
-    }
-
-    $items = scandir( $dir );
-    if ( ! $items ) {
-        return false;
-    }
-
-    foreach ( $items as $item ) {
-        if ( $item === '.' || $item === '..' ) {
-            continue;
-        }
-        $path = $dir . DIRECTORY_SEPARATOR . $item;
-        if ( is_dir( $path ) ) {
-            if ( ! base47_he_rrmdir( $path ) ) {
-                return false;
-            }
-        } else {
-            if ( ! @unlink( $path ) ) {
-                return false;
-            }
-        }
-    }
-
-    return @rmdir( $dir );
-}
-
-	
-
-
-/**
- * Load theme metadata from theme.json inside a theme folder.
- *
- * This function looks for a file named "theme.json" inside the given path.
- * If found, it reads the file, decodes the JSON, and returns the metadata
- * (name, version, colors, thumbnail, etc.) as an array.
- *
- * If the file is missing or invalid, it returns an empty array so nothing breaks.
- */
-function base47_he_load_theme_metadata( $path ) {
-    $file = trailingslashit( $path ) . 'theme.json';
-
-    // No metadata file ? return empty fallback
-    if ( ! file_exists( $file ) ) {
-        return [];
-    }
-
-    // Read JSON file
-    $json = file_get_contents( $file );
-
-    // Decode JSON into array (or empty array if invalid)
-    $data = json_decode( $json, true );
-
-    return is_array( $data ) ? $data : [];
-}
 
 
 /* --------------------------------------------------------------------------
@@ -977,6 +719,360 @@ function base47_he_ajax_get_template() {
     
     $file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
     $set  = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
+
+    if ( ! $file ) wp_send_json_error( 'Template not specified.' );
+
+    $sets = base47_he_get_template_sets();
+    if ( empty( $set ) ) {
+        $info = base47_he_locate_template( $file );
+        if ( ! $info ) wp_send_json_error( 'Template not found.' );
+        $set      = $info['set'];
+        $full     = $info['path'];
+        $base_url = $info['url'];
+    } else {
+        if ( ! isset( $sets[ $set ] ) ) wp_send_json_error( 'Template set not found.' );
+        $full     = $sets[ $set ]['path'] . $file;
+        $base_url = $sets[ $set ]['url'];
+        if ( ! file_exists( $full ) ) wp_send_json_error( 'Template not found.' );
+    }
+
+    $content = file_get_contents( $full );
+    $preview = base47_he_rewrite_assets( base47_he_strip_shell( $content ), $base_url, true );
+
+    wp_send_json_success( [
+        'content' => $content,
+        'preview' => $preview,
+        'set'     => $set,
+    ] );
+}
+add_action( 'wp_ajax_base47_he_get_template', 'base47_he_ajax_get_template' );
+
+function base47_he_ajax_save_template() {
+    check_ajax_referer( 'base47_he', 'nonce' );
+    
+    $file    = isset( $_POST['file'] )    ? sanitize_text_field( wp_unslash( $_POST['file'] ) )    : '';
+    $set     = isset( $_POST['set'] )     ? sanitize_text_field( wp_unslash( $_POST['set'] ) )     : '';
+    $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
+
+    if ( ! $file ) wp_send_json_error( 'Template not specified.' );
+
+    $sets = base47_he_get_template_sets();
+    if ( empty( $set ) ) {
+        $info = base47_he_locate_template( $file );
+        if ( ! $info ) wp_send_json_error( 'Template not found.' );
+        $full = $info['path'];
+    } else {
+        if ( ! isset( $sets[ $set ] ) ) wp_send_json_error( 'Template set not found.' );
+        $full = $sets[ $set ]['path'] . $file;
+        if ( ! file_exists( $full ) ) wp_send_json_error( 'Template not found.' );
+    }
+
+    $written = file_put_contents( $full, $content );
+    if ( false === $written ) wp_send_json_error( 'Could not write file. Check permissions.' );
+
+    wp_send_json_success( 'saved' );
+}
+add_action( 'wp_ajax_base47_he_save_template', 'base47_he_ajax_save_template' );
+
+add_action( 'wp_ajax_base47_he_live_preview', function() {
+    check_ajax_referer( 'base47_he', 'nonce' );
+    
+    $file    = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
+    $set     = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
+    $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
+
+    if ( ! $file ) wp_send_json_error( 'No file' );
+
+    $sets = base47_he_get_template_sets();
+    if ( empty( $set ) ) {
+        $info = base47_he_locate_template( $file );
+        if ( ! $info ) wp_send_json_error( 'Template not found.' );
+        $base_url = $info['url'];
+    } else {
+        if ( ! isset( $sets[ $set ] ) ) wp_send_json_error( 'Template set not found.' );
+        $base_url = $sets[ $set ]['url'];
+    }
+
+    $html = base47_he_rewrite_assets( $content, $base_url, false );
+    wp_send_json_success( [ 'html' => $html ] );
+});
+
+/* --------------------------------------------------------------------------
+| THEME OPERATIONS (Install / Delete / Uninstall)
+-------------------------------------------------------------------------- */
+
+/**
+ * Install a theme from uploaded ZIP (V3 – uploads directory).
+ */
+function base47_he_install_theme_from_upload() {
+
+    if ( ! isset($_FILES['base47_theme_zip']) || empty($_FILES['base47_theme_zip']['name']) ) {
+        return new WP_Error('no_file', 'No ZIP file uploaded.');
+    }
+
+    $file = $_FILES['base47_theme_zip'];
+
+    if (! empty($file['error'])) {
+        return new WP_Error('upload_error', 'Upload error: ' . intval($file['error']));
+    }
+
+    $name      = $file['name'];
+    $tmp       = $file['tmp_name'];
+    $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+    if ($extension !== 'zip') {
+        return new WP_Error('invalid_type', 'File must be a .zip archive.');
+    }
+
+    if (! class_exists('ZipArchive')) {
+        return new WP_Error('no_zip', 'ZipArchive is not available on this server.');
+    }
+
+    $zip = new ZipArchive();
+    if (true !== $zip->open($tmp)) {
+        return new WP_Error('open_failed', 'Could not open ZIP file.');
+    }
+
+    // Detect root folder inside ZIP
+    $root_folder = '';
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $stat = $zip->statIndex($i);
+        if (! $stat || empty($stat['name'])) continue;
+
+        $name_in_zip = $stat['name'];
+
+        if (substr($name_in_zip, -1) === '/') {
+            $root_folder = trim($name_in_zip, '/');
+            break;
+        }
+    }
+
+    if (! $root_folder) {
+        $zip->close();
+        return new WP_Error('no_root_folder', 'ZIP must contain a root folder (e.g. lezar-templates/).');
+    }
+
+    // Must follow naming rule
+    if (! str_ends_with($root_folder, '-templates')) {
+        $zip->close();
+        return new WP_Error('invalid_folder', 'Root folder must end with "-templates".');
+    }
+
+    // Determine install location
+    $root       = base47_he_get_themes_root();
+    $themes_dir = $root['dir'];
+
+    $target_dir = trailingslashit($themes_dir . $root_folder);
+
+    if (file_exists($target_dir)) {
+        $zip->close();
+        return new WP_Error('exists', 'A theme with this name already exists.');
+    }
+
+    // Extract ONLY into uploads dir
+    if (! $zip->extractTo($themes_dir)) {
+        $zip->close();
+        return new WP_Error('extract_failed', 'Could not extract ZIP into themes directory.');
+    }
+
+    $zip->close();
+
+    if (! is_dir($target_dir)) {
+        return new WP_Error('no_target', 'Theme folder not found after extraction.');
+    }
+
+    return $root_folder;
+}
+
+/**
+ * Delete a theme folder from the uploads/base47-themes directory.
+ */
+function base47_he_delete_theme_folder( $slug ) {
+
+    $root = base47_he_get_themes_root();
+    $themes_dir = $root['dir'];
+
+    $target = realpath( $themes_dir . $slug );
+
+    if ( ! $target || ! is_dir( $target ) ) {
+        return new WP_Error( 'not_found', 'Theme set not found.' );
+    }
+
+    // Safety: ensure we ONLY delete inside base47-themes directory
+    $themes_root_real = realpath( $themes_dir );
+    if ( strpos( $target, $themes_root_real ) !== 0 ) {
+        return new WP_Error( 'unsafe_path', 'Refusing to delete outside theme directory.' );
+    }
+
+    if ( ! base47_he_rrmdir( $target ) ) {
+        return new WP_Error( 'delete_failed', 'Could not delete theme folder. Check permissions.' );
+    }
+
+    return true;
+}
+
+/**
+ * AJAX: Uninstall a theme (delete folder + cleanup options)
+ */
+add_action( 'wp_ajax_base47_he_uninstall_theme', 'base47_he_ajax_uninstall_theme' );
+
+function base47_he_ajax_uninstall_theme() {
+    check_ajax_referer( 'base47_he', 'nonce' );
+    
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
+    }
+
+    $slug = isset( $_POST['theme'] ) ? sanitize_key( $_POST['theme'] ) : '';
+
+    if ( empty( $slug ) ) {
+        wp_send_json_error( [ 'message' => 'Missing theme slug.' ] );
+    }
+
+    $themes = base47_he_get_template_sets();
+
+    if ( ! isset( $themes[ $slug ] ) || empty( $themes[ $slug ]['path'] ) ) {
+        wp_send_json_error( [ 'message' => 'Theme not found.' ] );
+    }
+
+    $theme_path = $themes[ $slug ]['path'];
+
+    base47_he_rrmdir( $theme_path );
+
+    // Remove from "active themes" option
+    $active_themes = get_option( 'base47_active_themes', [] );
+    if ( is_array( $active_themes ) ) {
+        $active_themes = array_diff( $active_themes, [ $slug ] );
+        update_option( 'base47_active_themes', array_values( $active_themes ) );
+    }
+
+    // Remove from "use manifest" option
+    $use_manifest = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
+    if ( is_array( $use_manifest ) ) {
+        $use_manifest = array_diff( $use_manifest, [ $slug ] );
+        update_option( BASE47_HE_OPT_USE_MANIFEST, array_values( $use_manifest ) );
+    }
+
+    wp_send_json_success( [ 'message' => 'Theme uninstalled.', 'slug' => $slug ] );
+}
+
+/* --------------------------------------------------------------------------
+| HELPER FUNCTIONS
+-------------------------------------------------------------------------- */
+
+/**
+ * Simple recursive rmdir helper.
+ */
+function base47_he_rrmdir( $dir ) {
+    if ( ! is_dir( $dir ) ) {
+        return true;
+    }
+
+    $items = scandir( $dir );
+    if ( ! $items ) {
+        return false;
+    }
+
+    foreach ( $items as $item ) {
+        if ( $item === '.' || $item === '..' ) {
+            continue;
+        }
+        $path = $dir . DIRECTORY_SEPARATOR . $item;
+        if ( is_dir( $path ) ) {
+            if ( ! base47_he_rrmdir( $path ) ) {
+                return false;
+            }
+        } else {
+            if ( ! @unlink( $path ) ) {
+                return false;
+            }
+        }
+    }
+
+    return @rmdir( $dir );
+}
+
+/**
+ * Count HTML templates in a theme folder
+ */
+function base47_he_count_theme_templates( $folder_name ) {
+
+    $sets = base47_he_get_template_sets();
+
+    if ( ! isset( $sets[ $folder_name ] ) ) {
+        return 0;
+    }
+
+    $dir = trailingslashit( $sets[ $folder_name ]['path'] );
+
+    if ( ! is_dir( $dir ) ) {
+        return 0;
+    }
+
+    $files = glob( $dir . '*.html' );
+    if ( ! is_array( $files ) ) {
+        return 0;
+    }
+
+    return count( $files );
+}
+
+/**
+ * Load theme metadata from theme.json inside a theme folder.
+ */
+function base47_he_load_theme_metadata( $path ) {
+    $file = trailingslashit( $path ) . 'theme.json';
+
+    if ( ! file_exists( $file ) ) {
+        return [];
+    }
+
+    $json = file_get_contents( $file );
+    $data = json_decode( $json, true );
+
+    return is_array( $data ) ? $data : [];
+}
+
+/**
+ * Safe theme metadata helper for Theme Manager cards.
+ */
+function base47_he_theme_metadata( $slug ) {
+
+    $meta = array(
+        'title'       => '',
+        'version'     => '',
+        'author'      => '',
+        'description' => '',
+        'tags'        => array(),
+    );
+
+    if ( ! function_exists( 'base47_he_get_themes_root' ) ) {
+        $meta['title'] = ucwords( str_replace( array( '-', '_' ), ' ', $slug ) );
+        return $meta;
+    }
+
+    $root       = base47_he_get_themes_root();
+    $themes_dir = trailingslashit( $root['dir'] );
+
+    $theme_dir  = $themes_dir . $slug . '/';
+    $json_file  = $theme_dir . 'theme.json';
+
+    if ( file_exists( $json_file ) ) {
+        $raw = file_get_contents( $json_file );
+        $arr = json_decode( $raw, true );
+        if ( is_array( $arr ) ) {
+            $meta = array_merge( $meta, $arr );
+        }
+    }
+
+    if ( empty( $meta['title'] ) ) {
+        $pretty = preg_replace( '#-templates?$#', '', $slug );
+        $pretty = str_replace( array( '-', '_' ), ' ', $pretty );
+        $meta['title'] = ucwords( $pretty );
+    }
+
+    return $meta;
+}
 
 /* --------------------------------------------------------------------------
 | SPECIAL WIDGETS: AUTO DISCOVERY VIA widget.json
