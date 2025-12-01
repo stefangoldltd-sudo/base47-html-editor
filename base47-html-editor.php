@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.9.1
+Version: 2.9.1.2
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.9.1' );
+define( 'BASE47_HE_VERSION', '2.9.1.2' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -725,51 +725,6 @@ function base47_he_delete_theme_folder( $slug ) {
     return true;
 }
 
-/**
- * AJAX: Uninstall a theme (delete folder + cleanup options)
- */
-add_action( 'wp_ajax_base47_he_uninstall_theme', 'base47_he_ajax_uninstall_theme' );
-
-function base47_he_ajax_uninstall_theme() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    if ( ! current_user_can( 'manage_options' ) ) {
-        wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
-    }
-
-    $slug = isset( $_POST['theme'] ) ? sanitize_key( $_POST['theme'] ) : '';
-
-    if ( empty( $slug ) ) {
-        wp_send_json_error( [ 'message' => 'Missing theme slug.' ] );
-    }
-
-    $themes = base47_he_get_template_sets();
-
-    if ( ! isset( $themes[ $slug ] ) || empty( $themes[ $slug ]['path'] ) ) {
-        wp_send_json_error( [ 'message' => 'Theme not found.' ] );
-    }
-
-    $theme_path = $themes[ $slug ]['path'];
-
-    base47_he_rrmdir( $theme_path );
-
-    // Remove from "active themes" option
-    $active_themes = get_option( 'base47_active_themes', [] );
-    if ( is_array( $active_themes ) ) {
-        $active_themes = array_diff( $active_themes, [ $slug ] );
-        update_option( 'base47_active_themes', array_values( $active_themes ) );
-    }
-
-    // Remove from "use manifest" option
-    $use_manifest = get_option( BASE47_HE_OPT_USE_MANIFEST, [] );
-    if ( is_array( $use_manifest ) ) {
-        $use_manifest = array_diff( $use_manifest, [ $slug ] );
-        update_option( BASE47_HE_OPT_USE_MANIFEST, array_values( $use_manifest ) );
-    }
-
-    wp_send_json_success( [ 'message' => 'Theme uninstalled.', 'slug' => $slug ] );
-}
-
 /* --------------------------------------------------------------------------
 | HELPER FUNCTIONS
 -------------------------------------------------------------------------- */
@@ -1096,5 +1051,3 @@ function base47_he_preview_modal() {
 }
 add_action( 'admin_footer', 'base47_he_preview_modal' );
 
-
-}
