@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.9.0.3
+Version: 2.9.1
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.9.0.3' );
+define( 'BASE47_HE_VERSION', '2.9.1' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -66,8 +66,17 @@ new Base47_GitHub_Updater(
 
 // Core loader + manifest engine
 require_once BASE47_HE_PATH . 'inc/core-loader.php';
-// Logging
+
+// Helpers
 require_once BASE47_HE_PATH . 'inc/helpers/logs.php';
+
+// AJAX Handlers
+require_once BASE47_HE_PATH . 'inc/ajax/preview.php';
+require_once BASE47_HE_PATH . 'inc/ajax/editor.php';
+require_once BASE47_HE_PATH . 'inc/ajax/theme-manager.php';
+require_once BASE47_HE_PATH . 'inc/ajax/cache.php';
+
+// Admin Pages
 require_once BASE47_HE_PATH . 'inc/admin-pages/logs.php';
 
 
@@ -603,201 +612,6 @@ add_action( 'admin_enqueue_scripts', 'base47_he_admin_assets' );
 
 
 /* --------------------------------------------------------------------------
-| AJAX: Lazy Template Preview (For Shortcodes Page)
--------------------------------------------------------------------------- */
-function base47_he_ajax_lazy_preview() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $file = isset($_POST['file']) ? sanitize_text_field( wp_unslash($_POST['file']) ) : '';
-    $set  = isset($_POST['set'])  ? sanitize_text_field( wp_unslash($_POST['set']) )  : '';
-
-    if ( ! $file ) {
-        wp_send_json_error( 'Missing file parameter.' );
-    }
-
-    $sets = base47_he_get_template_sets();
-
-    // Auto-detect set if none provided
-    if ( empty( $set ) ) {
-        $info = base47_he_locate_template( $file );
-        if ( ! $info ) {
-            wp_send_json_error( 'Template not found.' );
-        }
-        $set      = $info['set'];
-        $full     = $info['path'];
-        $base_url = $info['url'];
-    } else {
-        if ( ! isset( $sets[$set] ) ) {
-            wp_send_json_error( 'Invalid template set.' );
-        }
-        $full     = $sets[$set]['path'] . $file;
-        $base_url = $sets[$set]['url'];
-        if ( ! file_exists( $full ) ) {
-            wp_send_json_error( 'Template file not found.' );
-        }
-    }
-
-    $html = file_get_contents( $full );
-    if ( false === $html ) {
-        wp_send_json_error( 'Failed reading template.' );
-    }
-
-    // Rewrite asset URLs
-    $html = base47_he_rewrite_assets( $html, $base_url, true );
-
-    wp_send_json_success( [
-        'html' => $html,
-        'set'  => $set,
-        'file' => $file,
-    ] );
-}
-add_action( 'wp_ajax_base47_he_lazy_preview', 'base47_he_ajax_lazy_preview' );
-add_action( 'wp_ajax_nopriv_base47_he_lazy_preview', 'base47_he_ajax_lazy_preview' );
-
-/* --------------------------------------------------------------------------
-| AJAX PREVIEW / GET / SAVE / LIVE PREVIEW
--------------------------------------------------------------------------- */
-/** Detect default theme (for JS/editor). */
-function base47_he_detect_default_theme() {
- $sets = base47_he_get_template_sets();
-return array_key_first($sets) ?: '';
-}
-
-
-function base47_he_ajax_preview() {
-
-    // Correct AJAX nonce check
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $file = isset( $_GET['file'] ) ? sanitize_text_field( wp_unslash( $_GET['file'] ) ) : '';
-    $set  = isset( $_GET['set'] )  ? sanitize_text_field( wp_unslash( $_GET['set'] ) )  : '';
-
-    if ( ! $file ) wp_die( 'Template not specified.' );
-
-    // FIX: use the new correct option name
-    $active = get_option( 'base47_active_themes', [] );
-    if ( ! is_array( $active ) ) {
-        $active = [];
-    }
-
-    // FIX: fallback if nothing active
-    if ( empty( $active ) ) {
-        $sets = base47_he_get_template_sets();
-        $active = [ array_key_first( $sets ) ];
-    }
-
-    // FIX: If ?set? empty, use the first ACTIVE set
-    if ( empty( $set ) ) {
-        $set = $active[0];
-    }
-
-    $sets = base47_he_get_template_sets();
-
-    // Validate chosen set
-    if ( ! isset( $sets[ $set ] ) ) {
-        wp_die( 'Template set not found.' );
-    }
-
-    // Build full path
-    $full = $sets[ $set ]['path'] . $file;
-    $base_url = $sets[ $set ]['url'];
-
-    if ( ! file_exists( $full ) ) wp_die( 'Template not found.' );
-
-    // Process HTML
-    $html = file_get_contents( $full );
-    $html = base47_he_rewrite_assets( $html, $base_url, true );
-
-    echo $html;
-    exit;
-}
-add_action( 'wp_ajax_base47_he_preview',        'base47_he_ajax_preview' );
-add_action( 'wp_ajax_nopriv_base47_he_preview', 'base47_he_ajax_preview' );
-
-function base47_he_ajax_get_template() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
-    $set  = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
-
-    if ( ! $file ) wp_send_json_error( 'Template not specified.' );
-
-    $sets = base47_he_get_template_sets();
-    if ( empty( $set ) ) {
-        $info = base47_he_locate_template( $file );
-        if ( ! $info ) wp_send_json_error( 'Template not found.' );
-        $set      = $info['set'];
-        $full     = $info['path'];
-        $base_url = $info['url'];
-    } else {
-        if ( ! isset( $sets[ $set ] ) ) wp_send_json_error( 'Template set not found.' );
-        $full     = $sets[ $set ]['path'] . $file;
-        $base_url = $sets[ $set ]['url'];
-        if ( ! file_exists( $full ) ) wp_send_json_error( 'Template not found.' );
-    }
-
-    $content = file_get_contents( $full );
-    $preview = base47_he_rewrite_assets( base47_he_strip_shell( $content ), $base_url, true );
-
-    wp_send_json_success( [
-        'content' => $content,
-        'preview' => $preview,
-        'set'     => $set,
-    ] );
-}
-add_action( 'wp_ajax_base47_he_get_template', 'base47_he_ajax_get_template' );
-
-function base47_he_ajax_save_template() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $file    = isset( $_POST['file'] )    ? sanitize_text_field( wp_unslash( $_POST['file'] ) )    : '';
-    $set     = isset( $_POST['set'] )     ? sanitize_text_field( wp_unslash( $_POST['set'] ) )     : '';
-    $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
-
-    if ( ! $file ) wp_send_json_error( 'Template not specified.' );
-
-    $sets = base47_he_get_template_sets();
-    if ( empty( $set ) ) {
-        $info = base47_he_locate_template( $file );
-        if ( ! $info ) wp_send_json_error( 'Template not found.' );
-        $full = $info['path'];
-    } else {
-        if ( ! isset( $sets[ $set ] ) ) wp_send_json_error( 'Template set not found.' );
-        $full = $sets[ $set ]['path'] . $file;
-        if ( ! file_exists( $full ) ) wp_send_json_error( 'Template not found.' );
-    }
-
-    $written = file_put_contents( $full, $content );
-    if ( false === $written ) wp_send_json_error( 'Could not write file. Check permissions.' );
-
-    wp_send_json_success( 'saved' );
-}
-add_action( 'wp_ajax_base47_he_save_template', 'base47_he_ajax_save_template' );
-
-add_action( 'wp_ajax_base47_he_live_preview', function() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $file    = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
-    $set     = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
-    $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
-
-    if ( ! $file ) wp_send_json_error( 'No file' );
-
-    $sets = base47_he_get_template_sets();
-    if ( empty( $set ) ) {
-        $info = base47_he_locate_template( $file );
-        if ( ! $info ) wp_send_json_error( 'Template not found.' );
-        $base_url = $info['url'];
-    } else {
-        if ( ! isset( $sets[ $set ] ) ) wp_send_json_error( 'Template set not found.' );
-        $base_url = $sets[ $set ]['url'];
-    }
-
-    $html = base47_he_rewrite_assets( $content, $base_url, false );
-    wp_send_json_success( [ 'html' => $html ] );
-});
-
-/* --------------------------------------------------------------------------
 | THEME OPERATIONS (Install / Delete / Uninstall)
 -------------------------------------------------------------------------- */
 
@@ -1283,83 +1097,4 @@ function base47_he_preview_modal() {
 add_action( 'admin_footer', 'base47_he_preview_modal' );
 
 
-/**
- * AJAX: Toggle theme active/inactive
- */
-function base47_he_ajax_toggle_theme() {
-
-    check_ajax_referer( 'base47_he', 'nonce' );
-
-    if ( ! current_user_can( 'manage_options' ) ) {
-        wp_send_json_error( __( 'You are not allowed to do this.', 'base47' ) );
-    }
-
-    $theme  = isset( $_POST['theme'] ) ? sanitize_key( wp_unslash( $_POST['theme'] ) ) : '';
-    $active = isset( $_POST['active'] ) ? (int) $_POST['active'] : 0;
-
-    $themes = base47_he_get_template_sets();
-
-    if ( ! isset( $themes[ $theme ] ) ) {
-        wp_send_json_error( __( 'Unknown theme.', 'base47' ) );
-    }
-
-    $active_themes = get_option( 'base47_active_themes', [] );
-    if ( ! is_array( $active_themes ) ) {
-        $active_themes = [];
-    }
-
-    if ( $active ) {
-        if ( ! in_array( $theme, $active_themes, true ) ) {
-            $active_themes[] = $theme;
-        }
-    } else {
-        $active_themes = array_values( array_diff( $active_themes, [ $theme ] ) );
-    }
-
-    update_option( 'base47_active_themes', $active_themes );
-
-    wp_send_json_success( [
-        'theme'         => $theme,
-        'active'        => $active,
-        'active_themes' => $active_themes,
-    ] );
-}
-add_action( 'wp_ajax_base47_toggle_theme', 'base47_he_ajax_toggle_theme' );
-
-
-/**
- * Save default theme (AJAX)
- */
-function base47_he_ajax_set_default_theme() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    if ( empty($_POST['theme']) ) {
-        wp_send_json_error('Missing theme');
-    }
-
-    $theme = sanitize_text_field($_POST['theme']);
-
-    update_option('base47_default_theme', $theme);
-
-    wp_send_json_success(['saved' => $theme]);
-}
-add_action('wp_ajax_base47_set_default_theme', 'base47_he_ajax_set_default_theme');
-
-
-/**
- * AJAX: Rebuild ALL Base47 caches (sets + templates)
- */
-add_action('wp_ajax_base47_rebuild_caches', 'base47_he_ajax_rebuild_caches');
-
-function base47_he_ajax_rebuild_caches() {
-    check_ajax_referer('base47_he', 'nonce');
-
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(['message' => 'Permission denied']);
-    }
-
-    // Force-refresh all caches
-    base47_he_refresh_theme_caches();
-
-    wp_send_json_success(['message' => 'All caches rebuilt']);
 }
