@@ -55,7 +55,7 @@ function base47_he_admin_menu() {
         'Theme Manager',
         'Theme Manager',
         'manage_options',
-        'base47-he-settings',
+        'base47-he-theme-manager',
         'base47_he_settings_page'
     );
 
@@ -67,6 +67,16 @@ function base47_he_admin_menu() {
         'manage_options',
         'base47-special-widgets',
         'base47_special_widgets_page'
+    );
+    
+    // Settings
+    add_submenu_page(
+        'base47-he-dashboard',
+        'Settings',
+        'Settings',
+        'manage_options',
+        'base47-he-settings',
+        'base47_he_settings_page'
     );
 	
     // Logs

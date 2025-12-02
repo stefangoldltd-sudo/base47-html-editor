@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.9.4
+Version: 2.9.4.5
 Author: Stefan Gold
 Text Domain: base47-html-editor
 */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.9.4' );
+define( 'BASE47_HE_VERSION', '2.9.4.5' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -88,6 +88,7 @@ require_once BASE47_HE_PATH . 'inc/activation.php';
 require_once BASE47_HE_PATH . 'inc/admin-init.php';
 
 // Helpers
+require_once BASE47_HE_PATH . 'inc/helpers/settings.php';
 require_once BASE47_HE_PATH . 'inc/helpers/logs.php';
 require_once BASE47_HE_PATH . 'inc/helpers/templates.php';
 require_once BASE47_HE_PATH . 'inc/helpers/metadata.php';
@@ -105,6 +106,7 @@ require_once BASE47_HE_PATH . 'inc/ajax/editor.php';
 require_once BASE47_HE_PATH . 'inc/ajax/theme-manager.php';
 require_once BASE47_HE_PATH . 'inc/ajax/asset-mode.php';
 require_once BASE47_HE_PATH . 'inc/ajax/cache.php';
+require_once BASE47_HE_PATH . 'inc/ajax/settings.php';
 
 // Admin Pages
 require_once BASE47_HE_PATH . 'inc/admin-pages/dashboard.php';
@@ -112,6 +114,7 @@ require_once BASE47_HE_PATH . 'inc/admin-pages/shortcodes.php';
 require_once BASE47_HE_PATH . 'inc/admin-pages/editor.php';
 require_once BASE47_HE_PATH . 'inc/admin-pages/theme-manager.php';
 require_once BASE47_HE_PATH . 'inc/admin-pages/widgets.php';
+require_once BASE47_HE_PATH . 'inc/admin-pages/settings.php';
 require_once BASE47_HE_PATH . 'inc/admin-pages/changelog.php';
 require_once BASE47_HE_PATH . 'inc/admin-pages/logs.php';
 

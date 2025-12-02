@@ -49,4 +49,10 @@ function base47_he_activate() {
     if ( empty($default) && ! empty($sets) ) {
         update_option('base47_default_theme', array_key_first($sets));
     }
+    
+    // 4️⃣ Initialize settings with defaults if not exists
+    $settings = get_option( 'base47_he_settings', false );
+    if ( $settings === false ) {
+        update_option( 'base47_he_settings', base47_he_get_default_settings() );
+    }
 }
