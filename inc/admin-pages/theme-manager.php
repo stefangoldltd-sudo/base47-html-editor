@@ -8,9 +8,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Main Theme Manager Settings Page
+ * Main Theme Manager Page
  */
-function base47_he_settings_page() {
+function base47_he_theme_manager_page() {
     if ( ! current_user_can( 'manage_options' ) ) {
         return;
     }

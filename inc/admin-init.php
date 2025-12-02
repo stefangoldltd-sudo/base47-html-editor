@@ -56,7 +56,7 @@ function base47_he_admin_menu() {
         'Theme Manager',
         'manage_options',
         'base47-he-theme-manager',
-        'base47_he_settings_page'
+        'base47_he_theme_manager_page'
     );
 
     // Special Widgets 
