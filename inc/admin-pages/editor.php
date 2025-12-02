@@ -137,5 +137,148 @@ function base47_he_editor_page() {
         <input type="hidden" id="base47-he-current-set" value="<?php echo esc_attr( $current_set ); ?>">
           <?php wp_nonce_field( 'base47_he', 'nonce' ); ?>
     </div>
+
+    <!-- Restore Backup Modal -->
+    <div id="base47-he-restore-modal" class="base47-he-modal" style="display:none;">
+        <div class="base47-he-modal-content">
+            <div class="base47-he-modal-header">
+                <h2>Restore Previous Version</h2>
+                <span class="base47-he-modal-close">&times;</span>
+            </div>
+            <div class="base47-he-modal-body">
+                <div id="base47-he-backup-list" class="base47-he-backup-list">
+                    <p class="base47-he-loading">Loading backups...</p>
+                </div>
+                <div id="base47-he-backup-preview" class="base47-he-backup-preview" style="display:none;">
+                    <h3>Preview</h3>
+                    <textarea id="base47-he-backup-preview-content" readonly style="width:100%;height:300px;font-family:monospace;font-size:12px;"></textarea>
+                </div>
+            </div>
+            <div class="base47-he-modal-footer">
+                <button id="base47-he-restore-selected" class="button button-primary" disabled>Restore Selected</button>
+                <button id="base47-he-download-selected" class="button" disabled>Download Backup</button>
+                <button class="button base47-he-modal-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .base47-he-modal {
+        display: none;
+        position: fixed;
+        z-index: 100000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    .base47-he-modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 0;
+        border: 1px solid #ccc;
+        width: 80%;
+        max-width: 800px;
+        border-radius: 4px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .base47-he-modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .base47-he-modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+    }
+    .base47-he-modal-close {
+        color: #666;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        line-height: 1;
+    }
+    .base47-he-modal-close:hover {
+        color: #000;
+    }
+    .base47-he-modal-body {
+        padding: 20px;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    .base47-he-modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #ddd;
+        text-align: right;
+    }
+    .base47-he-modal-footer .button {
+        margin-left: 10px;
+    }
+    .base47-he-backup-list {
+        margin-bottom: 20px;
+    }
+    .base47-he-backup-item {
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .base47-he-backup-item:hover {
+        border-color: #0073aa;
+        background-color: #f0f8ff;
+    }
+    .base47-he-backup-item.selected {
+        border-color: #0073aa;
+        background-color: #e5f5ff;
+    }
+    .base47-he-backup-date {
+        font-weight: 600;
+        color: #333;
+    }
+    .base47-he-backup-size {
+        color: #666;
+        font-size: 12px;
+    }
+    .base47-he-backup-badge {
+        background: #0073aa;
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .base47-he-loading {
+        text-align: center;
+        color: #666;
+        padding: 20px;
+    }
+    .base47-he-no-backups {
+        text-align: center;
+        color: #999;
+        padding: 40px 20px;
+        font-style: italic;
+    }
+    .base47-he-backup-preview {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+    }
+    .base47-he-backup-preview h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+    </style>
     <?php
 }

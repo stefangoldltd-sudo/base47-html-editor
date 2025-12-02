@@ -89,24 +89,138 @@ function getActiveSet() {
     });
 
     /* ==========================
-       RESTORE TEMPLATE (EDITOR)
+       RESTORE BACKUP MODAL (EDITOR)
     ========================== */
+    let selectedBackup = null;
+
     $('#base47-he-restore').on('click', function (e) {
         e.preventDefault();
+        
+        // Open modal
+        $('#base47-he-restore-modal').fadeIn(200);
+        
+        // Reset state
+        selectedBackup = null;
+        $('#base47-he-restore-selected, #base47-he-download-selected').prop('disabled', true);
+        $('#base47-he-backup-preview').hide();
+        $('#base47-he-backup-list').html('<p class="base47-he-loading">Loading backups...</p>');
+        
+        // Fetch backup list
         $.post(BASE47_HE.ajax_url, {
-            action: 'base47_he_get_template',
+            action: 'base47_he_list_backups',
             nonce:  BASE47_HE.nonce,
             file:   $file.val(),
             set:    getActiveSet()
         }, function (resp) {
-            if (resp.success) {
-                $code.val(resp.data.content);
-                const iframe = $preview.get(0);
-                iframe.contentWindow.document.open();
-                iframe.contentWindow.document.write(resp.data.preview);
-                iframe.contentWindow.document.close();
+            if (resp.success && resp.data && resp.data.length > 0) {
+                let html = '';
+                resp.data.forEach(function(backup, index) {
+                    const badge = index === 0 ? '<span class="base47-he-backup-badge">Latest</span>' : '';
+                    const size = (backup.size / 1024).toFixed(1) + ' KB';
+                    html += `
+                        <div class="base47-he-backup-item" data-backup="${backup.filename}">
+                            <div>
+                                <div class="base47-he-backup-date">${backup.display_date}</div>
+                                <div class="base47-he-backup-size">${size}</div>
+                            </div>
+                            ${badge}
+                        </div>
+                    `;
+                });
+                $('#base47-he-backup-list').html(html);
+            } else {
+                $('#base47-he-backup-list').html('<p class="base47-he-no-backups">No backups available for this file.</p>');
             }
         });
+    });
+
+    // Close modal
+    $(document).on('click', '.base47-he-modal-close', function() {
+        $('#base47-he-restore-modal').fadeOut(200);
+    });
+
+    // Select backup
+    $(document).on('click', '.base47-he-backup-item', function() {
+        $('.base47-he-backup-item').removeClass('selected');
+        $(this).addClass('selected');
+        
+        selectedBackup = $(this).data('backup');
+        $('#base47-he-restore-selected, #base47-he-download-selected').prop('disabled', false);
+        
+        // Load preview
+        $.post(BASE47_HE.ajax_url, {
+            action: 'base47_he_ajax_restore_backup',
+            nonce:  BASE47_HE.nonce,
+            file:   $file.val(),
+            set:    getActiveSet(),
+            backup_filename: selectedBackup
+        }, function (resp) {
+            if (resp.success && resp.data && resp.data.content) {
+                $('#base47-he-backup-preview-content').val(resp.data.content);
+                $('#base47-he-backup-preview').slideDown(200);
+            }
+        });
+    });
+
+    // Restore selected backup
+    $('#base47-he-restore-selected').on('click', function() {
+        if (!selectedBackup) return;
+        
+        const btn = $(this);
+        const originalText = btn.text();
+        btn.prop('disabled', true).text('Restoring...');
+        
+        $.post(BASE47_HE.ajax_url, {
+            action: 'base47_he_ajax_restore_backup',
+            nonce:  BASE47_HE.nonce,
+            file:   $file.val(),
+            set:    getActiveSet(),
+            backup_filename: selectedBackup
+        }, function (resp) {
+            if (resp.success && resp.data && resp.data.content) {
+                // Load content into editor
+                $code.val(resp.data.content);
+                
+                // Update preview
+                $.post(BASE47_HE.ajax_url, {
+                    action: 'base47_he_live_preview',
+                    nonce:  BASE47_HE.nonce,
+                    file:   $file.val(),
+                    set:    getActiveSet(),
+                    content: resp.data.content
+                }, function (previewResp) {
+                    if (previewResp.success && previewResp.data && previewResp.data.html) {
+                        const iframe = $preview.get(0);
+                        iframe.contentWindow.document.open();
+                        iframe.contentWindow.document.write(previewResp.data.html);
+                        iframe.contentWindow.document.close();
+                    }
+                });
+                
+                // Close modal
+                $('#base47-he-restore-modal').fadeOut(200);
+                
+                // Show success message
+                alert('Backup restored! Remember to save if you want to keep these changes.');
+            } else {
+                alert('Failed to restore backup.');
+            }
+            btn.prop('disabled', false).text(originalText);
+        });
+    });
+
+    // Download selected backup
+    $('#base47-he-download-selected').on('click', function() {
+        if (!selectedBackup) return;
+        
+        const url = BASE47_HE.ajax_url + 
+            '?action=base47_he_download_backup' +
+            '&file=' + encodeURIComponent($file.val()) +
+            '&set=' + encodeURIComponent(getActiveSet()) +
+            '&backup_filename=' + encodeURIComponent(selectedBackup) +
+            '&nonce=' + BASE47_HE.nonce;
+        
+        window.location.href = url;
     });
 
     /* ==========================
@@ -168,7 +282,7 @@ function getActiveSet() {
     }
 
     /* =======================================================
-       LAZY PREVIEW – Shortcodes Page
+       LAZY PREVIEW ï¿½ Shortcodes Page
        (button: .base47-load-preview-btn)
     ======================================================= */
     $(document).on('click', '.base47-load-preview-btn', function (e) {
@@ -184,7 +298,7 @@ function getActiveSet() {
             return;
         }
 
-        btn.text('Loading…').prop('disabled', true);
+        btn.text('Loadingï¿½').prop('disabled', true);
 
         $.post(BASE47_HE.ajax_url, {
             action: 'base47_he_lazy_preview',
@@ -226,7 +340,7 @@ function getActiveSet() {
             return;
         }
 
-        $btn.prop('disabled', true).text('Uninstalling…');
+        $btn.prop('disabled', true).text('Uninstallingï¿½');
 
         $.post(
             BASE47_HE.ajax_url,
