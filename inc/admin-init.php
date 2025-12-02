@@ -121,6 +121,16 @@ function base47_he_admin_assets( $hook ) {
         [],
         BASE47_HE_VERSION
     );
+    
+    // Settings page specific CSS
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-settings' ) {
+        wp_enqueue_style(
+            'base47-he-settings',
+            BASE47_HE_URL . 'admin-assets/settings.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
 
     wp_enqueue_script(
         'base47-he-admin',

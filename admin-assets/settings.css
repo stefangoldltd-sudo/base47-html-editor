@@ -1,0 +1,240 @@
+/**
+ * Settings Page Styles
+ * 
+ * Professional styling for Base47 HTML Editor Settings
+ * 
+ * @package Base47_HTML_Editor
+ * @since 2.9.4.8
+ */
+
+/* Settings Page Container */
+.base47-settings-page {
+    max-width: 1200px;
+}
+
+.base47-settings-page h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.base47-settings-page > p {
+    font-size: 14px;
+    color: #646970;
+    margin-bottom: 24px;
+}
+
+/* Form Table Enhancements */
+.base47-settings-page .form-table {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.base47-settings-page .form-table th {
+    padding: 20px 24px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.base47-settings-page .form-table td {
+    padding: 20px 24px;
+}
+
+/* Section Headers */
+.base47-settings-page .form-table h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    padding: 16px 24px;
+    background: #f6f7f7;
+    border-bottom: 1px solid #c3c4c7;
+    color: #1d2327;
+}
+
+.base47-settings-page .form-table tr:has(h2) th {
+    padding: 0;
+}
+
+/* Checkbox & Radio Styling */
+.base47-settings-page input[type="checkbox"],
+.base47-settings-page input[type="radio"] {
+    margin-right: 8px;
+}
+
+.base47-settings-page label {
+    cursor: pointer;
+}
+
+/* Select Dropdowns */
+.base47-settings-page select {
+    min-width: 200px;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+/* Number Inputs */
+.base47-settings-page input[type="number"].small-text {
+    width: 80px;
+    padding: 6px 10px;
+}
+
+/* Description Text */
+.base47-settings-page .description {
+    font-size: 13px;
+    color: #646970;
+    margin-top: 6px;
+    display: block;
+}
+
+/* Button Styling */
+.base47-settings-page .submit {
+    padding: 20px 24px;
+    background: #f6f7f7;
+    border-top: 1px solid #c3c4c7;
+    margin: 0 -24px -24px;
+    border-radius: 0 0 4px 4px;
+}
+
+.base47-settings-page .button-primary {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 14px;
+    height: auto;
+    line-height: 1.5;
+}
+
+.base47-settings-page .button-primary:hover {
+    background: #135e96;
+    border-color: #135e96;
+}
+
+.base47-settings-page .button {
+    padding: 8px 16px;
+    font-size: 14px;
+    height: auto;
+    line-height: 1.5;
+}
+
+/* Action Buttons with Icons */
+.base47-settings-page .button .dashicons {
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+/* Status Messages */
+.base47-settings-page #base47-cache-status,
+.base47-settings-page #base47-log-status,
+.base47-settings-page #base47-import-status {
+    display: inline-block;
+    margin-left: 12px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* Loading State */
+.base47-settings-page .button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Success/Error Messages */
+.base47-settings-page .notice {
+    margin: 20px 0;
+}
+
+/* Advanced Section Styling */
+.base47-settings-page tr:has(#base47-export-settings) td,
+.base47-settings-page tr:has(#base47-import-settings) td {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+/* File Input Hidden */
+#base47-import-file {
+    display: none;
+}
+
+/* Import/Export Buttons */
+#base47-export-settings,
+#base47-import-settings {
+    background: #f0f0f1;
+    border-color: #c3c4c7;
+    color: #2c3338;
+}
+
+#base47-export-settings:hover,
+#base47-import-settings:hover {
+    background: #fff;
+    border-color: #8c8f94;
+}
+
+/* Reset Button */
+#base47-reset-settings {
+    background: #fff;
+    border-color: #c3c4c7;
+    color: #b32d2e;
+}
+
+#base47-reset-settings:hover {
+    background: #f6f7f7;
+    border-color: #b32d2e;
+    color: #b32d2e;
+}
+
+/* Clear Buttons */
+#base47-clear-all-caches,
+#base47-clear-logs,
+#base47-download-logs {
+    margin-right: 8px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .base47-settings-page .form-table th,
+    .base47-settings-page .form-table td {
+        padding: 16px;
+    }
+    
+    .base47-settings-page .submit {
+        padding: 16px;
+    }
+}
+
+/* Animation for Status Messages */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.base47-settings-page #base47-cache-status,
+.base47-settings-page #base47-log-status,
+.base47-settings-page #base47-import-status {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Success Color */
+.base47-settings-page span[style*="color: green"],
+.base47-settings-page span[style*="color:#10b981"] {
+    color: #00a32a !important;
+}
+
+/* Error Color */
+.base47-settings-page span[style*="color: red"] {
+    color: #d63638 !important;
+}
+
+/* Info Color */
+.base47-settings-page span[style*="color: #0073aa"],
+.base47-settings-page span[style*="color:#0073aa"] {
+    color: #2271b1 !important;
+}
