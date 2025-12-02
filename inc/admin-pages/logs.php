@@ -31,7 +31,7 @@ function base47_he_render_logs_page() {
 
             $.post(ajaxurl, {
                 action: 'base47_clear_logs',
-                nonce: '<?php echo wp_create_nonce("base47-he-logs"); ?>'
+                nonce: '<?php echo wp_create_nonce("base47_he"); ?>'
             }, function(response){
 
                 if (response.success){
@@ -49,21 +49,4 @@ function base47_he_render_logs_page() {
     </script>
 
     <?php
-}
-
-/**
- * AJAX: Clear Logs
- */
-add_action( 'wp_ajax_base47_clear_logs', 'base47_he_ajax_clear_logs' );
-
-function base47_he_ajax_clear_logs() {
-
-    check_ajax_referer( 'base47-he-logs', 'nonce' );
-
-    base47_he_clear_logs();
-
-    wp_send_json_success([
-        'message' => 'Logs cleared',
-        'logs'    => base47_he_get_logs()
-    ]);
 }
