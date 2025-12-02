@@ -333,6 +333,37 @@ function base47_he_settings_page() {
                     </td>
                 </tr>
                 
+                <!-- ADVANCED SECTION -->
+                <tr>
+                    <th colspan="2">
+                        <h2>Advanced</h2>
+                    </th>
+                </tr>
+                
+                <tr>
+                    <th scope="row">Export Settings</th>
+                    <td>
+                        <button type="button" id="base47-export-settings" class="button">
+                            <span class="dashicons dashicons-download" style="margin-top:3px;"></span>
+                            Export Settings
+                        </button>
+                        <p class="description">Download your current settings as a JSON file.</p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row">Import Settings</th>
+                    <td>
+                        <input type="file" id="base47-import-file" accept=".json" style="display:none;">
+                        <button type="button" id="base47-import-settings" class="button">
+                            <span class="dashicons dashicons-upload" style="margin-top:3px;"></span>
+                            Import Settings
+                        </button>
+                        <p class="description">Upload a previously exported settings file.</p>
+                        <span id="base47-import-status"></span>
+                    </td>
+                </tr>
+                
             </table>
             
             <p class="submit">
@@ -412,6 +443,56 @@ function base47_he_settings_page() {
                     btn.prop('disabled', false).text('Reset to Defaults');
                 }
             });
+        });
+        
+        // Export settings
+        $('#base47-export-settings').on('click', function() {
+            window.location.href = ajaxurl + '?action=base47_export_settings&nonce=<?php echo wp_create_nonce( 'base47_he' ); ?>';
+        });
+        
+        // Import settings
+        $('#base47-import-settings').on('click', function() {
+            $('#base47-import-file').click();
+        });
+        
+        $('#base47-import-file').on('change', function() {
+            var file = this.files[0];
+            if (!file) return;
+            
+            if (!confirm('Import settings from "' + file.name + '"? This will overwrite your current settings.')) {
+                $(this).val('');
+                return;
+            }
+            
+            var formData = new FormData();
+            formData.append('action', 'base47_import_settings');
+            formData.append('nonce', '<?php echo wp_create_nonce( 'base47_he' ); ?>');
+            formData.append('settings_file', file);
+            
+            $('#base47-import-status').html('<span style="color: #0073aa;">Importing...</span>');
+            
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('#base47-import-status').html('<span style="color: green;">✓ Settings imported successfully!</span>');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        $('#base47-import-status').html('<span style="color: red;">✗ ' + response.data.message + '</span>');
+                    }
+                },
+                error: function() {
+                    $('#base47-import-status').html('<span style="color: red;">✗ Import failed</span>');
+                }
+            });
+            
+            $(this).val('');
         });
     });
     </script>

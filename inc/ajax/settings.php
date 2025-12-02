@@ -129,3 +129,85 @@ function base47_he_ajax_reset_settings() {
     }
 }
 add_action( 'wp_ajax_base47_reset_settings', 'base47_he_ajax_reset_settings' );
+
+/**
+ * AJAX: Export settings as JSON
+ */
+function base47_he_ajax_export_settings() {
+    check_ajax_referer( 'base47_he', 'nonce' );
+    
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'Insufficient permissions.' );
+    }
+    
+    $settings = base47_he_get_settings();
+    
+    $export = [
+        'version'   => BASE47_HE_VERSION,
+        'exported'  => current_time( 'mysql' ),
+        'site_url'  => get_site_url(),
+        'settings'  => $settings,
+    ];
+    
+    $filename = 'base47-settings-' . date( 'Y-m-d-His' ) . '.json';
+    
+    header( 'Content-Type: application/json' );
+    header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+    header( 'Content-Length: ' . strlen( json_encode( $export, JSON_PRETTY_PRINT ) ) );
+    
+    echo json_encode( $export, JSON_PRETTY_PRINT );
+    exit;
+}
+add_action( 'wp_ajax_base47_export_settings', 'base47_he_ajax_export_settings' );
+
+/**
+ * AJAX: Import settings from JSON
+ */
+function base47_he_ajax_import_settings() {
+    check_ajax_referer( 'base47_he', 'nonce' );
+    
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
+    }
+    
+    if ( ! isset( $_FILES['settings_file'] ) ) {
+        wp_send_json_error( [ 'message' => 'No file uploaded.' ] );
+    }
+    
+    $file = $_FILES['settings_file'];
+    
+    if ( $file['error'] !== UPLOAD_ERR_OK ) {
+        wp_send_json_error( [ 'message' => 'File upload error.' ] );
+    }
+    
+    if ( $file['type'] !== 'application/json' && pathinfo( $file['name'], PATHINFO_EXTENSION ) !== 'json' ) {
+        wp_send_json_error( [ 'message' => 'Invalid file type. Please upload a JSON file.' ] );
+    }
+    
+    $json = file_get_contents( $file['tmp_name'] );
+    $data = json_decode( $json, true );
+    
+    if ( ! $data || ! isset( $data['settings'] ) ) {
+        wp_send_json_error( [ 'message' => 'Invalid settings file format.' ] );
+    }
+    
+    // Validate settings structure
+    $defaults = base47_he_get_default_settings();
+    $imported_settings = array_intersect_key( $data['settings'], $defaults );
+    
+    if ( empty( $imported_settings ) ) {
+        wp_send_json_error( [ 'message' => 'No valid settings found in file.' ] );
+    }
+    
+    // Update settings
+    if ( base47_he_update_settings( $imported_settings ) ) {
+        wp_send_json_success( [ 
+            'message' => 'Settings imported successfully.',
+            'count'   => count( $imported_settings ),
+            'from_version' => $data['version'] ?? 'unknown',
+        ] );
+    } else {
+        wp_send_json_error( [ 'message' => 'Failed to import settings.' ] );
+    }
+}
+add_action( 'wp_ajax_base47_import_settings', 'base47_he_ajax_import_settings' );
