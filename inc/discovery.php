@@ -32,12 +32,16 @@ function base47_he_get_template_sets( $force = false ) {
     $themes_dir = trailingslashit( $root['dir'] );
     $themes_url = trailingslashit( $root['url'] );
 
+    // Check if caching is enabled (respects debug mode)
+    $cache_enabled = base47_he_is_cache_enabled();
+
     // Signature based on uploads folder
     $saved             = get_transient( Base47_Cache::TRANS_SETS );
     $current_signature = Base47_Cache::get_signature( $themes_dir . '*-templates' );
 
     if (
         ! $force &&
+        $cache_enabled &&
         is_array( $saved ) &&
         isset( $saved['sets'], $saved['signature'] ) &&
         hash_equals( $saved['signature'], $current_signature )
@@ -72,10 +76,13 @@ function base47_he_get_template_sets( $force = false ) {
 
     ksort( $sets, SORT_NATURAL | SORT_FLAG_CASE );
 
-    set_transient( Base47_Cache::TRANS_SETS, [
-        'sets'      => $sets,
-        'signature' => $current_signature,
-    ], Base47_Cache::CACHE_TIME );
+    // Only cache if caching is enabled
+    if ( $cache_enabled ) {
+        set_transient( Base47_Cache::TRANS_SETS, [
+            'sets'      => $sets,
+            'signature' => $current_signature,
+        ], Base47_Cache::CACHE_TIME );
+    }
 
     $static = $sets;
     return $sets;
@@ -106,6 +113,9 @@ function base47_he_get_template_list( $force = false ) {
 
     $sets = base47_he_get_template_sets( $force );
 
+    // Check if caching is enabled (respects debug mode)
+    $cache_enabled = base47_he_is_cache_enabled();
+
     // Signature path
     $root = base47_he_get_themes_root();
     $sig  = Base47_Cache::get_signature( $root['dir'] . '*-templates/*' );
@@ -114,6 +124,7 @@ function base47_he_get_template_list( $force = false ) {
 
     if (
         ! $force &&
+        $cache_enabled &&
         is_array( $saved ) &&
         isset( $saved['templates'], $saved['signature'] ) &&
         hash_equals( $saved['signature'], $sig )
@@ -133,10 +144,13 @@ function base47_he_get_template_list( $force = false ) {
         }
     }
 
-    set_transient( Base47_Cache::TRANS_TEMPLATES, [
-        'templates' => $templates,
-        'signature' => $sig,
-    ], Base47_Cache::CACHE_TIME );
+    // Only cache if caching is enabled
+    if ( $cache_enabled ) {
+        set_transient( Base47_Cache::TRANS_TEMPLATES, [
+            'templates' => $templates,
+            'signature' => $sig,
+        ], Base47_Cache::CACHE_TIME );
+    }
 
     $static = $templates;
     return $templates;
