@@ -50,5 +50,3 @@ function base47_he_activate() {
         update_option('base47_default_theme', array_key_first($sets));
     }
 }
-
-register_activation_hook( BASE47_HE_PATH . 'base47-html-editor.php', 'base47_he_activate' );
