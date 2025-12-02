@@ -5,7 +5,7 @@
  * Handles saving asset mode (loader/manifest/smart) for themes
  * 
  * @package Base47_HTML_Editor
- * @since 2.9.3.1
+ * @since 2.9.3.2
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;

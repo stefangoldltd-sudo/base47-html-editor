@@ -18,6 +18,23 @@ jQuery(function ($) {
             return;
         }
 
+        // Update UI immediately
+        let $card = $toggle.closest('.base47-tm-card');
+        let $badge = $card.find('.base47-tm-badge-text');
+        let $label = $card.find('.base47-tm-toggle-label');
+
+        if (active) {
+            $card.removeClass('is-inactive').addClass('is-active');
+            $card.attr('data-active', '1');
+            $badge.text('Active');
+            $label.text('Enabled');
+        } else {
+            $card.removeClass('is-active').addClass('is-inactive');
+            $card.attr('data-active', '0');
+            $badge.text('Disabled');
+            $label.text('Disabled');
+        }
+
         $.post(
             base47ThemeManager.ajaxUrl,
             {
@@ -29,6 +46,19 @@ jQuery(function ($) {
             function (res) {
                 if (!res || !res.success) {
                     alert('Failed to update theme state.');
+                    // Revert UI on error
+                    $toggle.prop('checked', !active);
+                    if (!active) {
+                        $card.removeClass('is-inactive').addClass('is-active');
+                        $card.attr('data-active', '1');
+                        $badge.text('Active');
+                        $label.text('Enabled');
+                    } else {
+                        $card.removeClass('is-active').addClass('is-inactive');
+                        $card.attr('data-active', '0');
+                        $badge.text('Disabled');
+                        $label.text('Disabled');
+                    }
                 }
             }
         );
@@ -42,6 +72,11 @@ jQuery(function ($) {
     $('#base47_default_theme').on('change', function () {
 
         let value = $(this).val();
+        let $select = $(this);
+        let originalBg = $select.css('background-color');
+        
+        // Show saving indicator (yellow)
+        $select.css('background-color', '#fff3cd');
 
         $.post(
             base47ThemeManager.ajaxUrl,
@@ -51,11 +86,29 @@ jQuery(function ($) {
                 theme:   value
             },
             function (res) {
-                if (!res || !res.success) {
+                if (res && res.success) {
+                    // Flash success (green)
+                    $select.css('background-color', '#d4edda');
+                    setTimeout(function() {
+                        $select.css('background-color', originalBg);
+                    }, 800);
+                } else {
+                    // Flash error (red)
+                    $select.css('background-color', '#f8d7da');
+                    setTimeout(function() {
+                        $select.css('background-color', originalBg);
+                    }, 800);
                     alert('Failed to save default theme.');
                 }
             }
-        );
+        ).fail(function() {
+            // Flash error (red)
+            $select.css('background-color', '#f8d7da');
+            setTimeout(function() {
+                $select.css('background-color', originalBg);
+            }, 800);
+            alert('Failed to save default theme.');
+        });
     });
 
 
@@ -85,6 +138,14 @@ jQuery(function ($) {
             $hiddenSmart.prop('checked', true);
         }
 
+        // Show visual feedback
+        let $modeContainer = $card.find('.base47-tm-asset-modes');
+        let originalBg = $modeContainer.css('background-color');
+        $modeContainer.css({
+            'background-color': '#fff3cd',
+            'transition': 'background-color 0.3s'
+        });
+
         $.post(
             base47ThemeManager.ajaxUrl,
             {
@@ -92,8 +153,29 @@ jQuery(function ($) {
                 nonce:  base47ThemeManager.nonce,
                 theme:  slug,
                 mode:   mode
+            },
+            function(res) {
+                if (res && res.success) {
+                    // Flash success (green)
+                    $modeContainer.css('background-color', '#d4edda');
+                    setTimeout(function() {
+                        $modeContainer.css('background-color', originalBg);
+                    }, 800);
+                } else {
+                    // Flash error (red)
+                    $modeContainer.css('background-color', '#f8d7da');
+                    setTimeout(function() {
+                        $modeContainer.css('background-color', originalBg);
+                    }, 800);
+                    alert('Error: could not save asset mode.');
+                }
             }
         ).fail(function () {
+            // Flash error (red)
+            $modeContainer.css('background-color', '#f8d7da');
+            setTimeout(function() {
+                $modeContainer.css('background-color', originalBg);
+            }, 800);
             alert('Error: could not save asset mode.');
         });
     });
