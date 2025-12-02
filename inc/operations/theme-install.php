@@ -67,11 +67,14 @@ function base47_he_install_theme_from_upload() {
         return new WP_Error('no_root_folder', 'ZIP must contain a root folder (e.g. lezar-templates/).');
     }
 
-    // Must follow naming rule
-    if (! str_ends_with($root_folder, '-templates')) {
+    // Folder must end with -templates or -templetes
+    if (! preg_match('/-templates?$/i', $root_folder)) {
         $zip->close();
-        return new WP_Error('invalid_folder', 'Root folder must end with "-templates".');
+        return new WP_Error('invalid_folder', 'Root folder must end with "-templates" (e.g. lezar-templates, kiro-templates).');
     }
+    
+    // Clean the folder name to a safe slug (lowercase)
+    $root_folder = strtolower( $root_folder );
 
     // Determine install location
     $root       = base47_he_get_themes_root();
@@ -95,6 +98,9 @@ function base47_he_install_theme_from_upload() {
     if (! is_dir($target_dir)) {
         return new WP_Error('no_target', 'Theme folder not found after extraction.');
     }
+
+    // Auto-rebuild cache after successful install
+    base47_he_refresh_theme_caches();
 
     return $root_folder;
 }

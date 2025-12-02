@@ -214,6 +214,16 @@ $default_theme = get_option('base47_default_theme', array_key_first($themes));
                 $templates    = base47_he_count_theme_templates( $slug );
                 $accent       = $info['accent'];
                 $first_letter = strtoupper( mb_substr( $slug, 0, 1 ) );
+                $has_metadata = $info['has_metadata'] ?? true;
+                
+                // Use default thumbnail if theme doesn't have one
+                $thumbnail_url = '';
+                if ( ! empty( $info['thumbnail'] ) && file_exists( $theme['path'] . $info['thumbnail'] ) ) {
+                    $thumbnail_url = $theme['url'] . $info['thumbnail'];
+                } else {
+                    // Use plugin's default thumbnail
+                    $thumbnail_url = BASE47_HE_URL . 'admin-assets/default-thumbnail.png';
+                }
                 ?>
                 
 <div class="base47-tm-card <?php echo $is_active ? 'is-active' : 'is-inactive'; ?>"
@@ -232,6 +242,14 @@ $default_theme = get_option('base47_default_theme', array_key_first($themes));
                 <?php echo $is_active ? 'Active' : 'Disabled'; ?>
             </span>
         </div>
+        
+        <!-- No Metadata Badge -->
+        <?php if ( ! $has_metadata ) : ?>
+            <div class="base47-tm-badge" style="background: rgba(217, 119, 6, 0.1); border-color: rgba(217, 119, 6, 0.3);">
+                <span style="color: #d97706;">⚠</span>
+                <span class="base47-tm-badge-text" style="color: #d97706;">No metadata</span>
+            </div>
+        <?php endif; ?>
 
         <!-- MAIN INFO ROW -->
         <div class="base47-tm-card-main">
@@ -268,9 +286,9 @@ $default_theme = get_option('base47_default_theme', array_key_first($themes));
         </div>
 
         <!-- THUMBNAIL -->
-        <?php if ( ! empty( $info['thumbnail'] ) ) : ?>
+        <?php if ( ! empty( $thumbnail_url ) ) : ?>
             <div class="base47-tm-thumb">
-                <img src="<?php echo esc_url( $theme['url'] . $info['thumbnail'] ); ?>" alt="">
+                <img src="<?php echo esc_url( $thumbnail_url ); ?>" alt="">
             </div>
         <?php endif; ?>
 

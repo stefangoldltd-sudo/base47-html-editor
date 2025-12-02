@@ -11,19 +11,46 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Load theme metadata from theme.json inside a theme folder
  * 
  * @param string $path Path to theme folder
- * @return array Theme metadata array or empty array if not found
+ * @return array Theme metadata array with fallbacks
  */
 function base47_he_load_theme_metadata( $path ) {
     $file = trailingslashit( $path ) . 'theme.json';
+    
+    // Get folder name for fallback label
+    $folder_name = basename( $path );
+    
+    // Create readable label from folder name
+    // kiro-templates → KIRO Templates
+    $label = str_replace( [ '-templates', '-templetes', '-', '_' ], [ '', '', ' ', ' ' ], $folder_name );
+    $label = ucwords( trim( $label ) );
+    if ( empty( $label ) ) {
+        $label = $folder_name;
+    }
+    
+    // Default fallbacks
+    $defaults = [
+        'label'       => $label,
+        'version'     => '1.0.0',
+        'description' => '',
+        'accent'      => '#7C5CFF',
+        'thumbnail'   => '', // Will use default thumbnail
+        'has_metadata' => false, // Flag to show badge
+    ];
 
     if ( ! file_exists( $file ) ) {
-        return [];
+        return $defaults;
     }
 
     $json = file_get_contents( $file );
     $data = json_decode( $json, true );
-
-    return is_array( $data ) ? $data : [];
+    
+    if ( ! is_array( $data ) ) {
+        return $defaults;
+    }
+    
+    // Merge with defaults, mark as having metadata
+    $data['has_metadata'] = true;
+    return array_merge( $defaults, $data );
 }
 
 /**
