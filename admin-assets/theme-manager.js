@@ -10,8 +10,9 @@ jQuery(function ($) {
         let active  = $toggle.is(':checked') ? 1 : 0;
 
         // Prevent disabling the last active theme
+        // Count how many would remain AFTER this change
         let activeCount = $('.base47-tm-toggle-input:checked').length;
-        if (!active && activeCount <= 1) {
+        if (!active && activeCount === 0) {
             alert("At least one theme must stay active.");
             $toggle.prop('checked', true);
             return;
