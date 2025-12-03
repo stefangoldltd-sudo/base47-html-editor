@@ -122,6 +122,23 @@ function base47_he_admin_assets( $hook ) {
         BASE47_HE_VERSION
     );
     
+    // Monaco Editor on editor page
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-editor' ) {
+        wp_enqueue_script(
+            'monaco-loader',
+            BASE47_HE_URL . 'admin-assets/monaco/vs/loader.js',
+            [],
+            BASE47_HE_VERSION,
+            true
+        );
+        wp_enqueue_style(
+            'monaco-editor',
+            BASE47_HE_URL . 'admin-assets/monaco/vs/editor/editor.main.css',
+            [],
+            BASE47_HE_VERSION
+        );
+    }
+    
     // Settings page specific CSS
     if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-settings' ) {
         wp_enqueue_style(
@@ -144,6 +161,7 @@ function base47_he_admin_assets( $hook ) {
      * LOCALIZE – admin.js (IMPORTANT)
      * Provides AJAX + NONCE for editor + lazy preview
      */
+    $settings = base47_he_get_settings();
     wp_localize_script(
         'base47-he-admin',
         'BASE47_HE',
@@ -151,6 +169,9 @@ function base47_he_admin_assets( $hook ) {
             'ajax_url'     => admin_url('admin-ajax.php'),
             'nonce'        => wp_create_nonce('base47_he'),
             'default_set'  => base47_he_detect_default_theme(),
+            'plugin_url'   => BASE47_HE_URL,
+            'editor_mode'  => $settings['editor_mode'] ?? 'advanced',
+            'editor_theme' => $settings['editor_theme'] ?? 'light',
         ]
     );
 

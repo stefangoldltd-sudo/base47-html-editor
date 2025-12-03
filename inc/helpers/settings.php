@@ -46,6 +46,7 @@ function base47_he_get_default_settings() {
         // Live Editor
         'editor_theme'                => 'light',
         'editor_font_size'            => '14px',
+        'editor_mode'                 => 'advanced',  // 'advanced' or 'classic'
         'line_numbers'                => true,
         'line_wrap'                   => false,
         'autosave_interval'           => 0,     // disabled by default
@@ -109,6 +110,8 @@ function base47_he_sanitize_settings( $settings ) {
                                   ? $settings['editor_theme'] : 'light';
     $clean['editor_font_size']  = in_array( $settings['editor_font_size'] ?? '14px', [ '12px', '14px', '16px', '18px' ], true )
                                   ? $settings['editor_font_size'] : '14px';
+    $clean['editor_mode']       = in_array( $settings['editor_mode'] ?? 'advanced', [ 'advanced', 'classic' ], true )
+                                  ? $settings['editor_mode'] : 'advanced';
     $clean['line_numbers']      = ! empty( $settings['line_numbers'] );
     $clean['line_wrap']         = ! empty( $settings['line_wrap'] );
     $clean['autosave_interval'] = absint( $settings['autosave_interval'] ?? 0 );

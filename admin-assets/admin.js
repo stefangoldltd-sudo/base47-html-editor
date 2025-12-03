@@ -391,4 +391,190 @@ function getActiveSet() {
         });
     });
 
+    /* ==========================
+       MONACO EDITOR INTEGRATION
+    ========================== */
+    
+    let monacoEditor = null;
+    let currentEditorMode = BASE47_HE.editor_mode || 'advanced';
+    let lastSavedContent = '';
+    let hasUnsavedChanges = false;
+    
+    // Initialize Monaco Editor if on editor page
+    if ($('#base47-monaco-editor').length > 0) {
+        initializeMonacoEditor();
+    }
+    
+    function initializeMonacoEditor() {
+        // Set Monaco paths
+        require.config({ 
+            paths: { 
+                'vs': BASE47_HE.plugin_url + 'admin-assets/monaco/vs'
+            }
+        });
+        
+        // Load Monaco
+        require(['vs/editor/editor.main'], function() {
+            // Get initial content from textarea
+            const initialContent = $('#base47-he-code').val() || '';
+            lastSavedContent = initialContent;
+            
+            // Get theme from settings
+            const theme = (BASE47_HE.editor_theme === 'dark') ? 'vs-dark' : 'vs';
+            
+            // Create Monaco Editor
+            monacoEditor = monaco.editor.create(document.getElementById('base47-monaco-editor'), {
+                value: initialContent,
+                language: 'html',
+                theme: theme,
+                automaticLayout: true,
+                lineNumbers: 'on',
+                wordWrap: 'on',
+                minimap: { enabled: true },
+                scrollBeyondLastLine: false,
+                fontSize: 14,
+                tabSize: 2,
+                insertSpaces: true,
+                renderWhitespace: 'selection',
+                bracketPairColorization: { enabled: true },
+                suggest: {
+                    showKeywords: true,
+                    showSnippets: true
+                }
+            });
+            
+            // Track changes for unsaved detection
+            monacoEditor.onDidChangeModelContent(function() {
+                const currentContent = monacoEditor.getValue();
+                hasUnsavedChanges = (currentContent !== lastSavedContent);
+                updateSaveButtonState();
+            });
+            
+            // Add keyboard shortcuts
+            monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function() {
+                $('#base47-he-save').click();
+            });
+            
+            // Set initial mode
+            switchEditorMode(currentEditorMode);
+            
+            console.log('Monaco Editor initialized successfully');
+        });
+    }
+    
+    // Editor Mode Switching
+    $('.base47-he-mode-btn').on('click', function() {
+        const mode = $(this).attr('id') === 'base47-he-mode-advanced' ? 'advanced' : 'classic';
+        switchEditorMode(mode);
+    });
+    
+    function switchEditorMode(mode) {
+        if (mode === currentEditorMode) return;
+        
+        const currentContent = getCurrentEditorContent();
+        
+        if (mode === 'advanced') {
+            // Switch to Monaco
+            $('#base47-monaco-editor').show();
+            $('#base47-he-code').hide();
+            
+            if (monacoEditor) {
+                monacoEditor.setValue(currentContent);
+                monacoEditor.layout(); // Refresh layout
+            }
+            
+            $('#base47-he-mode-advanced').addClass('active');
+            $('#base47-he-mode-classic').removeClass('active');
+            
+        } else {
+            // Switch to Classic
+            $('#base47-monaco-editor').hide();
+            $('#base47-he-code').show().val(currentContent);
+            
+            $('#base47-he-mode-classic').addClass('active');
+            $('#base47-he-mode-advanced').removeClass('active');
+        }
+        
+        currentEditorMode = mode;
+        
+        // Save mode preference
+        localStorage.setItem('base47_editor_mode', mode);
+    }
+    
+    // Get content from current active editor
+    function getCurrentEditorContent() {
+        if (currentEditorMode === 'advanced' && monacoEditor) {
+            return monacoEditor.getValue();
+        } else {
+            return $('#base47-he-code').val();
+        }
+    }
+    
+    // Update save button state based on changes
+    function updateSaveButtonState() {
+        const saveBtn = $('#base47-he-save');
+        if (hasUnsavedChanges) {
+            saveBtn.text('Save *').addClass('base47-he-unsaved');
+        } else {
+            saveBtn.text('Save').removeClass('base47-he-unsaved');
+        }
+    }
+    
+    // Load saved editor mode preference (override settings default)
+    const savedMode = localStorage.getItem('base47_editor_mode');
+    if (savedMode && monacoEditor) {
+        switchEditorMode(savedMode);
+    }
+    
+    // Warn about unsaved changes
+    $(window).on('beforeunload', function() {
+        if (hasUnsavedChanges) {
+            return 'You have unsaved changes. Are you sure you want to leave?';
+        }
+    });
+    
+    // Override existing save handler to work with both editors
+    const originalSaveHandler = $('#base47-he-save').data('events')?.click;
+    $('#base47-he-save').off('click').on('click', function(e) {
+        e.preventDefault();
+        
+        const content = getCurrentEditorContent();
+        const btn = $(this);
+        const originalText = btn.text();
+        
+        btn.prop('disabled', true).text('Saving...');
+        
+        $.post(BASE47_HE.ajax_url, {
+            action: 'base47_he_save_template',
+            nonce: BASE47_HE.nonce,
+            file: $('#base47-he-current-file').val(),
+            set: $('#base47-he-current-set').val(),
+            content: content
+        }, function(resp) {
+            if (resp.success) {
+                lastSavedContent = content;
+                hasUnsavedChanges = false;
+                updateSaveButtonState();
+                
+                // Update preview
+                const iframe = $('#base47-he-preview')[0];
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.location.reload();
+                }
+                
+                // Show success feedback
+                btn.text('Saved!').css('background', '#46b450');
+                setTimeout(function() {
+                    btn.css('background', '').text('Save');
+                }, 1500);
+            } else {
+                alert('Save failed: ' + (resp.data || 'Unknown error'));
+            }
+            btn.prop('disabled', false);
+        }).fail(function() {
+            alert('Save failed: Network error');
+            btn.prop('disabled', false).text(originalText);
+        });
+    });
+
 });

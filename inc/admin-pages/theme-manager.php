@@ -214,7 +214,17 @@ $default_theme = get_option('base47_default_theme', array_key_first($themes));
                 $templates    = base47_he_count_theme_templates( $slug );
                 $accent       = $info['accent'];
                 $first_letter = strtoupper( mb_substr( $slug, 0, 1 ) );
-                $has_metadata = $info['has_metadata'] ?? true;
+                
+                // Check if theme has proper metadata
+                $has_metadata = true;
+                if ( empty( $theme['label'] ) || $theme['label'] === $slug ||
+                     empty( $theme['description'] ) || $theme['description'] === 'Auto-generated theme' ||
+                     empty( $theme['version'] ) || $theme['version'] === '1.0.0' ) {
+                    $has_metadata = false;
+                }
+                
+                // Generate unique color for avatar
+                $avatar_hue = crc32( $slug ) % 360;
                 
                 // Use default thumbnail if theme doesn't have one
                 $thumbnail_url = '';
@@ -254,7 +264,7 @@ $default_theme = get_option('base47_default_theme', array_key_first($themes));
         <!-- MAIN INFO ROW -->
         <div class="base47-tm-card-main">
 
-            <div class="base47-tm-logo">
+            <div class="base47-tm-logo" style="background: hsl(<?php echo esc_attr( $avatar_hue ); ?>, 70%, 50%);">
                 <span class="base47-tm-logo-inner">
                     <?php echo esc_html( $first_letter ); ?>
                 </span>

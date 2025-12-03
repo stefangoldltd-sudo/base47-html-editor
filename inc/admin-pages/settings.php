@@ -32,6 +32,7 @@ function base47_he_settings_page() {
             // Live Editor
             'editor_theme'                => sanitize_key( $_POST['editor_theme'] ?? 'light' ),
             'editor_font_size'            => sanitize_text_field( $_POST['editor_font_size'] ?? '14px' ),
+            'editor_mode'                 => sanitize_key( $_POST['editor_mode'] ?? 'advanced' ),
             'line_numbers'                => isset( $_POST['line_numbers'] ),
             'line_wrap'                   => isset( $_POST['line_wrap'] ),
             'autosave_interval'           => absint( $_POST['autosave_interval'] ?? 0 ),
@@ -146,6 +147,17 @@ function base47_he_settings_page() {
                             <option value="16px" <?php selected( $settings['editor_font_size'], '16px' ); ?>>16px</option>
                             <option value="18px" <?php selected( $settings['editor_font_size'], '18px' ); ?>>18px</option>
                         </select>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row">Default Editor Mode</th>
+                    <td>
+                        <select name="editor_mode">
+                            <option value="advanced" <?php selected( $settings['editor_mode'], 'advanced' ); ?>>Advanced Editor (Monaco)</option>
+                            <option value="classic" <?php selected( $settings['editor_mode'], 'classic' ); ?>>Classic Editor (Textarea)</option>
+                        </select>
+                        <p class="description">Choose which editor loads by default. Users can switch modes anytime.</p>
                     </td>
                 </tr>
                 

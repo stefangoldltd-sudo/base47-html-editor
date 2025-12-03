@@ -81,7 +81,21 @@ function base47_he_editor_page() {
 
         <div id="base47-he-editor-shell" class="base47-he-editor-shell">
             <div id="base47-he-editor-left" class="base47-he-editor-left">
-                <textarea id="base47-he-code" style="width:100%;height:520px;"><?php echo esc_textarea( $content ); ?></textarea>
+                <!-- Editor Mode Switcher -->
+                <div class="base47-he-editor-mode-switcher">
+                    <button type="button" id="base47-he-mode-advanced" class="button base47-he-mode-btn">
+                        <span class="dashicons dashicons-editor-code"></span> Advanced Editor
+                    </button>
+                    <button type="button" id="base47-he-mode-classic" class="button base47-he-mode-btn">
+                        <span class="dashicons dashicons-edit"></span> Classic Editor
+                    </button>
+                </div>
+                
+                <!-- Monaco Editor Container -->
+                <div id="base47-monaco-editor" class="base47-he-monaco-container"></div>
+                
+                <!-- Classic Editor (Textarea) -->
+                <textarea id="base47-he-code" style="width:100%;height:520px;display:none;"><?php echo esc_textarea( $content ); ?></textarea>
             </div>
             <div id="base47-he-resizer" class="base47-he-resizer"></div>
             <div class="base47-he-editor-right">
@@ -278,6 +292,62 @@ function base47_he_editor_page() {
         margin-top: 0;
         margin-bottom: 10px;
         font-size: 16px;
+    }
+    
+    /* Editor Mode Switcher */
+    .base47-he-editor-mode-switcher {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding: 8px;
+        background: #f5f5f5;
+        border-radius: 4px;
+    }
+    .base47-he-mode-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+    .base47-he-mode-btn .dashicons {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+    .base47-he-mode-btn.active {
+        background: #0073aa;
+        color: white;
+        border-color: #005a87;
+        box-shadow: 0 2px 4px rgba(0,115,170,0.3);
+    }
+    .base47-he-mode-btn:not(.active):hover {
+        background: #e0e0e0;
+    }
+    
+    /* Monaco Editor Container */
+    .base47-he-monaco-container {
+        width: 100%;
+        height: 520px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    /* Unsaved changes indicator */
+    .base47-he-unsaved {
+        background: #d63638 !important;
+        border-color: #d63638 !important;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
     }
     </style>
     <?php
