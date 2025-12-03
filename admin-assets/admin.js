@@ -455,8 +455,27 @@ function getActiveSet() {
                 $('#base47-he-save').click();
             });
             
-            // Set initial mode
-            switchEditorMode(currentEditorMode);
+            // Set initial mode based on settings
+            if (currentEditorMode === 'classic') {
+                // Start with classic mode
+                $('#base47-monaco-editor').hide();
+                $('#base47-he-code').show();
+                $('#base47-he-mode-classic').addClass('active');
+                $('#base47-he-mode-advanced').removeClass('active');
+                
+                // Apply dark theme if needed
+                if (BASE47_HE.editor_theme === 'dark') {
+                    $('#base47-he-code').css({
+                        'background': '#1e1e1e',
+                        'color': '#d4d4d4',
+                        'border-color': '#3e3e3e'
+                    });
+                }
+            } else {
+                // Start with advanced mode (default)
+                $('#base47-he-mode-advanced').addClass('active');
+                $('#base47-he-mode-classic').removeClass('active');
+            }
             
             console.log('Monaco Editor initialized successfully');
         });
