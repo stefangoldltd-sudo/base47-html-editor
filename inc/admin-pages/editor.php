@@ -318,6 +318,9 @@ function base47_he_editor_page() {
         font-size: 18px;
         width: 18px;
         height: 18px;
+        line-height: 1;
+        vertical-align: middle;
+        margin-top: -2px;
     }
     .base47-he-mode-btn.active {
         background: #0073aa;
@@ -332,10 +335,18 @@ function base47_he_editor_page() {
     /* Monaco Editor Container */
     .base47-he-monaco-container {
         width: 100%;
-        height: 520px;
+        height: 100%;
+        min-height: 520px;
         border: 1px solid #ddd;
         border-radius: 4px;
         overflow: hidden;
+    }
+    
+    /* Classic Editor Dark Theme */
+    body.base47-he-dark #base47-he-code {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        border-color: #3e3e3e;
     }
     
     /* Unsaved changes indicator */

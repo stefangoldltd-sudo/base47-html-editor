@@ -215,11 +215,11 @@ $default_theme = get_option('base47_default_theme', array_key_first($themes));
                 $accent       = $info['accent'];
                 $first_letter = strtoupper( mb_substr( $slug, 0, 1 ) );
                 
-                // Check if theme has proper metadata
+                // Check if theme has proper metadata (only show warning if really missing)
                 $has_metadata = true;
-                if ( empty( $theme['label'] ) || $theme['label'] === $slug ||
-                     empty( $theme['description'] ) || $theme['description'] === 'Auto-generated theme' ||
-                     empty( $theme['version'] ) || $theme['version'] === '1.0.0' ) {
+                if ( ( empty( $theme['label'] ) || $theme['label'] === $slug ) &&
+                     ( empty( $theme['description'] ) || $theme['description'] === 'Auto-generated theme' ) &&
+                     ( empty( $theme['version'] ) || $theme['version'] === '1.0.0' ) ) {
                     $has_metadata = false;
                 }
                 
@@ -264,8 +264,8 @@ $default_theme = get_option('base47_default_theme', array_key_first($themes));
         <!-- MAIN INFO ROW -->
         <div class="base47-tm-card-main">
 
-            <div class="base47-tm-logo" style="background: hsl(<?php echo esc_attr( $avatar_hue ); ?>, 70%, 50%);">
-                <span class="base47-tm-logo-inner">
+            <div class="base47-tm-logo">
+                <span class="base47-tm-logo-inner" style="background: hsl(<?php echo esc_attr( $avatar_hue ); ?>, 70%, 50%); color: white; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; border-radius: inherit;">
                     <?php echo esc_html( $first_letter ); ?>
                 </span>
             </div>

@@ -491,6 +491,15 @@ function getActiveSet() {
             $('#base47-monaco-editor').hide();
             $('#base47-he-code').show().val(currentContent);
             
+            // Apply dark theme to classic editor if needed
+            if (BASE47_HE.editor_theme === 'dark') {
+                $('#base47-he-code').css({
+                    'background': '#1e1e1e',
+                    'color': '#d4d4d4',
+                    'border-color': '#3e3e3e'
+                });
+            }
+            
             $('#base47-he-mode-classic').addClass('active');
             $('#base47-he-mode-advanced').removeClass('active');
         }
