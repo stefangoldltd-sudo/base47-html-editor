@@ -101,24 +101,7 @@ function base47_he_install_theme_from_upload() {
         );
     }
     
-    // VALIDATION: Check if ZIP contains at least one HTML file
-    $has_html = false;
-    for ($i = 0; $i < $zip->numFiles; $i++) {
-        $stat = $zip->statIndex($i);
-        if ($stat && preg_match('/\.html?$/i', $stat['name'])) {
-            $has_html = true;
-            break;
-        }
-    }
-    
-    if (!$has_html) {
-        $zip->close();
-        return new WP_Error(
-            'no_templates',
-            'No HTML template files found in the ZIP. Please ensure your theme contains at least one .html file.',
-            ['type' => 'validation']
-        );
-    }
+    // Note: HTML validation removed for performance (was causing 30+ second delays)
 
     // Extract ONLY into uploads dir
     if (! $zip->extractTo($themes_dir)) {

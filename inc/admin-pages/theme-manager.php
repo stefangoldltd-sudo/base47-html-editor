@@ -219,7 +219,7 @@ function base47_he_render_theme_manager_section() {
             $info = [
                 'label'       => $theme['label']       ?? $slug,
                 'version'     => $theme['version']     ?? '1.0.0',
-                'description' => $theme['description'] ?? '',
+                'description' => $theme['description'] ?? 'No description provided',
                 'accent'      => $theme['accent']      ?? '#7C5CFF',
                 'thumbnail'   => $theme['thumbnail']   ?? '',
             ];
@@ -228,13 +228,12 @@ function base47_he_render_theme_manager_section() {
             $templates    = base47_he_count_theme_templates( $slug );
             $first_letter = strtoupper( mb_substr( $slug, 0, 1 ) );
             
-            // Check if theme has proper metadata
-            $has_metadata = true;
-            if ( ( empty( $theme['label'] ) || $theme['label'] === $slug ) &&
-                 ( empty( $theme['description'] ) || $theme['description'] === 'Auto-generated theme' ) &&
-                 ( empty( $theme['version'] ) || $theme['version'] === '1.0.0' ) ) {
-                $has_metadata = false;
-            }
+            // Check if theme has proper metadata using enhanced detection
+            $has_metadata = isset($theme['metadata_complete']) ? $theme['metadata_complete'] : true;
+            $missing_fields = isset($theme['missing_fields']) ? $theme['missing_fields'] : [];
+            
+            // Show warning if metadata is incomplete
+            $show_warning = !empty($missing_fields) || !$has_metadata;
             
             // Generate unique color for avatar
             $avatar_hue = crc32( $slug ) % 360;
@@ -270,10 +269,10 @@ function base47_he_render_theme_manager_section() {
                     <?php echo $is_active ? 'Active' : 'Inactive'; ?>
                 </div>
                 
-                <!-- Warning Badge -->
-                <?php if ( ! $has_metadata ) : ?>
+                <!-- Warning Badge for Missing Metadata -->
+                <?php if ( $show_warning ) : ?>
                     <div class="base47-tm-warning-badge">
-                        ⚠ No Metadata
+                        ⚠ Missing Metadata
                     </div>
                 <?php endif; ?>
             </div>

@@ -182,7 +182,74 @@ jQuery(function ($) {
 
 
     /* ==========================================================
-       4) REBUILD ALL CACHES
+       4) UNINSTALL THEME
+       ========================================================== */
+    $('.base47-tm-grid-soft, .base47-tm-grid').on('click', '.base47-tm-uninstall-btn', function() {
+        let $btn = $(this);
+        let slug = $btn.data('theme');
+        let $card = $btn.closest('.base47-tm-card-soft, .base47-tm-card');
+        
+        if (!slug) {
+            alert('Error: Theme slug not found.');
+            return;
+        }
+        
+        // Get theme name for confirmation
+        let themeName = $card.find('.base47-tm-theme-name, .base47-tm-name').text() || slug;
+        
+        if (!confirm('Are you sure you want to uninstall "' + themeName + '"?\n\nThis will permanently delete all theme files.')) {
+            return;
+        }
+        
+        // Disable button and show loading
+        $btn.prop('disabled', true).text('Uninstalling...');
+        
+        $.post(
+            base47ThemeManager.ajaxUrl,
+            {
+                action: 'base47_he_uninstall_theme',
+                nonce:  base47ThemeManager.nonce,
+                theme:  slug
+            },
+            function(res) {
+                if (res && res.success) {
+                    // Remove card with animation
+                    $card.fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                    
+                    // Show success notification if available
+                    if (typeof base47ShowNotification === 'function') {
+                        base47ShowNotification('success', 'Theme Uninstalled', themeName + ' has been removed successfully.');
+                    }
+                } else {
+                    // Re-enable button
+                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-trash"></span>');
+                    
+                    let errorMsg = (res && res.data && res.data.message) ? res.data.message : 'Failed to uninstall theme.';
+                    
+                    // Show error notification if available
+                    if (typeof base47ShowNotification === 'function') {
+                        base47ShowNotification('error', 'Uninstall Failed', errorMsg);
+                    } else {
+                        alert('Error: ' + errorMsg);
+                    }
+                }
+            }
+        ).fail(function() {
+            // Re-enable button
+            $btn.prop('disabled', false).html('<span class="dashicons dashicons-trash"></span>');
+            
+            if (typeof base47ShowNotification === 'function') {
+                base47ShowNotification('error', 'Network Error', 'Failed to connect to server.');
+            } else {
+                alert('Network error: Could not uninstall theme.');
+            }
+        });
+    });
+
+    /* ==========================================================
+       5) REBUILD ALL CACHES
        ========================================================== */
     $('#base47-rebuild-caches-btn').on('click', function () {
 
