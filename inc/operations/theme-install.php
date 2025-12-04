@@ -67,10 +67,14 @@ function base47_he_install_theme_from_upload() {
         return new WP_Error('no_root_folder', 'ZIP must contain a root folder (e.g. lezar-templates/).');
     }
 
-    // Folder must end with -templates or -templetes
+    // VALIDATION: Folder must end with -templates or -templetes
     if (! preg_match('/-templates?$/i', $root_folder)) {
         $zip->close();
-        return new WP_Error('invalid_folder', 'Root folder must end with "-templates" (e.g. lezar-templates, kiro-templates).');
+        return new WP_Error(
+            'invalid_structure', 
+            'Invalid theme structure. The ZIP must contain a folder ending with "-templates" (e.g., lezar-templates, kiro-templates).',
+            ['type' => 'structure']
+        );
     }
     
     // Clean the folder name to a safe slug (lowercase)
@@ -82,9 +86,38 @@ function base47_he_install_theme_from_upload() {
 
     $target_dir = trailingslashit($themes_dir . $root_folder);
 
+    // VALIDATION: Check if theme already exists (overwrite protection)
     if (file_exists($target_dir)) {
         $zip->close();
-        return new WP_Error('exists', 'A theme with this name already exists.');
+        
+        // Get theme name for better error message
+        $theme_name = str_replace(['-templates', '-templetes', '-', '_'], ['', '', ' ', ' '], $root_folder);
+        $theme_name = ucwords(trim($theme_name));
+        
+        return new WP_Error(
+            'theme_exists', 
+            sprintf('A theme named "%s" already exists. Please delete the existing theme first or rename your theme folder.', $theme_name),
+            ['type' => 'exists', 'theme' => $root_folder]
+        );
+    }
+    
+    // VALIDATION: Check if ZIP contains at least one HTML file
+    $has_html = false;
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $stat = $zip->statIndex($i);
+        if ($stat && preg_match('/\.html?$/i', $stat['name'])) {
+            $has_html = true;
+            break;
+        }
+    }
+    
+    if (!$has_html) {
+        $zip->close();
+        return new WP_Error(
+            'no_templates',
+            'No HTML template files found in the ZIP. Please ensure your theme contains at least one .html file.',
+            ['type' => 'validation']
+        );
     }
 
     // Extract ONLY into uploads dir

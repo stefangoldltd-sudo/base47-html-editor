@@ -9,9 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Load theme metadata from theme.json inside a theme folder
+ * Enhanced detection engine for v2.9.6.6
  * 
  * @param string $path Path to theme folder
- * @return array Theme metadata array with fallbacks
+ * @return array Theme metadata array with fallbacks and detection flags
  */
 function base47_he_load_theme_metadata( $path ) {
     $file = trailingslashit( $path ) . 'theme.json';
@@ -27,17 +28,41 @@ function base47_he_load_theme_metadata( $path ) {
         $label = $folder_name;
     }
     
+    // Detection flags
+    $has_theme_json = file_exists( $file );
+    $has_thumbnail = false;
+    $missing_fields = [];
+    
+    // Check for thumbnail
+    $thumbnail_path = trailingslashit( $path ) . 'thumbnail.png';
+    if ( ! file_exists( $thumbnail_path ) ) {
+        $thumbnail_path = trailingslashit( $path ) . 'thumbnail.jpg';
+        if ( ! file_exists( $thumbnail_path ) ) {
+            $missing_fields[] = 'thumbnail';
+        } else {
+            $has_thumbnail = true;
+        }
+    } else {
+        $has_thumbnail = true;
+    }
+    
     // Default fallbacks
     $defaults = [
         'label'       => $label,
         'version'     => '1.0.0',
-        'description' => '',
+        'description' => 'No description provided',
         'accent'      => '#7C5CFF',
         'thumbnail'   => '', // Will use default thumbnail
         'has_metadata' => false, // Flag to show badge
+        'has_theme_json' => $has_theme_json,
+        'has_thumbnail' => $has_thumbnail,
+        'missing_fields' => $missing_fields,
+        'metadata_complete' => false,
     ];
 
-    if ( ! file_exists( $file ) ) {
+    if ( ! $has_theme_json ) {
+        $missing_fields[] = 'theme.json';
+        $defaults['missing_fields'] = $missing_fields;
         return $defaults;
     }
 
@@ -45,11 +70,32 @@ function base47_he_load_theme_metadata( $path ) {
     $data = json_decode( $json, true );
     
     if ( ! is_array( $data ) ) {
+        $missing_fields[] = 'theme.json (invalid)';
+        $defaults['missing_fields'] = $missing_fields;
         return $defaults;
     }
     
+    // Check for required fields
+    if ( empty( $data['label'] ) || $data['label'] === $folder_name ) {
+        $missing_fields[] = 'label';
+    }
+    if ( empty( $data['version'] ) || $data['version'] === '1.0.0' ) {
+        $missing_fields[] = 'version';
+    }
+    if ( empty( $data['description'] ) ) {
+        $missing_fields[] = 'description';
+    }
+    
+    // Determine if metadata is complete
+    $metadata_complete = empty( $missing_fields ) && $has_theme_json && $has_thumbnail;
+    
     // Merge with defaults, mark as having metadata
     $data['has_metadata'] = true;
+    $data['has_theme_json'] = $has_theme_json;
+    $data['has_thumbnail'] = $has_thumbnail;
+    $data['missing_fields'] = $missing_fields;
+    $data['metadata_complete'] = $metadata_complete;
+    
     return array_merge( $defaults, $data );
 }
 

@@ -210,3 +210,234 @@ jQuery(function ($) {
     });
 
 });
+
+/*
+ ==========================================================
+   SOFT UI NOTIFICATION SYSTEM (v2.9.6.6)
+   ========================================================== */
+
+/**
+ * Show Soft UI Notification Toast
+ * @param {string} type - success, error, warning, info
+ * @param {string} title - Notification title
+ * @param {string} message - Notification message
+ * @param {number} duration - Auto-close duration in ms (0 = no auto-close)
+ */
+function base47ShowNotification(type, title, message, duration = 5000) {
+    // Remove any existing notifications
+    $('.base47-notification').remove();
+    
+    // Icon map
+    const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    const icon = icons[type] || icons.info;
+    
+    // Create notification HTML
+    const $notification = $(`
+        <div class="base47-notification base47-notification-${type}">
+            <div class="base47-notification-icon">${icon}</div>
+            <div class="base47-notification-content">
+                <div class="base47-notification-title">${title}</div>
+                <div class="base47-notification-message">${message}</div>
+            </div>
+            <button class="base47-notification-close" aria-label="Close">×</button>
+        </div>
+    `);
+    
+    // Add to page
+    $('body').append($notification);
+    
+    // Close button
+    $notification.find('.base47-notification-close').on('click', function() {
+        $notification.fadeOut(200, function() {
+            $(this).remove();
+        });
+    });
+    
+    // Auto-close
+    if (duration > 0) {
+        setTimeout(function() {
+            $notification.fadeOut(200, function() {
+                $(this).remove();
+            });
+        }, duration);
+    }
+}
+
+/**
+ * Show Soft UI Modal
+ * @param {string} type - success, error, warning, info
+ * @param {string} title - Modal title
+ * @param {string} message - Modal message
+ * @param {array} buttons - Array of button objects {text, class, callback}
+ */
+function base47ShowModal(type, title, message, buttons = []) {
+    // Remove any existing modals
+    $('.base47-modal-overlay').remove();
+    
+    // Icon map
+    const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    const icon = icons[type] || icons.info;
+    
+    // Default button if none provided
+    if (buttons.length === 0) {
+        buttons = [{
+            text: 'OK',
+            class: 'btn-soft-primary',
+            callback: function() {
+                base47CloseModal();
+            }
+        }];
+    }
+    
+    // Create buttons HTML
+    let buttonsHTML = '';
+    buttons.forEach(function(btn, index) {
+        buttonsHTML += `<button class="base47-modal-btn ${btn.class}" data-index="${index}">${btn.text}</button>`;
+    });
+    
+    // Create modal HTML
+    const $overlay = $(`
+        <div class="base47-modal-overlay">
+            <div class="base47-modal">
+                <div class="base47-modal-header">
+                    <div class="base47-modal-title">
+                        <div class="base47-modal-icon ${type}">${icon}</div>
+                        ${title}
+                    </div>
+                    <button class="base47-modal-close" aria-label="Close">×</button>
+                </div>
+                <div class="base47-modal-body">${message}</div>
+                <div class="base47-modal-footer">${buttonsHTML}</div>
+            </div>
+        </div>
+    `);
+    
+    // Add to page
+    $('body').append($overlay);
+    
+    // Close button
+    $overlay.find('.base47-modal-close').on('click', function() {
+        base47CloseModal();
+    });
+    
+    // Click outside to close
+    $overlay.on('click', function(e) {
+        if ($(e.target).hasClass('base47-modal-overlay')) {
+            base47CloseModal();
+        }
+    });
+    
+    // Button callbacks
+    $overlay.find('.base47-modal-btn').on('click', function() {
+        const index = $(this).data('index');
+        if (buttons[index] && buttons[index].callback) {
+            buttons[index].callback();
+        }
+    });
+    
+    // ESC key to close
+    $(document).on('keydown.base47modal', function(e) {
+        if (e.key === 'Escape') {
+            base47CloseModal();
+        }
+    });
+}
+
+/**
+ * Close Soft UI Modal
+ */
+function base47CloseModal() {
+    $('.base47-modal-overlay').fadeOut(200, function() {
+        $(this).remove();
+    });
+    $(document).off('keydown.base47modal');
+}
+
+/* ==========================================================
+   ENHANCED UPLOAD HANDLING (v2.9.6.6)
+   ========================================================== */
+
+jQuery(function($) {
+    
+    // Intercept form submission for better error handling
+    $('form[enctype="multipart/form-data"]').on('submit', function(e) {
+        const $form = $(this);
+        const $fileInput = $form.find('input[type="file"]');
+        
+        // Check if file is selected
+        if ($fileInput.length && !$fileInput.val()) {
+            e.preventDefault();
+            base47ShowNotification(
+                'warning',
+                'No File Selected',
+                'Please choose a ZIP file before uploading.',
+                4000
+            );
+            return false;
+        }
+        
+        // Check file extension
+        if ($fileInput.length && $fileInput.val()) {
+            const fileName = $fileInput.val();
+            const ext = fileName.split('.').pop().toLowerCase();
+            
+            if (ext !== 'zip') {
+                e.preventDefault();
+                base47ShowModal(
+                    'error',
+                    'Invalid File Type',
+                    'Please upload a ZIP file. Other file types are not supported.',
+                    [{
+                        text: 'OK',
+                        class: 'btn-soft-primary',
+                        callback: base47CloseModal
+                    }]
+                );
+                return false;
+            }
+        }
+        
+        // Show loading notification
+        if ($fileInput.length && $fileInput.val()) {
+            base47ShowNotification(
+                'info',
+                'Uploading Theme',
+                'Please wait while your theme is being uploaded and installed...',
+                0 // Don't auto-close
+            );
+        }
+    });
+    
+    // Handle WordPress notices and convert to Soft UI notifications
+    $('.notice.notice-success, .notice.notice-error').each(function() {
+        const $notice = $(this);
+        const message = $notice.find('p').text();
+        const isError = $notice.hasClass('notice-error');
+        
+        if (message) {
+            // Show Soft UI notification
+            base47ShowNotification(
+                isError ? 'error' : 'success',
+                isError ? 'Error' : 'Success',
+                message,
+                6000
+            );
+            
+            // Hide WordPress notice
+            $notice.hide();
+        }
+    });
+    
+});
