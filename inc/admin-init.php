@@ -188,6 +188,16 @@ function base47_he_admin_assets( $hook ) {
             BASE47_HE_VERSION
         );
     }
+    
+    // Shortcodes page specific CSS (Phase 13)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-templates' ) {
+        wp_enqueue_style(
+            'base47-he-shortcodes',
+            BASE47_HE_URL . 'admin-assets/shortcodes.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
 
     wp_enqueue_script(
         'base47-he-admin',

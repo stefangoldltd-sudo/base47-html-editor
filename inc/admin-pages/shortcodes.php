@@ -29,21 +29,41 @@ function base47_he_templates_page() {
 
     ?>
 
-    <h1>Shortcodes</h1>
-    <p>
-        Only <strong>active</strong> theme sets are listed.<br>
-        Previews are now <strong>lazy-loaded</strong> – click <em>Load preview</em>.
-    </p>
+    <div class="wrap base47-sc-soft-ui">
+        
+        <!-- SOFT UI HEADER -->
+        <div class="base47-sc-header-soft">
+            <h1>Shortcodes</h1>
+            <p>Browse and manage your template shortcodes. Copy, preview, and edit with ease.</p>
+        </div>
+
+        <!-- SEARCH BAR -->
+        <div class="base47-sc-search-wrapper">
+            <div class="base47-sc-search-box">
+                <span class="dashicons dashicons-search"></span>
+                <input type="text" 
+                       id="base47-sc-search" 
+                       placeholder="Search templates by name..."
+                       autocomplete="off">
+            </div>
+        </div>
 
     <?php foreach ( $active as $set_slug ) : ?>
 
-        <?php $files = $by_set[ $set_slug ] ?? []; ?>
+        <?php 
+        $files = $by_set[ $set_slug ] ?? []; 
+        $theme_label = $sets[ $set_slug ]['label'] ?? $set_slug;
+        ?>
 
-        <h2><?php echo esc_html( $set_slug ); ?></h2>
+        <div class="base47-sc-theme-section" data-theme="<?php echo esc_attr( $set_slug ); ?>">
+            <h2 class="base47-sc-theme-title">
+                <span class="dashicons dashicons-admin-appearance"></span>
+                <?php echo esc_html( $theme_label ); ?>
+            </h2>
 
         <?php if ( empty( $files ) ) : ?>
 
-            <p class="base47-muted">No templates found in this set.</p>
+            <p class="base47-sc-empty">No templates found in this theme.</p>
 
         <?php else : ?>
 
@@ -72,40 +92,61 @@ $shortcode = '[base47-' . $set_clean . '-' . $slug . ']';
                     );
                     ?>
 
-                    <div class="base47-he-template-box">
+                    <div class="base47-sc-card" data-template-name="<?php echo esc_attr( strtolower( $file ) ); ?>">
 
-                        <strong><?php echo esc_html( $file ); ?></strong>
-                        <code><?php echo esc_html( $shortcode ); ?></code>
-
-                        <div class="base47-he-template-thumb">
-                            <iframe class="base47-he-template-iframe"
-                                    src="about:blank"
-                                    loading="lazy"></iframe>
+                        <!-- Card Header -->
+                        <div class="base47-sc-card-header">
+                            <h3 class="base47-sc-template-name"><?php echo esc_html( $file ); ?></h3>
+                            <span class="base47-sc-theme-badge"><?php echo esc_html( $theme_label ); ?></span>
                         </div>
 
-                        <div class="base47-he-template-actions">
+                        <!-- Shortcode Display -->
+                        <div class="base47-sc-shortcode-display">
+                            <code><?php echo esc_html( $shortcode ); ?></code>
+                        </div>
 
-                            <a class="button" target="_blank"
-                               href="<?php echo esc_url( $preview_url ); ?>">
-                                Preview
-                            </a>
+                        <!-- Preview Panel -->
+                        <div class="base47-sc-preview-panel">
+                            <div class="base47-sc-preview-empty">
+                                <span class="dashicons dashicons-visibility"></span>
+                                <p>Click "Load Preview" to see template</p>
+                            </div>
+                            <iframe class="base47-he-template-iframe"
+                                    src="about:blank"
+                                    loading="lazy"
+                                    style="display:none;"></iframe>
+                        </div>
+
+                        <!-- Card Actions -->
+                        <div class="base47-sc-card-actions">
 
                             <button type="button"
-                                    class="button base47-he-copy"
-                                    data-shortcode="<?php echo esc_attr( $shortcode ); ?>">
-                                Copy shortcode
+                                    class="base47-sc-btn base47-sc-btn-primary base47-load-preview-btn"
+                                    data-file="<?php echo esc_attr( $file ); ?>"
+                                    data-set="<?php echo esc_attr( $set_slug ); ?>">
+                                <span class="dashicons dashicons-visibility"></span>
+                                Load Preview
                             </button>
 
-                            <a class="button" href="<?php echo esc_url( $editor_url ); ?>">
+                            <button type="button"
+                                    class="base47-sc-btn base47-sc-btn-secondary base47-he-copy"
+                                    data-shortcode="<?php echo esc_attr( $shortcode ); ?>">
+                                <span class="dashicons dashicons-admin-page"></span>
+                                Copy Shortcode
+                            </button>
+
+                            <a class="base47-sc-btn base47-sc-btn-secondary" 
+                               href="<?php echo esc_url( $editor_url ); ?>">
+                                <span class="dashicons dashicons-edit"></span>
                                 Edit
                             </a>
 
-                            <button type="button"
-                                    class="button button-secondary base47-load-preview-btn"
-                                    data-file="<?php echo esc_attr( $file ); ?>"
-                                    data-set="<?php echo esc_attr( $set_slug ); ?>">
-                                Load preview
-                            </button>
+                            <a class="base47-sc-btn base47-sc-btn-secondary" 
+                               target="_blank"
+                               href="<?php echo esc_url( $preview_url ); ?>">
+                                <span class="dashicons dashicons-external"></span>
+                                Preview
+                            </a>
 
                         </div>
 
@@ -117,7 +158,11 @@ $shortcode = '[base47-' . $set_clean . '-' . $slug . ']';
 
         <?php endif; ?>
 
+        </div> <!-- END THEME SECTION -->
+
     <?php endforeach; ?>
+
+    </div> <!-- END WRAP -->
 
     <?php
 }

@@ -1,0 +1,485 @@
+/**
+ * Shortcodes Page - Soft UI Dashboard Integration
+ * 
+ * Modern, professional shortcode management interface
+ * Based on Soft UI Dashboard by Creative Tim
+ * 
+ * @package Base47_HTML_Editor
+ * @since 2.9.7
+ */
+
+/* ========================================
+   SOFT UI VARIABLES (Inherited from Theme Manager)
+   ======================================== */
+
+:root {
+    --soft-primary: #cb0c9f;
+    --soft-secondary: #8392ab;
+    --soft-success: #82d616;
+    --soft-info: #17c1e8;
+    --soft-warning: #fbcf33;
+    --soft-danger: #ea0606;
+    --soft-dark: #344767;
+    --soft-light: #e9ecef;
+    
+    --soft-gradient-primary: linear-gradient(310deg, #7928ca, #ff0080);
+    --soft-gradient-info: linear-gradient(310deg, #2152ff, #21d4fd);
+    --soft-gradient-success: linear-gradient(310deg, #17ad37, #98ec2d);
+    
+    --soft-shadow-xs: 0 2px 9px -5px rgba(0, 0, 0, 0.15);
+    --soft-shadow-sm: 0 0.25rem 0.375rem -0.0625rem rgba(20, 20, 20, 0.12), 0 0.125rem 0.25rem -0.0625rem rgba(20, 20, 20, 0.07);
+    --soft-shadow-md: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07);
+    --soft-shadow-lg: 0 8px 26px -4px rgba(20, 20, 20, 0.15), 0 8px 9px -5px rgba(20, 20, 20, 0.06);
+    --soft-shadow-xl: 0 23px 45px -11px rgba(20, 20, 20, 0.25);
+    
+    --soft-radius-sm: 0.25rem;
+    --soft-radius-md: 0.5rem;
+    --soft-radius-lg: 0.75rem;
+    --soft-radius-xl: 1rem;
+    
+    --soft-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ========================================
+   SHORTCODES PAGE CONTAINER
+   ======================================== */
+
+.base47-sc-soft-ui {
+    font-family: var(--soft-font-family);
+    background: #f8f9fa;
+    padding: 2rem 20px 2rem 0;
+    margin-left: 0 !important;
+    max-width: 100%;
+}
+
+.wrap.base47-sc-soft-ui {
+    margin-left: 0 !important;
+    margin-right: 20px;
+}
+
+/* ========================================
+   PAGE HEADER
+   ======================================== */
+
+.base47-sc-header-soft {
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);
+    border-radius: var(--soft-radius-xl);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--soft-shadow-lg);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.base47-sc-header-soft::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+    background-size: cover;
+    opacity: 0.3;
+}
+
+.base47-sc-header-soft h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    position: relative;
+    z-index: 1;
+    color: #fff;
+}
+
+.base47-sc-header-soft p {
+    font-size: 0.95rem;
+    margin: 0;
+    opacity: 0.95;
+    position: relative;
+    z-index: 1;
+    color: #fff;
+}
+
+/* ========================================
+   SEARCH BAR
+   ======================================== */
+
+.base47-sc-search-wrapper {
+    margin-bottom: 2rem;
+}
+
+.base47-sc-search-box {
+    position: relative;
+    max-width: 500px;
+}
+
+.base47-sc-search-box .dashicons {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--soft-secondary);
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    pointer-events: none;
+}
+
+.base47-sc-search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 1px solid var(--soft-light);
+    border-radius: var(--soft-radius-lg);
+    font-size: 0.95rem;
+    font-family: var(--soft-font-family);
+    background: #fff;
+    color: var(--soft-dark);
+    box-shadow: var(--soft-shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.base47-sc-search-box input:focus {
+    outline: none;
+    border-color: var(--soft-info);
+    box-shadow: 0 0 0 3px rgba(33, 212, 253, 0.1), var(--soft-shadow-md);
+}
+
+.base47-sc-search-box input::placeholder {
+    color: var(--soft-secondary);
+    opacity: 0.7;
+}
+
+/* ========================================
+   THEME SECTIONS
+   ======================================== */
+
+.base47-sc-theme-section {
+    margin-bottom: 3rem;
+}
+
+.base47-sc-theme-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--soft-dark);
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.base47-sc-theme-title .dashicons {
+    color: var(--soft-info);
+    font-size: 1.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+.base47-sc-empty {
+    font-size: 0.95rem;
+    color: var(--soft-secondary);
+    font-style: italic;
+}
+
+/* ========================================
+   TEMPLATE CARDS GRID
+   ======================================== */
+
+.base47-he-template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .base47-he-template-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   TEMPLATE CARD
+   ======================================== */
+
+.base47-sc-card {
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
+    overflow: hidden;
+    box-shadow: var(--soft-shadow-sm);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.base47-sc-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--soft-shadow-lg);
+}
+
+/* Card Header */
+.base47-sc-card-header {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.base47-sc-template-name {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.base47-sc-theme-badge {
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+}
+
+/* Shortcode Display */
+.base47-sc-shortcode-display {
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.base47-sc-shortcode-display code {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    border: 1px solid var(--soft-light);
+    border-radius: var(--soft-radius-sm);
+    font-size: 0.8125rem;
+    color: var(--soft-primary);
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* Preview Panel */
+.base47-sc-preview-panel {
+    position: relative;
+    min-height: 200px;
+    background: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.base47-sc-preview-empty {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: var(--soft-secondary);
+}
+
+.base47-sc-preview-empty .dashicons {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    opacity: 0.3;
+}
+
+.base47-sc-preview-empty p {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.base47-he-template-iframe {
+    width: 100%;
+    min-height: 200px;
+    border: none;
+    display: block;
+}
+
+/* Card Actions */
+.base47-sc-card-actions {
+    padding: 1rem 1.5rem;
+    background: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.base47-sc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: var(--soft-radius-md);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--soft-shadow-xs);
+    text-decoration: none;
+    border: none;
+    font-family: var(--soft-font-family);
+    white-space: nowrap;
+}
+
+.base47-sc-btn .dashicons {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.base47-sc-btn-primary {
+    background: var(--soft-gradient-info);
+    color: #fff;
+}
+
+.base47-sc-btn-primary:hover {
+    transform: scale(1.02);
+    box-shadow: var(--soft-shadow-md);
+    color: #fff;
+}
+
+.base47-sc-btn-secondary {
+    background: #fff;
+    border: 1px solid var(--soft-light);
+    color: var(--soft-dark);
+}
+
+.base47-sc-btn-secondary:hover {
+    background: var(--soft-light);
+    transform: scale(1.02);
+    color: var(--soft-dark);
+}
+
+/* ========================================
+   SOFT UI TOAST NOTIFICATION
+   ======================================== */
+
+.base47-sc-toast {
+    position: fixed;
+    top: 32px;
+    right: 20px;
+    min-width: 300px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--soft-radius-lg);
+    box-shadow: var(--soft-shadow-xl);
+    z-index: 999999;
+    animation: slideInRight 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--soft-gradient-success);
+    color: #fff;
+}
+
+.base47-sc-toast-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.base47-sc-toast-message {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   LOADING STATE
+   ======================================== */
+
+.base47-sc-card.is-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.base47-sc-card.is-loading .base47-sc-preview-panel::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 3px solid rgba(33, 212, 253, 0.3);
+    border-top-color: var(--soft-info);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 782px) {
+    .base47-sc-header-soft {
+        padding: 1.5rem;
+    }
+    
+    .base47-sc-header-soft h1 {
+        font-size: 1.5rem;
+    }
+    
+    .base47-sc-card-actions {
+        flex-direction: column;
+    }
+    
+    .base47-sc-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ========================================
+   HIDE OLD STYLES
+   ======================================== */
+
+.base47-sc-soft-ui .base47-he-template-box {
+    /* Old styles disabled */
+}

@@ -13,13 +13,63 @@ jQuery(function ($) {
         if (!sc) return;
 
         const btn      = $(this);
-        const original = btn.text();
+        const original = btn.html();
 
         navigator.clipboard.writeText(sc).then(() => {
-            btn.text('Copied').css('background', '#2ecc71');
-            setTimeout(() => {
-                btn.text(original).css('background', '');
-            }, 1200);
+            // Check if we're on Soft UI page
+            if ($('.base47-sc-soft-ui').length) {
+                // Show Soft UI toast
+                showSoftUIToast('Shortcode Copied!', '✓');
+            } else {
+                // Old style feedback
+                btn.text('Copied').css('background', '#2ecc71');
+                setTimeout(() => {
+                    btn.html(original).css('background', '');
+                }, 1200);
+            }
+        });
+    });
+    
+    /* ==========================
+       SOFT UI TOAST NOTIFICATION
+    ========================== */
+    function showSoftUIToast(message, icon = '✓') {
+        // Remove existing toast
+        $('.base47-sc-toast').remove();
+        
+        // Create toast
+        const $toast = $('<div class="base47-sc-toast">' +
+            '<span class="base47-sc-toast-icon">' + icon + '</span>' +
+            '<span class="base47-sc-toast-message">' + message + '</span>' +
+            '</div>');
+        
+        $('body').append($toast);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            $toast.css('animation', 'slideOutRight 0.3s ease');
+            setTimeout(() => $toast.remove(), 300);
+        }, 3000);
+    }
+    
+    /* ==========================
+       SHORTCODES PAGE SEARCH
+    ========================== */
+    $('#base47-sc-search').on('input', function() {
+        const query = $(this).val().toLowerCase().trim();
+        
+        $('.base47-sc-card').each(function() {
+            const templateName = $(this).data('template-name') || '';
+            const matches = templateName.includes(query);
+            
+            $(this).toggle(matches);
+        });
+        
+        // Hide/show theme sections if all cards are hidden
+        $('.base47-sc-theme-section').each(function() {
+            const $section = $(this);
+            const visibleCards = $section.find('.base47-sc-card:visible').length;
+            $section.toggle(visibleCards > 0);
         });
     });
 
@@ -291,14 +341,23 @@ function getActiveSet() {
         const btn    = $(this);
         const file   = btn.data('file');
         const set    = btn.data('set');
-        const card   = btn.closest('.base47-he-template-box');
+        
+        // Support both old and new card structures
+        const card   = btn.closest('.base47-he-template-box, .base47-sc-card');
         const iframe = card.find('.base47-he-template-iframe').get(0);
 
         if (!file || !set || !iframe) {
             return;
         }
 
-        btn.text('Loading�').prop('disabled', true);
+        const originalText = btn.html();
+        btn.html('<span class="dashicons dashicons-update"></span> Loading...').prop('disabled', true);
+        
+        // Add loading state to card (Soft UI)
+        card.addClass('is-loading');
+        
+        // Hide empty state (Soft UI)
+        card.find('.base47-sc-preview-empty').hide();
 
         $.post(BASE47_HE.ajax_url, {
             action: 'base47_he_lazy_preview',
@@ -307,17 +366,22 @@ function getActiveSet() {
             set:    set
         }, function (res) {
 
-            btn.text('Load preview').prop('disabled', false);
+            btn.html(originalText).prop('disabled', false);
+            card.removeClass('is-loading');
 
             if (res && res.success && res.data && res.data.html) {
-                iframe.srcdoc = res.data.html; // no extra URL, instant render
+                iframe.srcdoc = res.data.html;
+                $(iframe).show(); // Show iframe (Soft UI)
             } else {
                 iframe.srcdoc = '<div style="padding:20px;color:#c00;">Preview error.</div>';
+                $(iframe).show();
             }
         }).fail(function () {
-            btn.text('Load preview').prop('disabled', false);
+            btn.html(originalText).prop('disabled', false);
+            card.removeClass('is-loading');
             if (iframe) {
                 iframe.srcdoc = '<div style="padding:20px;color:#c00;">Network error.</div>';
+                $(iframe).show();
             }
         });
     });
