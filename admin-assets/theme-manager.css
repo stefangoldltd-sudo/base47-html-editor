@@ -1,252 +1,713 @@
-/* ============================================
-   Base47 Theme Manager – Glass UI (v2.7.2.1)
-   CLEAN + FINAL + FIXED
-   ============================================ */
+/**
+ * Theme Manager - Soft UI Dashboard Integration
+ * 
+ * Modern, professional theme management interface
+ * Based on Soft UI Dashboard by Creative Tim
+ * 
+ * @package Base47_HTML_Editor
+ * @since 2.9.6.5
+ */
 
-/* Wrapper */
-.base47-tm-wrap {
-    margin-top: 30px;
+/* ========================================
+   SOFT UI VARIABLES & FOUNDATIONS
+   ======================================== */
+
+:root {
+    /* Soft UI Colors */
+    --soft-primary: #cb0c9f;
+    --soft-secondary: #8392ab;
+    --soft-success: #82d616;
+    --soft-info: #17c1e8;
+    --soft-warning: #fbcf33;
+    --soft-danger: #ea0606;
+    --soft-dark: #344767;
+    --soft-light: #e9ecef;
+    
+    /* Gradients */
+    --soft-gradient-primary: linear-gradient(310deg, #7928ca, #ff0080);
+    --soft-gradient-info: linear-gradient(310deg, #2152ff, #21d4fd);
+    --soft-gradient-success: linear-gradient(310deg, #17ad37, #98ec2d);
+    --soft-gradient-warning: linear-gradient(310deg, #f53939, #fbcf33);
+    
+    /* Shadows */
+    --soft-shadow-xs: 0 2px 9px -5px rgba(0, 0, 0, 0.15);
+    --soft-shadow-sm: 0 0.25rem 0.375rem -0.0625rem rgba(20, 20, 20, 0.12), 0 0.125rem 0.25rem -0.0625rem rgba(20, 20, 20, 0.07);
+    --soft-shadow-md: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07);
+    --soft-shadow-lg: 0 8px 26px -4px rgba(20, 20, 20, 0.15), 0 8px 9px -5px rgba(20, 20, 20, 0.06);
+    --soft-shadow-xl: 0 23px 45px -11px rgba(20, 20, 20, 0.25);
+    
+    /* Border Radius */
+    --soft-radius-sm: 0.25rem;
+    --soft-radius-md: 0.5rem;
+    --soft-radius-lg: 0.75rem;
+    --soft-radius-xl: 1rem;
+    --soft-radius-2xl: 1.5rem;
+    
+    /* Typography */
+    --soft-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ========================================
+   THEME MANAGER CONTAINER
+   ======================================== */
+
+.base47-tm-soft-ui {
+    font-family: var(--soft-font-family);
+    background: #f8f9fa;
+    padding: 2rem 0;
+}
+
+/* Page Header */
+.base47-tm-header-soft {
+    background: linear-gradient(310deg, #7928ca 0%, #ff0080 100%);
+    border-radius: var(--soft-radius-xl);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--soft-shadow-lg);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.base47-tm-header-soft::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+    background-size: cover;
+    opacity: 0.3;
+}
+
+.base47-tm-header-soft h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
     position: relative;
     z-index: 1;
+    color: #fff;
 }
 
-/* Header */
-.base47-tm-header {
-    margin-bottom: 20px;
-}
-
-.base47-tm-title {
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0 0 6px;
-}
-
-.base47-tm-subtitle {
-    color: #cbd5e1; /* FIX: readable gray */
-    font-size: 13px;
+.base47-tm-header-soft p {
+    font-size: 0.95rem;
+    margin: 0;
     opacity: 0.95;
-}
-
-/* Default theme dropdown (FIX #2) */
-#base47_default_theme {
-    min-width: 260px !important;
-    padding: 8px 14px !important;
-    height: 40px !important;
-    font-size: 14px !important;
-}
-
-.base47-tm-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 25px;
-    width: 100%;
-    margin-top: 25px;
-    align-items: stretch;
-}
-
-/* Card */
-.base47-tm-card {
     position: relative;
-    overflow: hidden;
-    border-radius: 18px;
-    padding: 1px;
-    background: radial-gradient(circle at top left,
-        rgba(255,255,255,0.26),
-        rgba(0,0,0,0.4));
-    box-shadow:
-        0 18px 40px rgba(15,23,42,0.35),
-        0 0 0 1px rgba(255,255,255,0.12);
-    transition: all .25s ease;
+    z-index: 1;
+    color: #fff;
 }
 
-.base47-tm-card-bg {
-    position: absolute;
-    inset: 0;
-    opacity: .9;
-    pointer-events: none;
+/* ========================================
+   ACTION CARDS
+   ======================================== */
+
+.base47-tm-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.base47-tm-card-inner {
-    position: relative;
-    z-index: 2;
-    padding: 18px;
-    background: linear-gradient(
-        145deg,
-        rgba(15,23,42,0.9),
-        rgba(17,24,39,0.82),
-        rgba(15,23,42,0.95)
-    );
-    border-radius: 17px;
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(18px);
+.base47-tm-action-card {
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--soft-shadow-sm);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
 
+.base47-tm-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--soft-shadow-lg);
+}
+
+.base47-tm-action-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--soft-dark);
+    margin: 0 0 0.75rem 0;
     display: flex;
-    flex-direction: column;
-    gap: 14px;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-/* Badge */
-.base47-tm-badge {
+.base47-tm-action-card h3 .dashicons {
+    color: var(--soft-primary);
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.base47-tm-action-card .description {
+    font-size: 0.875rem;
+    color: var(--soft-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+/* Soft UI Buttons */
+.btn-soft-primary {
+    background: var(--soft-gradient-primary);
+    border: none;
+    color: #fff;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--soft-radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--soft-shadow-xs);
+    text-transform: none;
+    height: auto;
+    line-height: 1.5;
+}
+
+.btn-soft-primary:hover {
+    transform: scale(1.02);
+    box-shadow: var(--soft-shadow-md);
+}
+
+.btn-soft-secondary {
+    background: #fff;
+    border: 1px solid var(--soft-light);
+    color: var(--soft-dark);
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--soft-radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--soft-shadow-xs);
+    text-transform: none;
+    height: auto;
+    line-height: 1.5;
+}
+
+.btn-soft-secondary:hover {
+    background: var(--soft-light);
+    transform: scale(1.02);
+}
+
+/* File Input Styling */
+.base47-file-input-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+}
+
+.base47-file-input-wrapper input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+}
+
+.base47-file-input-label {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 9px;
-    border-radius: 999px;
-    background: rgba(15,23,42,0.7);
-    border: 1px solid rgba(148,163,184,0.4);
-    font-size: 11px;
-    color: #e5e7eb;
-}
-
-.base47-tm-badge-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: var(--base47-tm-accent, #7C5CFF);
-}
-
-/* Text */
-.base47-tm-text {
-    flex: 1;
-}
-
-.base47-tm-name {
-    margin: 0;
-    font-size: 15px;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: #fff;
+    border: 2px dashed var(--soft-light);
+    border-radius: var(--soft-radius-md);
+    color: var(--soft-secondary);
     font-weight: 600;
-    color: #fff; /* brighter */
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.base47-tm-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    font-size: 11px;
-    color: #cbd5e1; /* FIX #1: readable */
+.base47-file-input-label:hover {
+    border-color: var(--soft-primary);
+    color: var(--soft-primary);
+    background: rgba(203, 12, 159, 0.05);
 }
 
-.base47-tm-description {
-    font-size: 13px;
-    color: #e2e8f0 !important; /* FIX #1: brighter */
-    opacity: 1;
-    line-height: 1.4;
+.base47-file-input-label .dashicons {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
 }
 
-/* Thumbnail */
-.base47-tm-thumb {
+/* ========================================
+   DEFAULT THEME SELECTOR
+   ======================================== */
+
+.base47-default-theme-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: var(--soft-radius-xl);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--soft-shadow-md);
+    color: #fff;
+}
+
+.base47-default-theme-card label {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    color: #fff;
+}
+
+.base47-default-theme-card select {
     width: 100%;
-    max-height: 260px;
-    overflow: hidden;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.1);
+    max-width: 400px;
+    padding: 0.75rem 1rem;
+    border-radius: var(--soft-radius-md);
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: #fff;
+    color: var(--soft-dark);
+    box-shadow: var(--soft-shadow-sm);
+    transition: all 0.2s ease;
 }
 
-.base47-tm-thumb img {
+.base47-default-theme-card select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* ========================================
+   THEME CARDS GRID
+   ======================================== */
+
+.base47-tm-grid-soft {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .base47-tm-grid-soft {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   THEME CARD
+   ======================================== */
+
+.base47-tm-card-soft {
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
+    overflow: hidden;
+    box-shadow: var(--soft-shadow-sm);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.base47-tm-card-soft:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--soft-shadow-xl);
+}
+
+.base47-tm-card-soft.is-active {
+    border-color: var(--soft-primary);
+    box-shadow: 0 8px 26px -4px rgba(203, 12, 159, 0.25);
+}
+
+/* Card Header with Thumbnail */
+.base47-tm-card-header {
+    position: relative;
+    height: 180px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow: hidden;
+}
+
+.base47-tm-card-header img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
+    transition: transform 0.3s ease;
 }
 
-/* Footer */
-.base47-tm-footer {
+.base47-tm-card-soft:hover .base47-tm-card-header img {
+    transform: scale(1.05);
+}
+
+/* Status Badge */
+.base47-tm-status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--soft-shadow-sm);
+    z-index: 2;
+}
+
+.base47-tm-status-badge.is-active {
+    background: rgba(130, 214, 22, 0.95);
+    color: #fff;
+}
+
+.base47-tm-status-badge.is-inactive {
+    background: rgba(139, 149, 158, 0.95);
+    color: #fff;
+}
+
+/* Warning Badge */
+.base47-tm-warning-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: rgba(251, 207, 51, 0.95);
+    color: var(--soft-dark);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--soft-shadow-sm);
+    z-index: 2;
+}
+
+/* Card Body */
+.base47-tm-card-body {
+    padding: 1.5rem;
+}
+
+/* Theme Avatar & Info */
+.base47-tm-theme-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.base47-tm-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--soft-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: var(--soft-shadow-md);
+    text-transform: uppercase;
+}
+
+.base47-tm-theme-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.base47-tm-theme-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--soft-dark);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.base47-tm-theme-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    color: var(--soft-secondary);
+}
+
+.base47-tm-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.base47-tm-meta-item .dashicons {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.base47-tm-meta-sep {
+    color: var(--soft-light);
+}
+
+/* Description */
+.base47-tm-description {
+    font-size: 0.875rem;
+    color: var(--soft-secondary);
+    line-height: 1.6;
+    margin: 0 0 1.25rem 0;
+}
+
+/* ========================================
+   ASSET MODES
+   ======================================== */
+
+.base47-tm-asset-modes {
+    background: #f8f9fa;
+    border-radius: var(--soft-radius-md);
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.base47-tm-asset-modes-title {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--soft-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 0.75rem 0;
+}
+
+.base47-tm-mode-options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.base47-tm-mode-option {
+    flex: 1;
+    min-width: 0;
+}
+
+.base47-tm-mode-option input[type="radio"] {
+    display: none;
+}
+
+.base47-tm-mode-label {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    border: 2px solid var(--soft-light);
+    border-radius: var(--soft-radius-sm);
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--soft-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.base47-tm-mode-option input[type="radio"]:checked + .base47-tm-mode-label {
+    background: var(--soft-gradient-primary);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: var(--soft-shadow-sm);
+}
+
+.base47-tm-mode-option input[type="radio"]:disabled + .base47-tm-mode-label {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.base47-tm-mode-label:hover:not(:has(input:disabled)) {
+    border-color: var(--soft-primary);
+}
+
+/* ========================================
+   CARD FOOTER
+   ======================================== */
+
+.base47-tm-card-footer {
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 6px;
+    gap: 1rem;
 }
 
-/* Toggle (Loader / Manifest) */
-.base47-tm-asset-modes {
-    margin-top: 12px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    color: #e5e7eb;
-    font-size: 12px;
-}
-
-/* Footer right = uninstall + coming soon */
-.base47-tm-footer-right {
+/* Toggle Switch */
+.base47-tm-toggle-wrapper {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.75rem;
 }
 
-/* Uninstall Button */
-.base47-tm-uninstall-btn {
-    border: none;
-    background: none;
-    color: #fca5a5;
-    cursor: pointer;
-    font-size: 11px;
-    text-decoration: underline;
-    padding: 0;
-}
-
-.base47-tm-uninstall-btn:hover {
-    color: #f87171;
-}
-
-/* ======================================================
-   FIXES: HIDE INTERNAL CHECKBOXES + RESTORE REAL TOGGLE
-   ====================================================== */
-
-/* 1) Hide hidden checkboxes (manifest + smart loader) */
-.base47-tm-card .tm-hidden-manifest,
-.base47-tm-card .tm-hidden-smart {
-    display: none !important;
-}
-
-/* 2) Hide the RAW checkbox for the active/inactive switch */
-.base47-tm-card .base47-tm-toggle-input {
-    display: none !important;
-}
-
-/* 3) But keep the visual toggle styled properly */
 .base47-tm-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-
-/* Toggle track */
-.base47-tm-toggle-track {
-    width: 42px;
-    height: 22px;
-    background: #475569;
-    border-radius: 50px;
     position: relative;
-    transition: background 0.25s ease;
+    width: 48px;
+    height: 24px;
 }
 
-/* Toggle thumb */
-.base47-tm-toggle-thumb {
-    width: 18px;
-    height: 18px;
-    background: #fff;
-    border-radius: 50%;
+.base47-tm-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.base47-tm-toggle-slider {
     position: absolute;
-    top: 2px;
-    left: 2px;
-    transition: all 0.25s ease;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
 }
 
-/* ACTIVE card → toggle ON */
-.base47-tm-card.is-active .base47-tm-toggle-track {
-    background: #34d399 !important;
+.base47-tm-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: var(--soft-shadow-xs);
 }
 
-.base47-tm-card.is-active .base47-tm-toggle-thumb {
-    transform: translateX(20px);
+.base47-tm-toggle input:checked + .base47-tm-toggle-slider {
+    background: var(--soft-gradient-primary);
 }
 
-/* 4) Hide any stray checkmarks that appear near uninstall or footer */
-.base47-tm-card input[type="checkbox"] {
-    display: none !important;
+.base47-tm-toggle input:checked + .base47-tm-toggle-slider:before {
+    transform: translateX(24px);
+}
+
+.base47-tm-toggle-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--soft-dark);
+}
+
+/* Action Buttons */
+.base47-tm-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.base47-tm-btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--soft-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: #fff;
+    color: var(--soft-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--soft-shadow-xs);
+}
+
+.base47-tm-btn-icon:hover {
+    background: var(--soft-danger);
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.base47-tm-btn-icon .dashicons {
+    font-size: 1.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+/* ========================================
+   FOOTER NOTE
+   ======================================== */
+
+.base47-tm-footer-note {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: var(--soft-radius-xl);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    color: #fff;
+    box-shadow: var(--soft-shadow-md);
+}
+
+.base47-tm-footer-note p {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+.base47-tm-loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.base47-tm-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 3px solid rgba(203, 12, 159, 0.3);
+    border-top-color: var(--soft-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 782px) {
+    .base47-tm-header-soft {
+        padding: 1.5rem;
+    }
+    
+    .base47-tm-header-soft h1 {
+        font-size: 1.5rem;
+    }
+    
+    .base47-tm-actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .base47-tm-card-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .base47-tm-toggle-wrapper {
+        justify-content: space-between;
+    }
+    
+    .base47-tm-actions {
+        justify-content: center;
+    }
+}
+
+/* ========================================
+   WORDPRESS ADMIN OVERRIDES
+   ======================================== */
+
+.base47-tm-soft-ui .button,
+.base47-tm-soft-ui .button-primary,
+.base47-tm-soft-ui .button-secondary {
+    font-family: var(--soft-font-family);
+}
+
+.base47-tm-soft-ui .notice {
+    border-radius: var(--soft-radius-md);
+    box-shadow: var(--soft-shadow-sm);
 }

@@ -1,16 +1,15 @@
 jQuery(function ($) {
 
     /* ==========================================================
-       1) THEME ACTIVE / INACTIVE TOGGLE
+       1) THEME ACTIVE / INACTIVE TOGGLE (Soft UI)
        ========================================================== */
-    $('.base47-tm-grid').on('change', '.base47-tm-toggle-input', function () {
+    $('.base47-tm-grid-soft, .base47-tm-grid').on('change', '.base47-tm-toggle-input', function () {
 
         let $toggle = $(this);
         let slug    = $toggle.data('theme');
         let active  = $toggle.is(':checked') ? 1 : 0;
 
         // Prevent disabling the last active theme
-        // Count how many would remain AFTER this change
         let activeCount = $('.base47-tm-toggle-input:checked').length;
         if (!active && activeCount === 0) {
             alert("At least one theme must stay active.");
@@ -19,8 +18,8 @@ jQuery(function ($) {
         }
 
         // Update UI immediately
-        let $card = $toggle.closest('.base47-tm-card');
-        let $badge = $card.find('.base47-tm-badge-text');
+        let $card = $toggle.closest('.base47-tm-card-soft, .base47-tm-card');
+        let $badge = $card.find('.base47-tm-status-badge, .base47-tm-badge-text');
         let $label = $card.find('.base47-tm-toggle-label');
 
         if (active) {
@@ -31,7 +30,7 @@ jQuery(function ($) {
         } else {
             $card.removeClass('is-active').addClass('is-inactive');
             $card.attr('data-active', '0');
-            $badge.text('Disabled');
+            $badge.text('Inactive');
             $label.text('Disabled');
         }
 
@@ -56,7 +55,7 @@ jQuery(function ($) {
                     } else {
                         $card.removeClass('is-active').addClass('is-inactive');
                         $card.attr('data-active', '0');
-                        $badge.text('Disabled');
+                        $badge.text('Inactive');
                         $label.text('Disabled');
                     }
                 }
@@ -114,13 +113,13 @@ jQuery(function ($) {
 
 
     /* ==========================================================
-       3) ASSET MODE: loader / manifest / smart
+       3) ASSET MODE: loader / manifest / smart (Soft UI)
        ========================================================== */
-    $('.base47-tm-grid').on('change', '.tm-mode input[type=radio]', function () {
+    $('.base47-tm-grid-soft, .base47-tm-grid').on('change', '.base47-tm-mode-option input[type=radio], .tm-mode input[type=radio]', function () {
 
         let $radio = $(this);
         let mode   = $radio.val();
-        let $card  = $radio.closest('.base47-tm-card');
+        let $card  = $radio.closest('.base47-tm-card-soft, .base47-tm-card');
         let slug   = $card.data('theme');
 
         // hidden fields

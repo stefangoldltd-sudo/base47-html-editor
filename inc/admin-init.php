@@ -114,11 +114,51 @@ function base47_he_admin_assets( $hook ) {
         return;
     }
 
+    // ========================================
+    // SOFT UI DASHBOARD CSS (Phase 12)
+    // ========================================
+    
+    // Google Fonts - Inter
+    wp_enqueue_style(
+        'google-fonts-inter',
+        'https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800',
+        [],
+        null
+    );
+    
+    // Soft UI Dashboard - Main CSS
+    wp_enqueue_style(
+        'base47-soft-ui',
+        BASE47_HE_URL . 'admin-assets/soft-ui/css/soft-ui-dashboard.min.css',
+        [],
+        BASE47_HE_VERSION
+    );
+    
+    // Nucleo Icons
+    wp_enqueue_style(
+        'base47-nucleo-icons',
+        BASE47_HE_URL . 'admin-assets/soft-ui/css/nucleo-icons.css',
+        [],
+        BASE47_HE_VERSION
+    );
+    
+    // Nucleo SVG Icons
+    wp_enqueue_style(
+        'base47-nucleo-svg',
+        BASE47_HE_URL . 'admin-assets/soft-ui/css/nucleo-svg.css',
+        [],
+        BASE47_HE_VERSION
+    );
+    
+    // ========================================
+    // EXISTING BASE47 CSS (Compatibility)
+    // ========================================
+    
     // Existing admin CSS/JS for Base47
     wp_enqueue_style(
         'base47-he-admin',
         BASE47_HE_URL . 'admin-assets/admin.css',
-        [],
+        [ 'base47-soft-ui' ],
         BASE47_HE_VERSION
     );
     
@@ -175,7 +215,7 @@ function base47_he_admin_assets( $hook ) {
         ]
     );
 
-    // Theme Manager glass CSS
+    // Theme Manager CSS (Soft UI - Phase 12 v2.9.6.5)
     wp_enqueue_style(
         'base47-he-theme-manager',
         BASE47_HE_URL . 'admin-assets/theme-manager.css',
