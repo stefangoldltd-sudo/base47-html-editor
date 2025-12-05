@@ -1,11 +1,11 @@
 <?php
 /**
- * Settings Page
+ * Settings Page - Soft UI
  * 
- * Global plugin settings for behavior, editor, logging, and developer tools.
+ * Global plugin settings with Soft UI design
  * 
  * @package Base47_HTML_Editor
- * @since 2.9.4.5
+ * @since 2.9.7.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -57,331 +57,483 @@ function base47_he_settings_page() {
         ];
         
         if ( base47_he_update_settings( $new_settings ) ) {
-            echo '<div class="notice notice-success is-dismissible"><p>Settings saved successfully.</p></div>';
+            echo '<div class="base47-notice base47-notice-success"><span class="dashicons dashicons-yes-alt"></span> Settings saved successfully.</div>';
         } else {
-            echo '<div class="notice notice-error is-dismissible"><p>Failed to save settings.</p></div>';
+            echo '<div class="base47-notice base47-notice-error"><span class="dashicons dashicons-warning"></span> Failed to save settings.</div>';
         }
     }
     
     $settings = base47_he_get_settings();
     
     ?>
-    <div class="wrap base47-settings-page">
-        <h1>Base47 HTML Editor — Settings</h1>
-        <p>Configure global plugin behavior, editor preferences, logging, and developer tools.</p>
+    <div class="wrap base47-settings-soft-ui">
         
-        <form method="post" action="">
+        <!-- SOFT UI HEADER -->
+        <div class="base47-settings-header-soft">
+            <h1>Settings</h1>
+            <p>Configure plugin behavior, editor preferences, logging, and advanced options.</p>
+        </div>
+        
+        <form method="post" action="" class="base47-settings-form">
             <?php wp_nonce_field( 'base47_he_settings' ); ?>
             
-            <table class="form-table" role="presentation">
+            <div class="base47-settings-grid">
                 
                 <!-- GENERAL SECTION -->
-                <tr>
-                    <th colspan="2">
+                <div class="base47-settings-card">
+                    <div class="card-header">
+                        <span class="dashicons dashicons-admin-generic"></span>
                         <h2>General</h2>
-                    </th>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Debug Mode</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="debug_mode" value="1" <?php checked( $settings['debug_mode'] ); ?>>
-                            Enable debug mode (disables caching, shows developer info)
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Enable Caching</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="enable_cache" value="1" <?php checked( $settings['enable_cache'] ); ?>>
-                            Cache theme discovery and template scans
-                        </label>
-                        <p class="description">Improves performance. Automatically disabled when Debug Mode is ON.</p>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Cache Lifetime</th>
-                    <td>
-                        <input type="number" name="cache_lifetime" value="<?php echo esc_attr( $settings['cache_lifetime'] ); ?>" min="1" max="720" class="small-text">
-                        minutes
-                        <p class="description">How long to cache theme data (1-720 minutes).</p>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Clear Caches</th>
-                    <td>
-                        <button type="button" class="button" id="base47-clear-all-caches">Clear All Caches</button>
-                        <p class="description">Clears theme discovery and template caches.</p>
-                        <span id="base47-cache-status"></span>
-                    </td>
-                </tr>
-                
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Debug Mode -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Debug Mode</label>
+                                <p class="description">Disables caching and shows developer information</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="debug_mode" value="1" <?php checked( $settings['debug_mode'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Enable Caching -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Enable Caching</label>
+                                <p class="description">Cache theme discovery and template scans</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="enable_cache" value="1" <?php checked( $settings['enable_cache'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Cache Lifetime -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Cache Lifetime</label>
+                                <p class="description">How long to cache theme data</p>
+                            </div>
+                            <div class="setting-control">
+                                <div class="input-group">
+                                    <input type="number" name="cache_lifetime" value="<?php echo esc_attr( $settings['cache_lifetime'] ); ?>" min="1" max="720" class="form-control">
+                                    <span class="input-suffix">minutes</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Clear Caches -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Clear Caches</label>
+                                <p class="description">Remove all cached data</p>
+                            </div>
+                            <div class="setting-control">
+                                <button type="button" class="btn-soft-secondary" id="base47-clear-all-caches">
+                                    <span class="dashicons dashicons-trash"></span>
+                                    Clear All Caches
+                                </button>
+                                <span id="base47-cache-status" class="status-message"></span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
                 <!-- LIVE EDITOR SECTION -->
-                <tr>
-                    <th colspan="2">
+                <div class="base47-settings-card">
+                    <div class="card-header">
+                        <span class="dashicons dashicons-edit"></span>
                         <h2>Live Editor</h2>
-                    </th>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Editor Theme</th>
-                    <td>
-                        <select name="editor_theme">
-                            <option value="light" <?php selected( $settings['editor_theme'], 'light' ); ?>>Light</option>
-                            <option value="dark" <?php selected( $settings['editor_theme'], 'dark' ); ?>>Dark</option>
-                        </select>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Font Size</th>
-                    <td>
-                        <select name="editor_font_size">
-                            <option value="12px" <?php selected( $settings['editor_font_size'], '12px' ); ?>>12px</option>
-                            <option value="14px" <?php selected( $settings['editor_font_size'], '14px' ); ?>>14px</option>
-                            <option value="16px" <?php selected( $settings['editor_font_size'], '16px' ); ?>>16px</option>
-                            <option value="18px" <?php selected( $settings['editor_font_size'], '18px' ); ?>>18px</option>
-                        </select>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Default Editor Mode</th>
-                    <td>
-                        <select name="editor_mode">
-                            <option value="advanced" <?php selected( $settings['editor_mode'], 'advanced' ); ?>>Advanced Editor (Monaco)</option>
-                            <option value="classic" <?php selected( $settings['editor_mode'], 'classic' ); ?>>Classic Editor (Textarea)</option>
-                        </select>
-                        <p class="description">Choose which editor loads by default. Users can switch modes anytime.</p>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Show Line Numbers</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="line_numbers" value="1" <?php checked( $settings['line_numbers'] ); ?>>
-                            Display line numbers in editor
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Line Wrapping</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="line_wrap" value="1" <?php checked( $settings['line_wrap'] ); ?>>
-                            Wrap long lines instead of horizontal scroll
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Auto-save Interval</th>
-                    <td>
-                        <select name="autosave_interval">
-                            <option value="0" <?php selected( $settings['autosave_interval'], 0 ); ?>>Disabled</option>
-                            <option value="30" <?php selected( $settings['autosave_interval'], 30 ); ?>>30 seconds</option>
-                            <option value="60" <?php selected( $settings['autosave_interval'], 60 ); ?>>60 seconds</option>
-                            <option value="120" <?php selected( $settings['autosave_interval'], 120 ); ?>>120 seconds</option>
-                        </select>
-                        <p class="description">Automatically save changes while editing (0 = disabled).</p>
-                    </td>
-                </tr>
-                
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Editor Theme -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Editor Theme</label>
+                                <p class="description">Visual theme for Monaco editor</p>
+                            </div>
+                            <div class="setting-control">
+                                <select name="editor_theme" class="form-select">
+                                    <option value="light" <?php selected( $settings['editor_theme'], 'light' ); ?>>Light</option>
+                                    <option value="dark" <?php selected( $settings['editor_theme'], 'dark' ); ?>>Dark</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Font Size -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Font Size</label>
+                                <p class="description">Editor text size</p>
+                            </div>
+                            <div class="setting-control">
+                                <select name="editor_font_size" class="form-select">
+                                    <option value="12px" <?php selected( $settings['editor_font_size'], '12px' ); ?>>12px</option>
+                                    <option value="14px" <?php selected( $settings['editor_font_size'], '14px' ); ?>>14px</option>
+                                    <option value="16px" <?php selected( $settings['editor_font_size'], '16px' ); ?>>16px</option>
+                                    <option value="18px" <?php selected( $settings['editor_font_size'], '18px' ); ?>>18px</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Default Editor Mode -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Default Editor Mode</label>
+                                <p class="description">Which editor loads by default</p>
+                            </div>
+                            <div class="setting-control">
+                                <select name="editor_mode" class="form-select">
+                                    <option value="advanced" <?php selected( $settings['editor_mode'], 'advanced' ); ?>>Advanced (Monaco)</option>
+                                    <option value="classic" <?php selected( $settings['editor_mode'], 'classic' ); ?>>Classic (Textarea)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Line Numbers -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Show Line Numbers</label>
+                                <p class="description">Display line numbers in editor</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="line_numbers" value="1" <?php checked( $settings['line_numbers'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Line Wrapping -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Line Wrapping</label>
+                                <p class="description">Wrap long lines instead of scroll</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="line_wrap" value="1" <?php checked( $settings['line_wrap'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Auto-save Interval -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Auto-save Interval</label>
+                                <p class="description">Automatically save changes</p>
+                            </div>
+                            <div class="setting-control">
+                                <select name="autosave_interval" class="form-select">
+                                    <option value="0" <?php selected( $settings['autosave_interval'], 0 ); ?>>Disabled</option>
+                                    <option value="30" <?php selected( $settings['autosave_interval'], 30 ); ?>>30 seconds</option>
+                                    <option value="60" <?php selected( $settings['autosave_interval'], 60 ); ?>>60 seconds</option>
+                                    <option value="120" <?php selected( $settings['autosave_interval'], 120 ); ?>>120 seconds</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
                 <!-- LOGGING SECTION -->
-                <tr>
-                    <th colspan="2">
+                <div class="base47-settings-card">
+                    <div class="card-header">
+                        <span class="dashicons dashicons-media-text"></span>
                         <h2>Logging</h2>
-                    </th>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Enable Logging</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="logging_enabled" value="1" <?php checked( $settings['logging_enabled'] ); ?>>
-                            Log plugin actions and errors
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Log Level</th>
-                    <td>
-                        <select name="log_level">
-                            <option value="errors" <?php selected( $settings['log_level'], 'errors' ); ?>>Errors Only</option>
-                            <option value="warnings" <?php selected( $settings['log_level'], 'warnings' ); ?>>Warnings</option>
-                            <option value="info" <?php selected( $settings['log_level'], 'info' ); ?>>Info</option>
-                            <option value="debug" <?php selected( $settings['log_level'], 'debug' ); ?>>Debug</option>
-                        </select>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Log Retention</th>
-                    <td>
-                        <input type="number" name="log_retention" value="<?php echo esc_attr( $settings['log_retention'] ); ?>" min="1" max="90" class="small-text">
-                        days
-                        <p class="description">Automatically delete logs older than this (1-90 days).</p>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Max Log Size</th>
-                    <td>
-                        <input type="number" name="max_log_size" value="<?php echo esc_attr( $settings['max_log_size'] ); ?>" min="1" max="50" class="small-text">
-                        MB
-                        <p class="description">Maximum size per log file (1-50 MB).</p>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Log Actions</th>
-                    <td>
-                        <button type="button" class="button" id="base47-clear-logs">Clear Logs</button>
-                        <button type="button" class="button" id="base47-download-logs">Download Logs</button>
-                        <p class="description">Clear all logs or download them as a ZIP file.</p>
-                        <span id="base47-log-status"></span>
-                    </td>
-                </tr>
-                
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Enable Logging -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Enable Logging</label>
+                                <p class="description">Log plugin actions and errors</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="logging_enabled" value="1" <?php checked( $settings['logging_enabled'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Log Level -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Log Level</label>
+                                <p class="description">Minimum severity to log</p>
+                            </div>
+                            <div class="setting-control">
+                                <select name="log_level" class="form-select">
+                                    <option value="errors" <?php selected( $settings['log_level'], 'errors' ); ?>>Errors Only</option>
+                                    <option value="warnings" <?php selected( $settings['log_level'], 'warnings' ); ?>>Warnings</option>
+                                    <option value="info" <?php selected( $settings['log_level'], 'info' ); ?>>Info</option>
+                                    <option value="debug" <?php selected( $settings['log_level'], 'debug' ); ?>>Debug</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Log Retention -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Log Retention</label>
+                                <p class="description">Auto-delete old logs</p>
+                            </div>
+                            <div class="setting-control">
+                                <div class="input-group">
+                                    <input type="number" name="log_retention" value="<?php echo esc_attr( $settings['log_retention'] ); ?>" min="1" max="90" class="form-control">
+                                    <span class="input-suffix">days</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Max Log Size -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Max Log Size</label>
+                                <p class="description">Maximum size per log file</p>
+                            </div>
+                            <div class="setting-control">
+                                <div class="input-group">
+                                    <input type="number" name="max_log_size" value="<?php echo esc_attr( $settings['max_log_size'] ); ?>" min="1" max="50" class="form-control">
+                                    <span class="input-suffix">MB</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Log Actions -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Log Actions</label>
+                                <p class="description">Manage log files</p>
+                            </div>
+                            <div class="setting-control">
+                                <div class="button-group">
+                                    <button type="button" class="btn-soft-secondary" id="base47-clear-logs">
+                                        <span class="dashicons dashicons-trash"></span>
+                                        Clear Logs
+                                    </button>
+                                    <button type="button" class="btn-soft-secondary" id="base47-download-logs">
+                                        <span class="dashicons dashicons-download"></span>
+                                        Download
+                                    </button>
+                                </div>
+                                <span id="base47-log-status" class="status-message"></span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
                 <!-- DEVELOPER TOOLS SECTION -->
-                <tr>
-                    <th colspan="2">
+                <div class="base47-settings-card">
+                    <div class="card-header">
+                        <span class="dashicons dashicons-admin-tools"></span>
                         <h2>Developer Tools</h2>
-                    </th>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Show File Paths in Preview</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="show_file_paths" value="1" <?php checked( $settings['show_file_paths'] ); ?>>
-                            Display template file paths in preview overlay
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Show Loaded Assets</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="show_asset_map" value="1" <?php checked( $settings['show_asset_map'] ); ?>>
-                            Show Smart Loader asset map in preview
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Disable Smart Loader in Debug</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="disable_smart_loader_debug" value="1" <?php checked( $settings['disable_smart_loader_debug'] ); ?>>
-                            Serve unoptimized assets when Debug Mode is ON
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Enable Experimental Features</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="experimental_features" value="1" <?php checked( $settings['experimental_features'] ); ?>>
-                            Enable beta features (use with caution)
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Show Performance Metrics</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="show_performance_metrics" value="1" <?php checked( $settings['show_performance_metrics'] ); ?>>
-                            Display performance metrics in admin (experimental)
-                        </label>
-                    </td>
-                </tr>
-                
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Show File Paths -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Show File Paths</label>
+                                <p class="description">Display template paths in preview</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="show_file_paths" value="1" <?php checked( $settings['show_file_paths'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Show Loaded Assets -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Show Loaded Assets</label>
+                                <p class="description">Show Smart Loader asset map</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="show_asset_map" value="1" <?php checked( $settings['show_asset_map'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Disable Smart Loader in Debug -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Disable Smart Loader</label>
+                                <p class="description">Serve unoptimized assets in debug</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="disable_smart_loader_debug" value="1" <?php checked( $settings['disable_smart_loader_debug'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Experimental Features -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Experimental Features</label>
+                                <p class="description">Enable beta features (use with caution)</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="experimental_features" value="1" <?php checked( $settings['experimental_features'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Metrics -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Performance Metrics</label>
+                                <p class="description">Display performance data in admin</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="show_performance_metrics" value="1" <?php checked( $settings['show_performance_metrics'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
                 <!-- SECURITY SECTION -->
-                <tr>
-                    <th colspan="2">
+                <div class="base47-settings-card">
+                    <div class="card-header">
+                        <span class="dashicons dashicons-shield"></span>
                         <h2>Security</h2>
-                    </th>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Restrict Editor to Admins</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="restrict_editor_admins" value="1" <?php checked( $settings['restrict_editor_admins'] ); ?>>
-                            Only administrators can use Live Editor
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Disable Theme Upload for Editors</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="disable_upload_editors" value="1" <?php checked( $settings['disable_upload_editors'] ); ?>>
-                            Only administrators can upload themes
-                        </label>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Sanitize Template Output</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="sanitize_output" value="1" <?php checked( $settings['sanitize_output'] ); ?>>
-                            Sanitize template output (recommended)
-                        </label>
-                    </td>
-                </tr>
-                
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Restrict Editor to Admins -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Restrict Editor to Admins</label>
+                                <p class="description">Only administrators can use Live Editor</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="restrict_editor_admins" value="1" <?php checked( $settings['restrict_editor_admins'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Disable Theme Upload for Editors -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Disable Theme Upload</label>
+                                <p class="description">Only administrators can upload themes</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="disable_upload_editors" value="1" <?php checked( $settings['disable_upload_editors'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Sanitize Template Output -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Sanitize Output</label>
+                                <p class="description">Sanitize template output (recommended)</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="sanitize_output" value="1" <?php checked( $settings['sanitize_output'] ); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
                 <!-- ADVANCED SECTION -->
-                <tr>
-                    <th colspan="2">
+                <div class="base47-settings-card">
+                    <div class="card-header">
+                        <span class="dashicons dashicons-admin-settings"></span>
                         <h2>Advanced</h2>
-                    </th>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Export Settings</th>
-                    <td>
-                        <button type="button" id="base47-export-settings" class="button">
-                            <span class="dashicons dashicons-download" style="margin-top:3px;"></span>
-                            Export Settings
-                        </button>
-                        <p class="description">Download your current settings as a JSON file.</p>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <th scope="row">Import Settings</th>
-                    <td>
-                        <input type="file" id="base47-import-file" accept=".json" style="display:none;">
-                        <button type="button" id="base47-import-settings" class="button">
-                            <span class="dashicons dashicons-upload" style="margin-top:3px;"></span>
-                            Import Settings
-                        </button>
-                        <p class="description">Upload a previously exported settings file.</p>
-                        <span id="base47-import-status"></span>
-                    </td>
-                </tr>
-                
-            </table>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Export Settings -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Export Settings</label>
+                                <p class="description">Download settings as JSON file</p>
+                            </div>
+                            <div class="setting-control">
+                                <button type="button" id="base47-export-settings" class="btn-soft-secondary">
+                                    <span class="dashicons dashicons-download"></span>
+                                    Export Settings
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Import Settings -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Import Settings</label>
+                                <p class="description">Upload previously exported settings</p>
+                            </div>
+                            <div class="setting-control">
+                                <input type="file" id="base47-import-file" accept=".json" style="display:none;">
+                                <button type="button" id="base47-import-settings" class="btn-soft-secondary">
+                                    <span class="dashicons dashicons-upload"></span>
+                                    Import Settings
+                                </button>
+                                <span id="base47-import-status" class="status-message"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Reset Settings -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Reset to Defaults</label>
+                                <p class="description">Restore all settings to default values</p>
+                            </div>
+                            <div class="setting-control">
+                                <button type="button" id="base47-reset-settings" class="btn-soft-danger">
+                                    <span class="dashicons dashicons-undo"></span>
+                                    Reset to Defaults
+                                </button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+            </div>
             
-            <p class="submit">
-                <button type="submit" name="base47_he_save_settings" class="button button-primary">Save Settings</button>
-                <button type="button" id="base47-reset-settings" class="button">Reset to Defaults</button>
-            </p>
+            <!-- SAVE BUTTON -->
+            <div class="base47-settings-footer">
+                <button type="submit" name="base47_he_save_settings" class="btn-soft-primary btn-large">
+                    <span class="dashicons dashicons-yes"></span>
+                    Save All Settings
+                </button>
+            </div>
         </form>
     </div>
     
@@ -391,18 +543,19 @@ function base47_he_settings_page() {
         // Clear all caches
         $('#base47-clear-all-caches').on('click', function() {
             var btn = $(this);
-            btn.prop('disabled', true).text('Clearing...');
+            var originalText = btn.html();
+            btn.prop('disabled', true).html('<span class="dashicons dashicons-update"></span> Clearing...');
             
             $.post(ajaxurl, {
                 action: 'base47_clear_all_caches',
                 nonce: '<?php echo wp_create_nonce( 'base47_he' ); ?>'
             }, function(response) {
                 if (response.success) {
-                    $('#base47-cache-status').html('<span style="color: green;">✓ Caches cleared</span>');
+                    $('#base47-cache-status').html('<span class="status-success">✓ Cleared</span>');
                 } else {
-                    $('#base47-cache-status').html('<span style="color: red;">✗ Failed</span>');
+                    $('#base47-cache-status').html('<span class="status-error">✗ Failed</span>');
                 }
-                btn.prop('disabled', false).text('Clear All Caches');
+                btn.prop('disabled', false).html(originalText);
                 setTimeout(function() {
                     $('#base47-cache-status').html('');
                 }, 3000);
@@ -414,18 +567,19 @@ function base47_he_settings_page() {
             if (!confirm('Are you sure you want to delete all logs?')) return;
             
             var btn = $(this);
-            btn.prop('disabled', true).text('Clearing...');
+            var originalText = btn.html();
+            btn.prop('disabled', true).html('<span class="dashicons dashicons-update"></span> Clearing...');
             
             $.post(ajaxurl, {
                 action: 'base47_clear_logs',
                 nonce: '<?php echo wp_create_nonce( 'base47_he' ); ?>'
             }, function(response) {
                 if (response.success) {
-                    $('#base47-log-status').html('<span style="color: green;">✓ Logs cleared</span>');
+                    $('#base47-log-status').html('<span class="status-success">✓ Cleared</span>');
                 } else {
-                    $('#base47-log-status').html('<span style="color: red;">✗ Failed</span>');
+                    $('#base47-log-status').html('<span class="status-error">✗ Failed</span>');
                 }
-                btn.prop('disabled', false).text('Clear Logs');
+                btn.prop('disabled', false).html(originalText);
                 setTimeout(function() {
                     $('#base47-log-status').html('');
                 }, 3000);
@@ -439,10 +593,11 @@ function base47_he_settings_page() {
         
         // Reset settings
         $('#base47-reset-settings').on('click', function() {
-            if (!confirm('Are you sure you want to reset all settings to defaults?')) return;
+            if (!confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) return;
             
             var btn = $(this);
-            btn.prop('disabled', true).text('Resetting...');
+            var originalText = btn.html();
+            btn.prop('disabled', true).html('<span class="dashicons dashicons-update"></span> Resetting...');
             
             $.post(ajaxurl, {
                 action: 'base47_reset_settings',
@@ -452,7 +607,7 @@ function base47_he_settings_page() {
                     location.reload();
                 } else {
                     alert('Failed to reset settings.');
-                    btn.prop('disabled', false).text('Reset to Defaults');
+                    btn.prop('disabled', false).html(originalText);
                 }
             });
         });
@@ -481,7 +636,7 @@ function base47_he_settings_page() {
             formData.append('nonce', '<?php echo wp_create_nonce( 'base47_he' ); ?>');
             formData.append('settings_file', file);
             
-            $('#base47-import-status').html('<span style="color: #0073aa;">Importing...</span>');
+            $('#base47-import-status').html('<span class="status-info">Importing...</span>');
             
             $.ajax({
                 url: ajaxurl,
@@ -491,16 +646,16 @@ function base47_he_settings_page() {
                 contentType: false,
                 success: function(response) {
                     if (response.success) {
-                        $('#base47-import-status').html('<span style="color: green;">✓ Settings imported successfully!</span>');
+                        $('#base47-import-status').html('<span class="status-success">✓ Imported!</span>');
                         setTimeout(function() {
                             location.reload();
                         }, 1500);
                     } else {
-                        $('#base47-import-status').html('<span style="color: red;">✗ ' + response.data.message + '</span>');
+                        $('#base47-import-status').html('<span class="status-error">✗ ' + response.data.message + '</span>');
                     }
                 },
                 error: function() {
-                    $('#base47-import-status').html('<span style="color: red;">✗ Import failed</span>');
+                    $('#base47-import-status').html('<span class="status-error">✗ Import failed</span>');
                 }
             });
             

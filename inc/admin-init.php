@@ -179,11 +179,11 @@ function base47_he_admin_assets( $hook ) {
         );
     }
     
-    // Settings page specific CSS
+    // Settings page specific CSS (Phase 13.5.3 - Soft UI)
     if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-settings' ) {
         wp_enqueue_style(
             'base47-he-settings',
-            BASE47_HE_URL . 'admin-assets/settings.css',
+            BASE47_HE_URL . 'admin-assets/settings-soft-ui.css',
             [ 'base47-he-admin' ],
             BASE47_HE_VERSION
         );
@@ -194,6 +194,36 @@ function base47_he_admin_assets( $hook ) {
         wp_enqueue_style(
             'base47-he-shortcodes',
             BASE47_HE_URL . 'admin-assets/shortcodes.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
+    
+    // Changelog page specific CSS (Phase 13.5.1)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-changelog' ) {
+        wp_enqueue_style(
+            'base47-he-changelog',
+            BASE47_HE_URL . 'admin-assets/changelog.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
+    
+    // Logs page specific CSS (Phase 13.5.2)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-logs' ) {
+        wp_enqueue_style(
+            'base47-he-logs',
+            BASE47_HE_URL . 'admin-assets/logs.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
+    
+    // Special Widgets page specific CSS (Phase 13.5.4)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-special-widgets' ) {
+        wp_enqueue_style(
+            'base47-he-widgets',
+            BASE47_HE_URL . 'admin-assets/widgets.css',
             [ 'base47-he-admin' ],
             BASE47_HE_VERSION
         );
