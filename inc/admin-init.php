@@ -110,7 +110,8 @@ add_action( 'admin_menu', 'base47_he_admin_menu' );
  */
 function base47_he_admin_assets( $hook ) {
     $screen = get_current_screen();
-    if ( ! $screen || strpos( $screen->id, 'base47-he-' ) === false ) {
+    // Check for both base47-he- and base47-special-widgets pages
+    if ( ! $screen || ( strpos( $screen->id, 'base47-he-' ) === false && strpos( $screen->id, 'base47-special-widgets' ) === false ) ) {
         return;
     }
 
@@ -224,6 +225,16 @@ function base47_he_admin_assets( $hook ) {
         wp_enqueue_style(
             'base47-he-widgets',
             BASE47_HE_URL . 'admin-assets/widgets.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
+    
+    // Dashboard page specific CSS (Phase 14)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-dashboard' ) {
+        wp_enqueue_style(
+            'base47-he-dashboard',
+            BASE47_HE_URL . 'admin-assets/dashboard.css',
             [ 'base47-he-admin' ],
             BASE47_HE_VERSION
         );
