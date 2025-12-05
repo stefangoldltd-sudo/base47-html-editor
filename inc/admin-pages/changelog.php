@@ -155,38 +155,43 @@ function base47_he_parse_changelog( $content ) {
     foreach ( $lines as $line ) {
         $line = trim( $line );
         
-        // Skip empty lines
-        if ( empty( $line ) ) {
+        // Skip empty lines and separators
+        if ( empty( $line ) || strpos( $line, '=====' ) === 0 || strpos( $line, '-----' ) === 0 ) {
             continue;
         }
         
-        // Check for version line (starts with • or - followed by version number)
-        if ( preg_match( '/^[•\-]\s*(\d+\.\d+\.?\d*\.?\d*)\s*[–\-—]\s*(.+)$/u', $line, $matches ) ) {
-            // New version found
+        // Check for version header (Version X.X.X or = X.X.X =)
+        if ( preg_match( '/^(?:Version\s+|=\s*)(\d+\.\d+\.?\d*\.?\d*)(?:\s*[–\-—]\s*(.+?))?(?:\s*=)?$/ui', $line, $matches ) ) {
+            // Save previous version
             if ( $current_version !== null ) {
                 $versions[] = $current_version;
             }
             
             $version_num = $matches[1];
-            $description = $matches[2];
+            $description = isset( $matches[2] ) ? $matches[2] : '';
             
             // Determine version type
             $type = 'update';
             if ( stripos( $description, 'hotfix' ) !== false || stripos( $description, 'fix' ) !== false ) {
                 $type = 'hotfix';
-            } elseif ( stripos( $description, 'feature' ) !== false || stripos( $description, 'new' ) !== false ) {
+            } elseif ( stripos( $description, 'feature' ) !== false || stripos( $description, 'new' ) !== false || stripos( $description, 'phase' ) !== false ) {
                 $type = 'feature';
             }
             
             $current_version = [
                 'version' => $version_num,
-                'date' => '',
+                'date' => $description,
                 'type' => $type,
-                'changes' => [ $description ]
+                'changes' => []
             ];
-        } elseif ( $current_version !== null && preg_match( '/^[•\-\*]\s*(.+)$/', $line, $matches ) ) {
-            // Additional change for current version
-            $current_version['changes'][] = $matches[1];
+        } elseif ( $current_version !== null ) {
+            // Check for bullet points or changes
+            if ( preg_match( '/^[•\-\*]\s*(.+)$/', $line, $matches ) ) {
+                $current_version['changes'][] = $matches[1];
+            } elseif ( !empty( $line ) && !preg_match( '/^[A-Z\s]+:$/', $line ) ) {
+                // Add as regular change if not a section header
+                $current_version['changes'][] = $line;
+            }
         }
     }
     

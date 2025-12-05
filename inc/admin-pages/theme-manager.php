@@ -314,7 +314,7 @@ function base47_he_render_theme_manager_section() {
                 <?php endif; ?>
 
                 <!-- Asset Modes -->
-                <div class="base47-tm-asset-modes"></div>
+                <div class="base47-tm-asset-modes">
                     <div class="base47-tm-asset-modes-title">Asset Loading Mode</div>
                     
                     <div class="base47-tm-mode-options">
