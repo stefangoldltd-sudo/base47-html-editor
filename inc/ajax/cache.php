@@ -20,6 +20,11 @@ function base47_he_ajax_rebuild_caches() {
     // Force-refresh all caches
     base47_he_refresh_theme_caches();
 
+    // Log cache rebuild
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    base47_he_log( "Caches rebuilt by {$username}", 'info' );
+
     wp_send_json_success(['message' => 'All caches rebuilt']);
 }
 add_action('wp_ajax_base47_rebuild_caches', 'base47_he_ajax_rebuild_caches');

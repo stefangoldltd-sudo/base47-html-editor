@@ -57,6 +57,20 @@ function base47_he_settings_page() {
         ];
         
         if ( base47_he_update_settings( $new_settings ) ) {
+            // Log settings save
+            $user = wp_get_current_user();
+            $username = $user->user_login ?? 'Unknown';
+            $changed_settings = [];
+            $old_settings = base47_he_get_settings();
+            foreach ( $new_settings as $key => $value ) {
+                if ( isset( $old_settings[$key] ) && $old_settings[$key] !== $value ) {
+                    $changed_settings[] = $key;
+                }
+            }
+            if ( ! empty( $changed_settings ) ) {
+                base47_he_log( "Settings updated: " . implode( ', ', $changed_settings ) . " by {$username}", 'info' );
+            }
+            
             echo '<div class="base47-notice base47-notice-success"><span class="dashicons dashicons-yes-alt"></span> Settings saved successfully.</div>';
         } else {
             echo '<div class="base47-notice base47-notice-error"><span class="dashicons dashicons-warning"></span> Failed to save settings.</div>';

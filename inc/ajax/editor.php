@@ -72,7 +72,15 @@ function base47_he_ajax_save_template() {
     base47_he_save_backup( $full, $content, $theme );
 
     $written = file_put_contents( $full, $content );
-    if ( false === $written ) wp_send_json_error( 'Could not write file. Check permissions.' );
+    if ( false === $written ) {
+        base47_he_log( "Failed to save template: {$file} (Theme: {$theme})", 'error' );
+        wp_send_json_error( 'Could not write file. Check permissions.' );
+    }
+
+    // Log successful file edit
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    base47_he_log( "Template edited: {$file} (Theme: {$theme}) by {$username}", 'info' );
 
     wp_send_json_success( 'saved' );
 }
@@ -159,8 +167,14 @@ function base47_he_ajax_restore_backup() {
     $content = base47_he_restore_backup( $backup_filename, $theme, $full );
     
     if ( false === $content ) {
+        base47_he_log( "Failed to restore backup: {$backup_filename} for {$file} (Theme: {$theme})", 'error' );
         wp_send_json_error( 'Backup not found.' );
     }
+
+    // Log successful backup restore
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    base47_he_log( "Backup restored: {$file} from {$backup_filename} (Theme: {$theme}) by {$username}", 'info' );
 
     wp_send_json_success( [ 'content' => $content ] );
 }

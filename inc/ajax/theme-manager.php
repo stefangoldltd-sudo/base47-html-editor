@@ -42,6 +42,12 @@ function base47_he_ajax_toggle_theme() {
 
     update_option( 'base47_active_themes', $active_themes );
 
+    // Log theme toggle
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    $status = $active ? 'activated' : 'deactivated';
+    base47_he_log( "Theme {$status}: {$theme} by {$username}", 'info' );
+
     wp_send_json_success( [
         'theme'         => $theme,
         'active'        => $active,
@@ -90,6 +96,11 @@ function base47_he_ajax_uninstall_theme() {
         update_option( BASE47_HE_OPT_USE_MANIFEST, array_values( $use_manifest ) );
     }
 
+    // Log theme uninstall
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    base47_he_log( "Theme uninstalled: {$slug} by {$username}", 'warning' );
+
     wp_send_json_success( [ 'message' => 'Theme uninstalled.', 'slug' => $slug ] );
 }
 add_action( 'wp_ajax_base47_he_uninstall_theme', 'base47_he_ajax_uninstall_theme' );
@@ -107,6 +118,11 @@ function base47_he_ajax_set_default_theme() {
     $theme = sanitize_text_field($_POST['theme']);
 
     update_option('base47_default_theme', $theme);
+
+    // Log default theme change
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    base47_he_log( "Default theme set: {$theme} by {$username}", 'info' );
 
     wp_send_json_success(['saved' => $theme]);
 }

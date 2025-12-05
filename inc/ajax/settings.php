@@ -27,6 +27,11 @@ function base47_he_ajax_clear_all_caches() {
     delete_transient( 'base47_he_cache_template_sets' );
     delete_transient( 'base47_he_cache_templates' );
     
+    // Log cache clear
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    base47_he_log( "All caches cleared by {$username}", 'info' );
+    
     wp_send_json_success( [ 'message' => 'All caches cleared successfully.' ] );
 }
 add_action( 'wp_ajax_base47_clear_all_caches', 'base47_he_ajax_clear_all_caches' );
@@ -41,25 +46,16 @@ function base47_he_ajax_clear_logs() {
         wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
     }
     
-    $log_dir = BASE47_HE_PATH . 'logs/';
+    // Log before clearing (will be cleared too, but good practice)
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    base47_he_log( "Logs cleared by {$username}", 'warning' );
     
-    if ( ! is_dir( $log_dir ) ) {
-        wp_send_json_success( [ 'message' => 'No logs to clear.' ] );
-    }
-    
-    $files = glob( $log_dir . '*.log' );
-    $deleted = 0;
-    
-    foreach ( $files as $file ) {
-        if ( is_file( $file ) ) {
-            unlink( $file );
-            $deleted++;
-        }
-    }
+    // Clear using the helper function
+    base47_he_clear_logs();
     
     wp_send_json_success( [ 
-        'message' => sprintf( 'Cleared %d log file(s).', $deleted ),
-        'deleted' => $deleted
+        'message' => 'Logs cleared successfully.'
     ] );
 }
 add_action( 'wp_ajax_base47_clear_logs', 'base47_he_ajax_clear_logs' );
@@ -123,6 +119,11 @@ function base47_he_ajax_reset_settings() {
     }
     
     if ( base47_he_reset_settings() ) {
+        // Log settings reset
+        $user = wp_get_current_user();
+        $username = $user->user_login ?? 'Unknown';
+        base47_he_log( "Settings reset to defaults by {$username}", 'warning' );
+        
         wp_send_json_success( [ 'message' => 'Settings reset to defaults.' ] );
     } else {
         wp_send_json_error( [ 'message' => 'Failed to reset settings.' ] );
@@ -201,10 +202,16 @@ function base47_he_ajax_import_settings() {
     
     // Update settings
     if ( base47_he_update_settings( $imported_settings ) ) {
+        // Log settings import
+        $user = wp_get_current_user();
+        $username = $user->user_login ?? 'Unknown';
+        $from_version = $data['version'] ?? 'unknown';
+        base47_he_log( "Settings imported ({$from_version}) - {count($imported_settings)} settings by {$username}", 'info' );
+        
         wp_send_json_success( [ 
             'message' => 'Settings imported successfully.',
             'count'   => count( $imported_settings ),
-            'from_version' => $data['version'] ?? 'unknown',
+            'from_version' => $from_version,
         ] );
     } else {
         wp_send_json_error( [ 'message' => 'Failed to import settings.' ] );

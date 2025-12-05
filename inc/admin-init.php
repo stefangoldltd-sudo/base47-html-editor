@@ -239,6 +239,16 @@ function base47_he_admin_assets( $hook ) {
             BASE47_HE_VERSION
         );
     }
+    
+    // Live Editor page specific CSS (Hotfix 2.9.7.6)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-editor' ) {
+        wp_enqueue_style(
+            'base47-he-editor',
+            BASE47_HE_URL . 'admin-assets/editor.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
 
     wp_enqueue_script(
         'base47-he-admin',

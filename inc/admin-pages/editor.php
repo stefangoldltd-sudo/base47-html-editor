@@ -52,52 +52,97 @@ function base47_he_editor_page() {
     : '';
 
     ?>
-    <div class="wrap base47-he-wrap">
-        <h1>Live Editor</h1>
-        <div class="base47-he-editor-topbar">
-            <form method="get">
-                <input type="hidden" name="page" value="base47-he-editor">
-                <select name="set" onchange="this.form.submit()">
-                    <?php foreach ( $active as $set_slug ) : ?>
-                        <option value="<?php echo esc_attr( $set_slug ); ?>" <?php selected( $set_slug, $current_set ); ?>>
-                            <?php echo esc_html( $set_slug ); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <select name="file" onchange="this.form.submit()">
-                    <?php foreach ( $files as $f ) : ?>
-                        <option value="<?php echo esc_attr( $f ); ?>" <?php selected( $f, $selected ); ?>>
-                            <?php echo esc_html( $f ); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </form>
-             <?php if ( $selected ) : ?>
-    <button id="base47-he-save" class="button button-primary">Save</button>
-    <button id="base47-he-restore" class="button">Restore</button>
-    <button id="base47-he-open-preview" class="button">Open Preview</button>
-<?php endif; ?>
+    <div class="wrap base47-editor-soft-ui">
+        
+        <!-- Page Header -->
+        <div class="base47-editor-header-soft">
+            <div class="header-content">
+                <h1>
+                    <span class="dashicons dashicons-edit"></span>
+                    Live Editor
+                </h1>
+                <p>Edit your HTML templates with Monaco Editor and live preview</p>
+            </div>
+        </div>
+        
+        <!-- Editor Controls -->
+        <div class="base47-editor-controls">
+            <div class="controls-left">
+                <form method="get" class="editor-selectors">
+                    <input type="hidden" name="page" value="base47-he-editor">
+                    
+                    <div class="selector-group">
+                        <label>
+                            <span class="dashicons dashicons-portfolio"></span>
+                            Theme Set
+                        </label>
+                        <select name="set" onchange="this.form.submit()" class="editor-select">
+                            <?php foreach ( $active as $set_slug ) : ?>
+                                <option value="<?php echo esc_attr( $set_slug ); ?>" <?php selected( $set_slug, $current_set ); ?>>
+                                    <?php echo esc_html( $set_slug ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="selector-group">
+                        <label>
+                            <span class="dashicons dashicons-media-document"></span>
+                            Template File
+                        </label>
+                        <select name="file" onchange="this.form.submit()" class="editor-select">
+                            <?php foreach ( $files as $f ) : ?>
+                                <option value="<?php echo esc_attr( $f ); ?>" <?php selected( $f, $selected ); ?>>
+                                    <?php echo esc_html( $f ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            
+            <?php if ( $selected ) : ?>
+            <div class="controls-right">
+                <button id="base47-he-save" class="editor-btn editor-btn-primary">
+                    <span class="dashicons dashicons-saved"></span>
+                    Save
+                </button>
+                <button id="base47-he-restore" class="editor-btn editor-btn-secondary">
+                    <span class="dashicons dashicons-backup"></span>
+                    Restore
+                </button>
+                <button id="base47-he-open-preview" class="editor-btn editor-btn-info">
+                    <span class="dashicons dashicons-visibility"></span>
+                    Open Preview
+                </button>
+            </div>
+            <?php endif; ?>
         </div>
 
-        <div id="base47-he-editor-shell" class="base47-he-editor-shell">
-            <div id="base47-he-editor-left" class="base47-he-editor-left">
+        <!-- Editor Shell -->
+        <div id="base47-he-editor-shell" class="base47-editor-shell-soft">
+            <div id="base47-he-editor-left" class="base47-editor-panel">
+                
                 <!-- Editor Mode Switcher -->
-                <div class="base47-he-editor-mode-switcher">
-                    <button type="button" id="base47-he-mode-advanced" class="button base47-he-mode-btn">
-                        <span class="dashicons dashicons-editor-code"></span> Advanced Editor
+                <div class="base47-editor-mode-switcher">
+                    <button type="button" id="base47-he-mode-advanced" class="editor-mode-btn mode-active">
+                        <span class="dashicons dashicons-editor-code"></span>
+                        Monaco Editor
                     </button>
-                    <button type="button" id="base47-he-mode-classic" class="button base47-he-mode-btn">
-                        <span class="dashicons dashicons-edit"></span> Classic Editor
+                    <button type="button" id="base47-he-mode-classic" class="editor-mode-btn">
+                        <span class="dashicons dashicons-edit"></span>
+                        Classic Editor
                     </button>
                 </div>
                 
                 <!-- Monaco Editor Container -->
-                <div id="base47-monaco-editor" class="base47-he-monaco-container"></div>
+                <div id="base47-monaco-editor" class="base47-monaco-container-soft"></div>
                 
                 <!-- Classic Editor (Textarea) -->
-                <textarea id="base47-he-code" style="width:100%;height:520px;display:none;"><?php echo esc_textarea( $content ); ?></textarea>
+                <textarea id="base47-he-code" class="base47-classic-editor-soft" style="display:none;"><?php echo esc_textarea( $content ); ?></textarea>
             </div>
-            <div id="base47-he-resizer" class="base47-he-resizer"></div>
+            
+            <div id="base47-he-resizer" class="base47-editor-resizer"></div>
             <div class="base47-he-editor-right">
                 <div class="base47-he-preview-toolbar">
                     <button type="button" class="button preview-size-btn active" data-size="100%">Full</button>

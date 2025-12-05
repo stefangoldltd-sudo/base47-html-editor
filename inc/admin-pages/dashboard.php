@@ -210,6 +210,79 @@ function base47_he_dashboard_page() {
                     </div>
                 </div>
                 
+                <!-- Recommended Products -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>
+                            <span class="dashicons dashicons-download"></span>
+                            Recommended Products
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="install-products-grid">
+                            
+                            <!-- Base47 Shell Theme -->
+                            <div class="install-product-item">
+                                <div class="install-product-icon">
+                                    <span class="dashicons dashicons-admin-appearance"></span>
+                                </div>
+                                <div class="install-product-info">
+                                    <h4>Base47 Shell Theme</h4>
+                                    <p>Lightweight, fast WordPress theme optimized for Base47 HTML Editor</p>
+                                </div>
+                                <div class="install-product-action">
+                                    <?php
+                                    $shell_theme = wp_get_theme( 'base47-shell' );
+                                    if ( $shell_theme->exists() ) :
+                                    ?>
+                                        <button class="btn-install btn-installed" disabled>
+                                            <span class="dashicons dashicons-yes"></span>
+                                            Installed
+                                        </button>
+                                    <?php else : ?>
+                                        <button class="btn-install btn-install-primary" data-product="shell-theme">
+                                            <span class="dashicons dashicons-download"></span>
+                                            Install
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                            <!-- Base47 Lead Form -->
+                            <div class="install-product-item">
+                                <div class="install-product-icon">
+                                    <span class="dashicons dashicons-feedback"></span>
+                                </div>
+                                <div class="install-product-info">
+                                    <h4>Base47 Lead Form</h4>
+                                    <p>Advanced contact form plugin with lead management and integrations</p>
+                                </div>
+                                <div class="install-product-action">
+                                    <?php
+                                    $lead_form_active = is_plugin_active( 'base47-lead-form/base47-lead-form.php' );
+                                    if ( $lead_form_active ) :
+                                    ?>
+                                        <button class="btn-install btn-installed" disabled>
+                                            <span class="dashicons dashicons-yes"></span>
+                                            Installed
+                                        </button>
+                                    <?php else : ?>
+                                        <button class="btn-install btn-install-primary" data-product="lead-form">
+                                            <span class="dashicons dashicons-download"></span>
+                                            Install
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <p class="install-note">
+                            <span class="dashicons dashicons-info"></span>
+                            Installation feature coming soon. For now, download from <a href="https://base47.com" target="_blank">base47.com</a>
+                        </p>
+                    </div>
+                </div>
+                
             </div>
             
             <!-- Right Sidebar -->

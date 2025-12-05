@@ -268,13 +268,6 @@ function base47_he_render_theme_manager_section() {
                 <div class="base47-tm-status-badge <?php echo $is_active ? 'is-active' : 'is-inactive'; ?>">
                     <?php echo $is_active ? 'Active' : 'Inactive'; ?>
                 </div>
-                
-                <!-- Warning Badge for Missing Metadata -->
-                <?php if ( $show_warning ) : ?>
-                    <div class="base47-tm-warning-badge">
-                        ⚠ Missing Metadata
-                    </div>
-                <?php endif; ?>
             </div>
 
             <!-- Card Body -->
@@ -312,8 +305,16 @@ function base47_he_render_theme_manager_section() {
                     </p>
                 <?php endif; ?>
 
+                <!-- Warning Badge for Missing Metadata -->
+                <?php if ( $show_warning ) : ?>
+                    <div class="base47-tm-warning-badge">
+                        <span class="dashicons dashicons-warning"></span>
+                        Missing Metadata
+                    </div>
+                <?php endif; ?>
+
                 <!-- Asset Modes -->
-                <div class="base47-tm-asset-modes">
+                <div class="base47-tm-asset-modes"></div>
                     <div class="base47-tm-asset-modes-title">Asset Loading Mode</div>
                     
                     <div class="base47-tm-mode-options">

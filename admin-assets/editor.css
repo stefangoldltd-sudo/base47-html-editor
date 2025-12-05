@@ -1,0 +1,431 @@
+/**
+ * Live Editor Page - Soft UI Dashboard Integration
+ * 
+ * Modern editor interface with Soft UI design
+ * Monaco editor styling preserved
+ * 
+ * @package Base47_HTML_Editor
+ * @since 2.9.7.6
+ */
+
+/* ========================================
+   SOFT UI VARIABLES
+   ======================================== */
+
+:root {
+    --soft-primary: #cb0c9f;
+    --soft-secondary: #8392ab;
+    --soft-success: #82d616;
+    --soft-info: #17c1e8;
+    --soft-warning: #fbcf33;
+    --soft-danger: #ea0606;
+    --soft-dark: #344767;
+    --soft-light: #e9ecef;
+    
+    --soft-gradient-primary: linear-gradient(310deg, #7928ca, #ff0080);
+    --soft-gradient-success: linear-gradient(310deg, #17ad37, #98ec2d);
+    --soft-gradient-info: linear-gradient(310deg, #2152ff, #21d4fd);
+    
+    --soft-shadow-xs: 0 2px 9px -5px rgba(0, 0, 0, 0.15);
+    --soft-shadow-sm: 0 0.25rem 0.375rem -0.0625rem rgba(20, 20, 20, 0.12), 0 0.125rem 0.25rem -0.0625rem rgba(20, 20, 20, 0.07);
+    --soft-shadow-md: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07);
+    --soft-shadow-lg: 0 8px 26px -4px rgba(20, 20, 20, 0.15), 0 8px 9px -5px rgba(20, 20, 20, 0.06);
+    
+    --soft-radius-sm: 0.25rem;
+    --soft-radius-md: 0.5rem;
+    --soft-radius-lg: 0.75rem;
+    --soft-radius-xl: 1rem;
+    
+    --soft-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ========================================
+   EDITOR PAGE CONTAINER
+   ======================================== */
+
+.base47-editor-soft-ui {
+    font-family: var(--soft-font-family);
+    background: #f8f9fa;
+    padding: 2rem 20px 2rem 0;
+    margin-left: 0 !important;
+    max-width: 100%;
+}
+
+.wrap.base47-editor-soft-ui {
+    margin-left: 0 !important;
+    margin-right: 20px;
+}
+
+/* ========================================
+   PAGE HEADER
+   ======================================== */
+
+.base47-editor-header-soft {
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);
+    border-radius: var(--soft-radius-xl);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--soft-shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.base47-editor-header-soft::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+    background-size: cover;
+    opacity: 0.3;
+}
+
+.header-content {
+    position: relative;
+    z-index: 1;
+}
+
+.base47-editor-header-soft h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.base47-editor-header-soft h1 .dashicons {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+}
+
+.base47-editor-header-soft p {
+    font-size: 0.95rem;
+    margin: 0;
+    opacity: 0.95;
+    color: #fff;
+}
+
+/* ========================================
+   EDITOR CONTROLS
+   ======================================== */
+
+.base47-editor-controls {
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--soft-shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.controls-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.controls-right {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Editor Selectors */
+.editor-selectors {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.selector-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.selector-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--soft-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.selector-group label .dashicons {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--soft-primary);
+}
+
+.editor-select {
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--soft-light);
+    border-radius: var(--soft-radius-md);
+    font-size: 0.875rem;
+    font-family: var(--soft-font-family);
+    color: var(--soft-dark);
+    background: #fff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.editor-select:focus {
+    outline: none;
+    border-color: var(--soft-primary);
+    box-shadow: 0 0 0 3px rgba(203, 12, 159, 0.1);
+}
+
+/* Editor Buttons */
+.editor-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--soft-radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--soft-shadow-xs);
+    border: none;
+    font-family: var(--soft-font-family);
+}
+
+.editor-btn .dashicons {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.editor-btn-primary {
+    background: var(--soft-gradient-primary);
+    color: #fff;
+}
+
+.editor-btn-primary:hover {
+    transform: scale(1.02);
+    box-shadow: var(--soft-shadow-md);
+}
+
+.editor-btn-secondary {
+    background: #fff;
+    border: 1px solid var(--soft-light);
+    color: var(--soft-dark);
+}
+
+.editor-btn-secondary:hover {
+    background: var(--soft-light);
+    transform: scale(1.02);
+}
+
+.editor-btn-info {
+    background: var(--soft-gradient-info);
+    color: #fff;
+}
+
+.editor-btn-info:hover {
+    transform: scale(1.02);
+    box-shadow: var(--soft-shadow-md);
+}
+
+/* ========================================
+   EDITOR SHELL
+   ======================================== */
+
+.base47-editor-shell-soft {
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
+    box-shadow: var(--soft-shadow-sm);
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    height: calc(100vh - 380px);
+    min-height: 600px;
+}
+
+.base47-editor-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* Editor Mode Switcher */
+.base47-editor-mode-switcher {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.editor-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--soft-radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--soft-secondary);
+    font-family: var(--soft-font-family);
+}
+
+.editor-mode-btn .dashicons {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.editor-mode-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.editor-mode-btn.mode-active {
+    background: var(--soft-gradient-primary);
+    color: #fff;
+    box-shadow: var(--soft-shadow-xs);
+}
+
+/* Monaco Editor Container */
+.base47-monaco-container-soft {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
+/* Classic Editor */
+.base47-classic-editor-soft {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    border: none;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: none;
+    background: #1e1e1e;
+    color: #d4d4d4;
+}
+
+.base47-classic-editor-soft:focus {
+    outline: none;
+}
+
+/* Resizer */
+.base47-editor-resizer {
+    width: 4px;
+    background: var(--soft-light);
+    cursor: col-resize;
+    transition: background 0.2s ease;
+    position: relative;
+}
+
+.base47-editor-resizer:hover {
+    background: var(--soft-primary);
+}
+
+.base47-editor-resizer::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+/* Preview Panel */
+.base47-editor-preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: #f8f9fa;
+}
+
+.base47-editor-preview iframe {
+    flex: 1;
+    border: none;
+    background: #fff;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1200px) {
+    .base47-editor-shell-soft {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .base47-editor-resizer {
+        display: none;
+    }
+    
+    .base47-editor-panel {
+        height: 500px;
+    }
+}
+
+@media (max-width: 782px) {
+    .base47-editor-header-soft {
+        padding: 1.5rem;
+    }
+    
+    .base47-editor-header-soft h1 {
+        font-size: 1.5rem;
+    }
+    
+    .base47-editor-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .controls-right {
+        width: 100%;
+    }
+    
+    .editor-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .editor-selectors {
+        flex-direction: column;
+    }
+    
+    .selector-group {
+        width: 100%;
+    }
+    
+    .base47-editor-shell-soft {
+        height: auto;
+        min-height: 400px;
+    }
+    
+    .base47-editor-panel {
+        height: 400px;
+    }
+}

@@ -15,7 +15,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function base47_he_render_logs_page() {
 
+    // Add a test log entry if logs are empty (for demonstration)
     $raw_logs = base47_he_get_logs();
+    if ( empty( $raw_logs ) ) {
+        base47_he_log( 'Logs page accessed - logging system initialized', 'info' );
+        base47_he_log( 'Welcome to Base47 HTML Editor logging system', 'info' );
+        $raw_logs = base47_he_get_logs();
+    }
+    
     $log_entries = base47_he_parse_logs( $raw_logs );
     $log_file = base47_he_get_log_file();
     $log_size = file_exists( $log_file ) ? size_format( filesize( $log_file ) ) : '0 B';
