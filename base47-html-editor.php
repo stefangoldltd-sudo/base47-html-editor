@@ -2,9 +2,17 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.9.8
+Version: 2.9.9.1
 Author: Stefan Gold
+Author URI: https://base47.com
+Plugin URI: https://base47.com/html-editor
 Text Domain: base47-html-editor
+Domain Path: /languages
+License: GPL v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Requires at least: 5.0
+Tested up to: 6.4
+Requires PHP: 7.0
 */
 
 
@@ -15,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.9.8' );
+define( 'BASE47_HE_VERSION', '2.9.9.1' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
