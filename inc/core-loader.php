@@ -171,6 +171,7 @@ function base47_he_strip_shell( $html ) {
 
     $inline = [];
 
+    // Extract inline styles and scripts from HEAD
     if ( $head ) {
         if ( preg_match_all('#<style\b[^>]*>.*?</style>#is', $head, $ms )) {
             $inline = array_merge( $inline, $ms[0] );
@@ -180,8 +181,23 @@ function base47_he_strip_shell( $html ) {
         }
     }
 
+    // Extract inline styles and scripts from BODY (important for layout)
+    if ( preg_match_all('#<style\b[^>]*>.*?</style>#is', $body, $ms )) {
+        $inline = array_merge( $inline, $ms[0] );
+    }
+    if ( preg_match_all('#<script(?![^>]*\bsrc=)[^>]*>.*?</script>#is', $body, $ms )) {
+        $inline = array_merge( $inline, $ms[0] );
+    }
+
+    // Remove external asset links (these will be enqueued by WordPress)
     $body = preg_replace( '#<link[^>]+href=["\']/?assets/[^>]+>#i', '', $body );
     $body = preg_replace( '#<script[^>]+src=["\']/?assets/[^>]+></script>#i', '', $body );
+    
+    // Remove inline styles and scripts from body (we already extracted them)
+    $body = preg_replace( '#<style\b[^>]*>.*?</style>#is', '', $body );
+    $body = preg_replace( '#<script(?![^>]*\bsrc=)[^>]*>.*?</script>#is', '', $body );
+    
+    // Remove HTML shell tags
     $body = preg_replace( '#<(?:!DOCTYPE|/?html|/?head|/?body)[^>]*>#i', '', $body );
 
     return implode("\n", $inline) . "\n" . $body;
