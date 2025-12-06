@@ -116,6 +116,18 @@ function base47_he_admin_assets( $hook ) {
     }
 
     // ========================================
+    // BASE47 UNIFIED COLOR PALETTE (Phase 16.8)
+    // ========================================
+    
+    // Base47 Color System - MUST load first
+    wp_enqueue_style(
+        'base47-colors',
+        BASE47_HE_URL . 'admin-assets/base47-colors.css',
+        [],
+        BASE47_HE_VERSION
+    );
+    
+    // ========================================
     // SOFT UI DASHBOARD CSS (Phase 12)
     // ========================================
     
