@@ -127,6 +127,14 @@ function base47_he_admin_assets( $hook ) {
         BASE47_HE_VERSION
     );
     
+    // Pro Notices & Badges (Phase 16.1)
+    wp_enqueue_style(
+        'base47-pro-notices',
+        BASE47_HE_URL . 'admin-assets/pro-notices.css',
+        [ 'base47-colors' ],
+        BASE47_HE_VERSION
+    );
+    
     // ========================================
     // SOFT UI DASHBOARD CSS (Phase 12)
     // ========================================
