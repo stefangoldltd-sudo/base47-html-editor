@@ -1,19 +1,52 @@
 /**
- * Shortcodes Page - Base47 Unified Black/Orange Theme
+ * Shortcodes Page - Soft UI Dashboard Integration
  * 
- * Modern shortcode management interface using unified color palette
+ * Modern, professional shortcode management interface
+ * Based on Soft UI Dashboard by Creative Tim
  * 
  * @package Base47_HTML_Editor
- * @since 2.9.9.1 (Phase 16.8)
+ * @since 2.9.7
  */
+
+/* ========================================
+   SOFT UI VARIABLES (Inherited from Theme Manager)
+   ======================================== */
+
+:root {
+    --soft-primary: #f97316;
+    --soft-secondary: #71717a;
+    --soft-success: #f97316;
+    --soft-info: #f97316;
+    --soft-warning: #f97316;
+    --soft-danger: #ea0606;
+    --soft-dark: #18181b;
+    --soft-light: #e4e4e7;
+    
+    --soft-gradient-primary: linear-gradient(310deg, #f97316, #fb923c);
+    --soft-gradient-info: linear-gradient(310deg, #f97316, #fb923c);
+    --soft-gradient-success: linear-gradient(310deg, #f97316, #fb923c);
+    
+    --soft-shadow-xs: 0 2px 9px -5px rgba(0, 0, 0, 0.15);
+    --soft-shadow-sm: 0 0.25rem 0.375rem -0.0625rem rgba(20, 20, 20, 0.12), 0 0.125rem 0.25rem -0.0625rem rgba(20, 20, 20, 0.07);
+    --soft-shadow-md: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07);
+    --soft-shadow-lg: 0 8px 26px -4px rgba(20, 20, 20, 0.15), 0 8px 9px -5px rgba(20, 20, 20, 0.06);
+    --soft-shadow-xl: 0 23px 45px -11px rgba(20, 20, 20, 0.25);
+    
+    --soft-radius-sm: 0.25rem;
+    --soft-radius-md: 0.5rem;
+    --soft-radius-lg: 0.75rem;
+    --soft-radius-xl: 1rem;
+    
+    --soft-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
 
 /* ========================================
    SHORTCODES PAGE CONTAINER
    ======================================== */
 
 .base47-sc-soft-ui {
-    font-family: var(--base47-font-family);
-    background: var(--base47-bg-primary);
+    font-family: var(--soft-font-family);
+    background: #f8f9fa;
     padding: 2rem 20px 2rem 0;
     margin-left: 0 !important;
     max-width: 100%;
@@ -29,11 +62,11 @@
    ======================================== */
 
 .base47-sc-header-soft {
-    background: var(--base47-gradient-orange);
-    border-radius: var(--base47-radius-xl);
+    background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);
+    border-radius: var(--soft-radius-xl);
     padding: 2rem 2.5rem;
     margin-bottom: 2rem;
-    box-shadow: var(--base47-shadow-lg);
+    box-shadow: var(--soft-shadow-lg);
     color: #fff;
     position: relative;
     overflow: hidden;
@@ -87,7 +120,7 @@
     left: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--base47-text-muted);
+    color: var(--soft-secondary);
     font-size: 1.25rem;
     width: 1.25rem;
     height: 1.25rem;
@@ -97,24 +130,24 @@
 .base47-sc-search-box input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 3rem;
-    border: 1px solid var(--base47-border);
-    border-radius: var(--base47-radius-lg);
+    border: 1px solid var(--soft-light);
+    border-radius: var(--soft-radius-lg);
     font-size: 0.95rem;
-    font-family: var(--base47-font-family);
-    background: var(--base47-bg-secondary);
-    color: var(--base47-text-primary);
-    box-shadow: var(--base47-shadow-sm);
-    transition: all var(--base47-transition-fast);
+    font-family: var(--soft-font-family);
+    background: #fff;
+    color: var(--soft-dark);
+    box-shadow: var(--soft-shadow-sm);
+    transition: all 0.2s ease;
 }
 
 .base47-sc-search-box input:focus {
     outline: none;
-    border-color: var(--base47-orange);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1), var(--base47-shadow-md);
+    border-color: var(--soft-info);
+    box-shadow: 0 0 0 3px rgba(33, 212, 253, 0.1), var(--soft-shadow-md);
 }
 
 .base47-sc-search-box input::placeholder {
-    color: var(--base47-text-muted);
+    color: var(--soft-secondary);
     opacity: 0.7;
 }
 
@@ -129,7 +162,7 @@
 .base47-sc-theme-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--base47-text-primary);
+    color: var(--soft-dark);
     margin: 0 0 1.5rem 0;
     display: flex;
     align-items: center;
@@ -137,7 +170,7 @@
 }
 
 .base47-sc-theme-title .dashicons {
-    color: var(--base47-orange);
+    color: var(--soft-info);
     font-size: 1.75rem;
     width: 1.75rem;
     height: 1.75rem;
@@ -145,7 +178,7 @@
 
 .base47-sc-empty {
     font-size: 0.95rem;
-    color: var(--base47-text-secondary);
+    color: var(--soft-secondary);
     font-style: italic;
 }
 
@@ -170,23 +203,23 @@
    ======================================== */
 
 .base47-sc-card {
-    background: var(--base47-bg-secondary);
-    border-radius: var(--base47-radius-xl);
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
     overflow: hidden;
-    box-shadow: var(--base47-shadow-sm);
-    transition: all var(--base47-transition-normal);
-    border: 1px solid var(--base47-border);
+    box-shadow: var(--soft-shadow-sm);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .base47-sc-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--base47-shadow-lg);
+    box-shadow: var(--soft-shadow-lg);
 }
 
 /* Card Header */
 .base47-sc-card-header {
     padding: 1.25rem 1.5rem;
-    background: var(--base47-gradient-orange);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     display: flex;
     align-items: center;
@@ -221,19 +254,19 @@
 /* Shortcode Display */
 .base47-sc-shortcode-display {
     padding: 1rem 1.5rem;
-    background: var(--base47-bg-tertiary);
-    border-bottom: 1px solid var(--base47-border);
+    background: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .base47-sc-shortcode-display code {
     display: block;
     padding: 0.5rem 0.75rem;
-    background: var(--base47-bg-secondary);
-    border: 1px solid var(--base47-border);
-    border-radius: var(--base47-radius-sm);
+    background: #fff;
+    border: 1px solid var(--soft-light);
+    border-radius: var(--soft-radius-sm);
     font-size: 0.8125rem;
-    color: var(--base47-orange);
-    font-family: var(--base47-font-mono);
+    color: var(--soft-primary);
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
     overflow-x: auto;
     white-space: nowrap;
 }
@@ -242,8 +275,8 @@
 .base47-sc-preview-panel {
     position: relative;
     min-height: 200px;
-    background: var(--base47-bg-tertiary);
-    border-bottom: 1px solid var(--base47-border);
+    background: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .base47-sc-preview-empty {
@@ -257,7 +290,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    color: var(--base47-text-secondary);
+    color: var(--soft-secondary);
 }
 
 .base47-sc-preview-empty .dashicons {
@@ -283,7 +316,7 @@
 /* Card Actions */
 .base47-sc-card-actions {
     padding: 1rem 1.5rem;
-    background: var(--base47-bg-secondary);
+    background: #fff;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -298,15 +331,15 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 1rem;
-    border-radius: var(--base47-radius-md);
+    border-radius: var(--soft-radius-md);
     font-weight: 600;
     font-size: 0.8125rem;
     cursor: pointer;
-    transition: all var(--base47-transition-fast);
-    box-shadow: var(--base47-shadow-xs);
+    transition: all 0.15s ease;
+    box-shadow: var(--soft-shadow-xs);
     text-decoration: none;
     border: none;
-    font-family: var(--base47-font-family);
+    font-family: var(--soft-font-family);
     white-space: nowrap;
 }
 
@@ -317,30 +350,30 @@
 }
 
 .base47-sc-btn-primary {
-    background: var(--base47-gradient-orange);
+    background: var(--soft-gradient-info);
     color: #fff;
 }
 
 .base47-sc-btn-primary:hover {
     transform: scale(1.02);
-    box-shadow: var(--base47-shadow-md);
+    box-shadow: var(--soft-shadow-md);
     color: #fff;
 }
 
 .base47-sc-btn-secondary {
-    background: var(--base47-bg-tertiary);
-    border: 1px solid var(--base47-border);
-    color: var(--base47-text-primary);
+    background: #fff;
+    border: 1px solid var(--soft-light);
+    color: var(--soft-dark);
 }
 
 .base47-sc-btn-secondary:hover {
-    background: var(--base47-bg-secondary);
+    background: var(--soft-light);
     transform: scale(1.02);
-    color: var(--base47-text-primary);
+    color: var(--soft-dark);
 }
 
 /* ========================================
-   TOAST NOTIFICATION
+   SOFT UI TOAST NOTIFICATION
    ======================================== */
 
 .base47-sc-toast {
@@ -349,14 +382,14 @@
     right: 20px;
     min-width: 300px;
     padding: 1rem 1.5rem;
-    border-radius: var(--base47-radius-lg);
-    box-shadow: var(--base47-shadow-xl);
+    border-radius: var(--soft-radius-lg);
+    box-shadow: var(--soft-shadow-xl);
     z-index: 999999;
     animation: slideInRight 0.3s ease;
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: linear-gradient(135deg, var(--base47-success) 0%, #66d432 100%);
+    background: var(--soft-gradient-success);
     color: #fff;
 }
 
@@ -410,8 +443,8 @@
     width: 32px;
     height: 32px;
     margin: -16px 0 0 -16px;
-    border: 3px solid rgba(249, 115, 22, 0.3);
-    border-top-color: var(--base47-orange);
+    border: 3px solid rgba(33, 212, 253, 0.3);
+    border-top-color: var(--soft-info);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -441,4 +474,12 @@
         width: 100%;
         justify-content: center;
     }
+}
+
+/* ========================================
+   HIDE OLD STYLES
+   ======================================== */
+
+.base47-sc-soft-ui .base47-he-template-box {
+    /* Old styles disabled */
 }

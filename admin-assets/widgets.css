@@ -1,19 +1,52 @@
 /**
- * Special Widgets Page - Base47 Unified Black/Orange Theme
+ * Special Widgets Page - Soft UI Dashboard Integration
  * 
- * Modern widgets interface using unified color palette
+ * Modern widgets interface with card-based layout
+ * Based on Soft UI Dashboard by Creative Tim
  * 
  * @package Base47_HTML_Editor
- * @since 2.9.9.1 (Phase 16.8)
+ * @since 2.9.7.1
  */
+
+/* ========================================
+   SOFT UI VARIABLES
+   ======================================== */
+
+:root {
+    --soft-primary: #f97316;
+    --soft-secondary: #71717a;
+    --soft-success: #f97316;
+    --soft-info: #f97316;
+    --soft-warning: #f97316;
+    --soft-danger: #ea0606;
+    --soft-dark: #18181b;
+    --soft-light: #e4e4e7;
+    
+    --soft-gradient-primary: linear-gradient(310deg, #f97316, #fb923c);
+    --soft-gradient-orange: linear-gradient(310deg, #f97316, #fb923c);
+    --soft-gradient-success: linear-gradient(310deg, #f97316, #fb923c);
+    --soft-gradient-info: linear-gradient(310deg, #f97316, #fb923c);
+    
+    --soft-shadow-xs: 0 2px 9px -5px rgba(0, 0, 0, 0.15);
+    --soft-shadow-sm: 0 0.25rem 0.375rem -0.0625rem rgba(20, 20, 20, 0.12), 0 0.125rem 0.25rem -0.0625rem rgba(20, 20, 20, 0.07);
+    --soft-shadow-md: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07);
+    --soft-shadow-lg: 0 8px 26px -4px rgba(20, 20, 20, 0.15), 0 8px 9px -5px rgba(20, 20, 20, 0.06);
+    
+    --soft-radius-sm: 0.25rem;
+    --soft-radius-md: 0.5rem;
+    --soft-radius-lg: 0.75rem;
+    --soft-radius-xl: 1rem;
+    
+    --soft-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
 
 /* ========================================
    WIDGETS PAGE CONTAINER
    ======================================== */
 
 .base47-widgets-soft-ui {
-    font-family: var(--base47-font-family);
-    background: var(--base47-bg-primary);
+    font-family: var(--soft-font-family);
+    background: #f8f9fa;
     padding: 2rem 20px 2rem 0;
     margin-left: 0 !important;
     max-width: 100%;
@@ -29,11 +62,11 @@
    ======================================== */
 
 .base47-widgets-header-soft {
-    background: var(--base47-gradient-orange);
-    border-radius: var(--base47-radius-xl);
+    background: linear-gradient(310deg, #f53939 0%, #fbcf33 100%);
+    border-radius: var(--soft-radius-xl);
     padding: 2rem 2.5rem;
     margin-bottom: 2rem;
-    box-shadow: var(--base47-shadow-lg);
+    box-shadow: var(--soft-shadow-lg);
     color: #fff;
     position: relative;
     overflow: hidden;
@@ -80,23 +113,23 @@
 }
 
 .stat-card {
-    background: var(--base47-bg-secondary);
-    border-radius: var(--base47-radius-xl);
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
     padding: 1.5rem;
-    box-shadow: var(--base47-shadow-sm);
+    box-shadow: var(--soft-shadow-sm);
     display: flex;
     align-items: center;
     gap: 1.25rem;
     flex: 1;
     max-width: 300px;
-    border: 1px solid var(--base47-border);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .stat-icon {
     width: 64px;
     height: 64px;
-    border-radius: var(--base47-radius-lg);
-    background: var(--base47-gradient-orange);
+    border-radius: var(--soft-radius-lg);
+    background: var(--soft-gradient-orange);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -117,14 +150,14 @@
 .stat-value {
     font-size: 1.75rem;
     font-weight: 700;
-    color: var(--base47-text-primary);
+    color: var(--soft-dark);
     line-height: 1;
     margin-bottom: 0.25rem;
 }
 
 .stat-label {
     font-size: 0.875rem;
-    color: var(--base47-text-secondary);
+    color: var(--soft-secondary);
     font-weight: 600;
 }
 
@@ -133,19 +166,19 @@
    ======================================== */
 
 .base47-widgets-empty {
-    background: var(--base47-bg-secondary);
-    border-radius: var(--base47-radius-xl);
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
     padding: 4rem 2rem;
     text-align: center;
-    box-shadow: var(--base47-shadow-sm);
-    border: 1px solid var(--base47-border);
+    box-shadow: var(--soft-shadow-sm);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .empty-icon {
     width: 96px;
     height: 96px;
     border-radius: 50%;
-    background: var(--base47-bg-tertiary);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -156,33 +189,33 @@
     font-size: 3rem;
     width: 3rem;
     height: 3rem;
-    color: var(--base47-text-muted);
+    color: var(--soft-secondary);
 }
 
 .base47-widgets-empty h3 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--base47-text-primary);
+    color: var(--soft-dark);
     margin: 0 0 0.75rem 0;
 }
 
 .base47-widgets-empty p {
     font-size: 1rem;
-    color: var(--base47-text-secondary);
+    color: var(--soft-secondary);
     margin: 0 0 1.5rem 0;
 }
 
 .base47-widgets-empty code {
-    background: var(--base47-bg-tertiary);
+    background: #f8f9fa;
     padding: 0.25rem 0.5rem;
-    border-radius: var(--base47-radius-sm);
+    border-radius: var(--soft-radius-sm);
     font-size: 0.875rem;
-    color: var(--base47-orange);
+    color: var(--soft-primary);
 }
 
 .empty-example {
-    background: var(--base47-bg-tertiary);
-    border-radius: var(--base47-radius-lg);
+    background: #f8f9fa;
+    border-radius: var(--soft-radius-lg);
     padding: 1.5rem;
     margin-top: 2rem;
     text-align: left;
@@ -194,18 +227,18 @@
 .empty-example strong {
     display: block;
     margin-bottom: 0.75rem;
-    color: var(--base47-text-primary);
+    color: var(--soft-dark);
     font-size: 0.9375rem;
 }
 
 .empty-example pre {
-    background: var(--base47-bg-secondary);
-    border: 1px solid var(--base47-border);
-    border-radius: var(--base47-radius-md);
+    background: #fff;
+    border: 1px solid var(--soft-light);
+    border-radius: var(--soft-radius-md);
     padding: 1rem;
     margin: 0;
     font-size: 0.8125rem;
-    color: var(--base47-text-primary);
+    color: var(--soft-dark);
     line-height: 1.6;
 }
 
@@ -225,24 +258,24 @@
    ======================================== */
 
 .widget-card {
-    background: var(--base47-bg-secondary);
-    border-radius: var(--base47-radius-xl);
-    box-shadow: var(--base47-shadow-sm);
+    background: #fff;
+    border-radius: var(--soft-radius-xl);
+    box-shadow: var(--soft-shadow-sm);
     overflow: hidden;
-    border: 1px solid var(--base47-border);
-    transition: all var(--base47-transition-normal);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
 }
 
 .widget-card:hover {
-    box-shadow: var(--base47-shadow-md);
+    box-shadow: var(--soft-shadow-md);
     transform: translateY(-4px);
 }
 
 /* Widget Header */
 .widget-header {
-    background: var(--base47-gradient-orange);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 1.5rem;
     display: flex;
     align-items: center;
@@ -253,7 +286,7 @@
 .widget-icon {
     width: 48px;
     height: 48px;
-    border-radius: var(--base47-radius-lg);
+    border-radius: var(--soft-radius-lg);
     background: rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
@@ -287,54 +320,54 @@
 .widget-name {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--base47-text-primary);
+    color: var(--soft-dark);
     margin: 0 0 0.75rem 0;
 }
 
 .widget-description {
     font-size: 0.875rem;
-    color: var(--base47-text-secondary);
+    color: var(--soft-secondary);
     line-height: 1.6;
     margin: 0 0 1.25rem 0;
 }
 
 .widget-shortcode {
-    background: var(--base47-bg-tertiary);
-    border-radius: var(--base47-radius-md);
+    background: #f8f9fa;
+    border-radius: var(--soft-radius-md);
     padding: 0.875rem;
-    border: 1px solid var(--base47-border);
+    border: 1px solid var(--soft-light);
 }
 
 .widget-shortcode label {
     display: block;
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--base47-text-muted);
+    color: var(--soft-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.5rem;
 }
 
 .shortcode-display {
-    background: var(--base47-bg-secondary);
-    border-radius: var(--base47-radius-sm);
+    background: #fff;
+    border-radius: var(--soft-radius-sm);
     padding: 0.5rem 0.75rem;
 }
 
 .shortcode-display code {
     font-size: 0.8125rem;
-    color: var(--base47-orange);
-    font-family: var(--base47-font-mono);
+    color: var(--soft-primary);
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
     word-break: break-all;
 }
 
 /* Widget Footer */
 .widget-footer {
     padding: 1rem 1.5rem;
-    background: var(--base47-bg-tertiary);
+    background: #f8f9fa;
     display: flex;
     gap: 0.75rem;
-    border-top: 1px solid var(--base47-border);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .btn-widget-copy,
@@ -345,14 +378,14 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1rem;
-    border-radius: var(--base47-radius-md);
+    border-radius: var(--soft-radius-md);
     font-weight: 600;
     font-size: 0.8125rem;
     cursor: pointer;
-    transition: all var(--base47-transition-fast);
-    box-shadow: var(--base47-shadow-xs);
+    transition: all 0.15s ease;
+    box-shadow: var(--soft-shadow-xs);
     border: none;
-    font-family: var(--base47-font-family);
+    font-family: var(--soft-font-family);
     text-decoration: none;
 }
 
@@ -364,29 +397,29 @@
 }
 
 .btn-widget-copy {
-    background: var(--base47-gradient-orange);
+    background: var(--soft-gradient-primary);
     color: #fff;
 }
 
 .btn-widget-copy:hover {
     transform: scale(1.02);
-    box-shadow: var(--base47-shadow-md);
+    box-shadow: var(--soft-shadow-md);
 }
 
 .btn-widget-copy.copied {
-    background: linear-gradient(135deg, var(--base47-success) 0%, #66d432 100%);
+    background: var(--soft-gradient-success);
 }
 
 .btn-widget-preview {
-    background: var(--base47-bg-secondary);
-    border: 1px solid var(--base47-border);
-    color: var(--base47-text-primary);
+    background: #fff;
+    border: 1px solid var(--soft-light);
+    color: var(--soft-dark);
 }
 
 .btn-widget-preview:hover {
-    background: var(--base47-bg-tertiary);
+    background: var(--soft-light);
     transform: scale(1.02);
-    color: var(--base47-text-primary);
+    color: var(--soft-dark);
 }
 
 /* ========================================
@@ -394,15 +427,15 @@
    ======================================== */
 
 .base47-widgets-footer-note {
-    background: var(--base47-gradient-orange);
-    border-radius: var(--base47-radius-xl);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: var(--soft-radius-xl);
     padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
     color: #fff;
     font-size: 0.875rem;
-    box-shadow: var(--base47-shadow-sm);
+    box-shadow: var(--soft-shadow-sm);
 }
 
 .base47-widgets-footer-note .dashicons {
@@ -415,7 +448,7 @@
 .base47-widgets-footer-note code {
     background: rgba(255, 255, 255, 0.2);
     padding: 0.25rem 0.5rem;
-    border-radius: var(--base47-radius-sm);
+    border-radius: var(--soft-radius-sm);
     font-size: 0.8125rem;
 }
 
@@ -427,17 +460,17 @@
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    background: linear-gradient(135deg, var(--base47-success) 0%, #66d432 100%);
+    background: var(--soft-gradient-success);
     color: #fff;
     padding: 1rem 1.5rem;
-    border-radius: var(--base47-radius-lg);
-    box-shadow: var(--base47-shadow-lg);
+    border-radius: var(--soft-radius-lg);
+    box-shadow: var(--soft-shadow-lg);
     font-weight: 600;
     font-size: 0.9375rem;
     z-index: 999999;
     opacity: 0;
     transform: translateY(20px);
-    transition: all var(--base47-transition-normal);
+    transition: all 0.3s ease;
 }
 
 .base47-toast.show {
@@ -446,11 +479,11 @@
 }
 
 .base47-toast-success {
-    background: linear-gradient(135deg, var(--base47-success) 0%, #66d432 100%);
+    background: var(--soft-gradient-success);
 }
 
 .base47-toast-error {
-    background: linear-gradient(135deg, var(--base47-danger) 0%, #ff6b6b 100%);
+    background: linear-gradient(310deg, #ea0606, #ff6b6b);
 }
 
 /* ========================================
