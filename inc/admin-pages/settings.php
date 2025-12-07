@@ -158,6 +158,34 @@ function base47_he_settings_page() {
                             </div>
                         </div>
                         
+                        <!-- Smart Loader++ (Pro) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('smart_loader') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Smart Loader++ <?php echo base47_he_get_feature_badge('smart_loader'); ?></label>
+                                <p class="description">Advanced asset optimization and loading</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="smart_loader_enabled" value="1" <?php disabled(!base47_he_has_feature('smart_loader')); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Manifest Loader (Pro) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('manifest_loader') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Manifest Loader <?php echo base47_he_get_feature_badge('manifest_loader'); ?></label>
+                                <p class="description">Load assets from manifest.json files</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="manifest_loader_enabled" value="1" <?php disabled(!base47_he_has_feature('manifest_loader')); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
 

@@ -109,6 +109,23 @@ function base47_he_theme_manager_page() {
             <h1>Theme Manager</h1>
             <p>Manage your theme collections with style. Install, activate, and configure themes with ease.</p>
         </div>
+        
+        <?php if ( ! base47_he_has_feature( 'unlimited_templates' ) ) : ?>
+        <!-- Free Version Limit Notice -->
+        <div class="base47-pro-notice" style="margin: 20px 0;">
+            <div class="pro-notice-icon">
+                <span class="dashicons dashicons-admin-appearance"></span>
+            </div>
+            <div class="pro-notice-content">
+                <h4>1 Template Pack (Free Version)</h4>
+                <p>The free version includes <strong>1 template pack</strong>. Upgrade to Pro to unlock <strong>unlimited template packs</strong> and access to the Base47 Template Marketplace.</p>
+                <a href="<?php echo esc_url( base47_he_get_pro_url() ); ?>" class="button button-primary" target="_blank">
+                    Upgrade for Unlimited Templates
+                    <span class="dashicons dashicons-external"></span>
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <!-- ACTION CARDS GRID -->
         <div class="base47-tm-actions-grid">

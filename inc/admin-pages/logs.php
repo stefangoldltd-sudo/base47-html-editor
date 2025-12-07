@@ -62,10 +62,17 @@ function base47_he_render_logs_page() {
                 <span class="dashicons dashicons-trash"></span>
                 Clear Logs
             </button>
-            <button type="button" id="base47-download-logs" class="base47-logs-btn base47-logs-btn-secondary">
-                <span class="dashicons dashicons-download"></span>
-                Download Logs
-            </button>
+            <?php if ( base47_he_has_feature( 'advanced_logs' ) ) : ?>
+                <button type="button" id="base47-download-logs" class="base47-logs-btn base47-logs-btn-secondary">
+                    <span class="dashicons dashicons-download"></span>
+                    Download Logs
+                </button>
+            <?php else : ?>
+                <button type="button" class="base47-logs-btn base47-logs-btn-secondary" disabled title="Export logs is a Pro feature">
+                    <span class="dashicons dashicons-download"></span>
+                    Download Logs <?php echo base47_he_get_feature_badge( 'advanced_logs' ); ?>
+                </button>
+            <?php endif; ?>
             <span id="base47-logs-status" class="base47-logs-status"></span>
         </div>
 

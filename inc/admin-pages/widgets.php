@@ -21,6 +21,23 @@ function base47_special_widgets_page() {
             <h1>Special Widgets</h1>
             <p>Reusable components ready to insert into your templates</p>
         </div>
+        
+        <?php if ( ! base47_he_has_feature( 'unlimited_widgets' ) ) : ?>
+        <!-- Free Version Limit Notice -->
+        <div class="base47-pro-notice" style="margin: 20px 0;">
+            <div class="pro-notice-icon">
+                <span class="dashicons dashicons-admin-plugins"></span>
+            </div>
+            <div class="pro-notice-content">
+                <h4>1 Widget (Free Version)</h4>
+                <p>The free version includes <strong>1 special widget</strong>. Upgrade to Pro to unlock <strong>unlimited widgets</strong> and access to the Base47 Widget Library.</p>
+                <a href="<?php echo esc_url( base47_he_get_pro_url() ); ?>" class="button button-primary" target="_blank">
+                    Upgrade for Unlimited Widgets
+                    <span class="dashicons dashicons-external"></span>
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <!-- Stats Card -->
         <div class="base47-widgets-stats">
