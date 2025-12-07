@@ -1,0 +1,419 @@
+/**
+ * License Page Styles
+ * 
+ * Slider Revolution-style license activation
+ * 
+ * @package Base47_HTML_Editor
+ * @since 2.9.9.2.6
+ */
+
+/* ========================================
+   LICENSE PAGE LAYOUT
+   ======================================== */
+
+.base47-license-page {
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.base47-license-page h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 2rem 0;
+    text-align: center;
+}
+
+/* ========================================
+   LICENSE STATUS CARD (REGISTERED)
+   ======================================== */
+
+.license-status-card {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.license-status-card h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+
+.license-status-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.license-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 2px solid #e4e4e7;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.license-tab.active {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-color: #22c55e;
+    color: #fff;
+}
+
+.license-tab .dashicons {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.license-tab:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.license-key-display {
+    margin-bottom: 2rem;
+}
+
+.license-key-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.125rem;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    background: #f8f9fa;
+    border: 2px solid #e4e4e7;
+    border-radius: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.license-key-input:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.license-info {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.license-info p {
+    margin: 0.5rem 0;
+    font-size: 0.9375rem;
+}
+
+.license-info strong {
+    color: #18181b;
+}
+
+.status-active {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #22c55e;
+    color: #fff;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.btn-deregister {
+    width: 100%;
+    padding: 1rem;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-deregister:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* ========================================
+   LICENSE ACTIVATION CARD (NOT REGISTERED)
+   ======================================== */
+
+.license-activation-card {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.license-activation-card h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+}
+
+.license-activation-card > p {
+    text-align: center;
+    color: #71717a;
+    margin: 0 0 2rem 0;
+}
+
+.license-input-group {
+    margin-bottom: 1.5rem;
+}
+
+.license-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btn-activate-license,
+.btn-find-key {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-activate-license {
+    background: linear-gradient(310deg, #22c55e, #16a34a);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-activate-license:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+}
+
+.btn-activate-license .dashicons {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.btn-find-key {
+    background: #f8f9fa;
+    color: #18181b;
+    border: 2px solid #e4e4e7;
+}
+
+.btn-find-key:hover {
+    background: #e4e4e7;
+    color: #18181b;
+}
+
+.license-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    display: none;
+}
+
+.license-message.show {
+    display: block;
+}
+
+.license-message .success {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.license-message .error {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.license-message .info {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+/* ========================================
+   LICENSE INFO BOX
+   ======================================== */
+
+.base47-license-info-box {
+    background: #fff;
+    border: 2px solid #f97316;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.info-box-icon {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    background: linear-gradient(310deg, #f97316, #fb923c);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-box-icon .dashicons {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    color: #fff;
+}
+
+.info-box-content {
+    flex: 1;
+}
+
+.info-box-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+}
+
+.info-box-content p {
+    font-size: 0.9375rem;
+    color: #71717a;
+    margin: 0 0 1rem 0;
+    line-height: 1.6;
+}
+
+.btn-buy-license {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(310deg, #f97316, #fb923c);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-buy-license:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    color: #fff;
+}
+
+/* ========================================
+   MANAGE LICENSES SECTION
+   ======================================== */
+
+.base47-manage-licenses {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.manage-licenses-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.badge-new {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(310deg, #f97316, #fb923c);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 0.25rem;
+    letter-spacing: 0.5px;
+}
+
+.manage-licenses-card > p {
+    font-size: 0.9375rem;
+    color: #71717a;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
+}
+
+.btn-dashboard {
+    display: inline-flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: linear-gradient(310deg, #8b5cf6, #a78bfa);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-dashboard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    color: #fff;
+}
+
+.help-text {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.help-text a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.help-text a:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .base47-license-page {
+        padding: 0 1rem;
+    }
+    
+    .license-status-tabs {
+        flex-direction: column;
+    }
+    
+    .license-actions {
+        flex-direction: column;
+    }
+    
+    .base47-license-info-box {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .info-box-icon {
+        margin: 0 auto;
+    }
+}

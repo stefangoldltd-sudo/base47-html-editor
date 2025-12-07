@@ -98,6 +98,28 @@ function base47_he_admin_menu() {
         'base47-he-changelog',
         'base47_he_changelog_page'
     );
+    
+    // License (Always show - for activation)
+    add_submenu_page(
+        'base47-he-dashboard',
+        'License',
+        'License',
+        'manage_options',
+        'base47-he-license',
+        'base47_he_license_page'
+    );
+    
+    // Upgrade (Only show in Free version)
+    if ( ! base47_he_is_pro_active() ) {
+        add_submenu_page(
+            'base47-he-dashboard',
+            'Upgrade to Pro',
+            '<span style="color:#f97316;font-weight:700;">🚀 Upgrade to Pro</span>',
+            'manage_options',
+            'base47-he-upgrade',
+            'base47_he_upgrade_page'
+        );
+    }
 }
 add_action( 'admin_menu', 'base47_he_admin_menu' );
 
@@ -255,6 +277,26 @@ function base47_he_admin_assets( $hook ) {
         wp_enqueue_style(
             'base47-he-dashboard',
             BASE47_HE_URL . 'admin-assets/dashboard.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
+    
+    // Upgrade page CSS (Phase 16.4)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-upgrade' ) {
+        wp_enqueue_style(
+            'base47-he-upgrade',
+            BASE47_HE_URL . 'admin-assets/upgrade.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
+    
+    // License page CSS (Phase 16.4)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-license' ) {
+        wp_enqueue_style(
+            'base47-he-license',
+            BASE47_HE_URL . 'admin-assets/license.css',
             [ 'base47-he-admin' ],
             BASE47_HE_VERSION
         );

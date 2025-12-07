@@ -55,4 +55,26 @@ function base47_he_activate() {
     if ( $settings === false ) {
         update_option( 'base47_he_settings', base47_he_get_default_settings() );
     }
+    
+    // 5️⃣ Schedule daily license verification (Phase 16.4)
+    if ( ! wp_next_scheduled( 'base47_he_daily_license_check' ) ) {
+        wp_schedule_event( time(), 'daily', 'base47_he_daily_license_check' );
+    }
 }
+
+/**
+ * Schedule daily license verification check.
+ * Runs on 'wp' hook to ensure it's scheduled even if activation hook didn't run.
+ */
+add_action( 'wp', 'base47_he_schedule_license_check' );
+function base47_he_schedule_license_check() {
+    if ( ! wp_next_scheduled( 'base47_he_daily_license_check' ) ) {
+        wp_schedule_event( time(), 'daily', 'base47_he_daily_license_check' );
+    }
+}
+
+/**
+ * Hook the license verification function to the cron event.
+ */
+add_action( 'base47_he_daily_license_check', 'base47_he_verify_license' );
+
