@@ -62,7 +62,7 @@ function base47_he_editor_page() {
             </div>
             <div class="pro-notice-content">
                 <h4>Monaco Editor is a Pro Feature</h4>
-                <p>Upgrade to Pro to unlock the Monaco Editor (VS Code experience) with IntelliSense, multi-cursor editing, and advanced features.</p>
+                <p>You are using the <strong>Classic Editor (Free)</strong>. Upgrade to unlock the <strong>VS Code Editor</strong> with IntelliSense, multi-cursor editing, code folding, and advanced features.</p>
                 <a href="<?php echo esc_url( base47_he_get_pro_url() ); ?>" class="button button-primary" target="_blank">
                     Upgrade to Pro
                     <span class="dashicons dashicons-external"></span>
@@ -100,19 +100,45 @@ function base47_he_editor_page() {
             <div id="base47-he-editor-left" class="base47-he-editor-left">
                 <!-- Editor Mode Switcher -->
                 <div class="base47-he-editor-mode-switcher">
-                    <button type="button" id="base47-he-mode-advanced" class="button base47-he-mode-btn">
-                        <span class="dashicons dashicons-editor-code"></span> Advanced Editor
-                    </button>
-                    <button type="button" id="base47-he-mode-classic" class="button base47-he-mode-btn">
-                        <span class="dashicons dashicons-edit"></span> Classic Editor
-                    </button>
+                    <?php if ( base47_he_has_feature( 'monaco_editor' ) ) : ?>
+                        <!-- Pro: Both editors available -->
+                        <button type="button" id="base47-he-mode-advanced" class="button base47-he-mode-btn">
+                            <span class="dashicons dashicons-editor-code"></span> Advanced Editor
+                        </button>
+                        <button type="button" id="base47-he-mode-classic" class="button base47-he-mode-btn">
+                            <span class="dashicons dashicons-edit"></span> Classic Editor
+                        </button>
+                    <?php else : ?>
+                        <!-- Free: Classic active, Monaco locked -->
+                        <button type="button" class="button base47-he-mode-btn active" disabled style="cursor: default;">
+                            <span class="dashicons dashicons-edit"></span> Classic Editor (Free)
+                        </button>
+                        <button type="button" id="base47-he-mode-advanced-locked" class="button base47-he-mode-btn" style="position: relative;">
+                            <span class="dashicons dashicons-editor-code"></span> Advanced Editor
+                            <?php echo base47_he_get_feature_badge( 'monaco_editor' ); ?>
+                        </button>
+                    <?php endif; ?>
                 </div>
                 
-                <!-- Monaco Editor Container -->
-                <div id="base47-monaco-editor" class="base47-he-monaco-container"></div>
+                <!-- Monaco Editor Container (always rendered, but locked in Free) -->
+                <div id="base47-monaco-editor" class="base47-he-monaco-container" style="<?php echo !base47_he_has_feature( 'monaco_editor' ) ? 'display:none;' : ''; ?>">
+                    <?php if ( ! base47_he_has_feature( 'monaco_editor' ) ) : ?>
+                        <!-- Pro Overlay on Monaco -->
+                        <div class="base47-monaco-pro-overlay">
+                            <div class="monaco-overlay-content">
+                                <span class="dashicons dashicons-lock"></span>
+                                <h3>Monaco Editor is a Pro Feature</h3>
+                                <p>Upgrade to unlock the VS Code experience</p>
+                                <a href="<?php echo esc_url( base47_he_get_pro_url() ); ?>" class="button button-primary button-hero" target="_blank">
+                                    Upgrade to Pro
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
                 
                 <!-- Classic Editor (Textarea) -->
-                <textarea id="base47-he-code" style="width:100%;height:520px;display:none;"><?php echo esc_textarea( $content ); ?></textarea>
+                <textarea id="base47-he-code" style="width:100%;height:520px;<?php echo base47_he_has_feature( 'monaco_editor' ) ? 'display:none;' : ''; ?>"><?php echo esc_textarea( $content ); ?></textarea>
             </div>
             <div id="base47-he-resizer" class="base47-he-resizer"></div>
             <div class="base47-he-editor-right">
@@ -357,6 +383,64 @@ function base47_he_editor_page() {
         border: 1px solid #ddd;
         border-radius: 4px;
         overflow: hidden;
+        position: relative;
+    }
+    
+    /* Monaco Pro Overlay */
+    .base47-monaco-pro-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .monaco-overlay-content {
+        text-align: center;
+        padding: 3rem;
+        max-width: 500px;
+    }
+    
+    .monaco-overlay-content .dashicons {
+        font-size: 4rem;
+        width: 4rem;
+        height: 4rem;
+        color: #f97316;
+        margin-bottom: 1.5rem;
+    }
+    
+    .monaco-overlay-content h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #18181b;
+        margin: 0 0 1rem 0;
+    }
+    
+    .monaco-overlay-content p {
+        font-size: 1.125rem;
+        color: #71717a;
+        margin: 0 0 2rem 0;
+    }
+    
+    .monaco-overlay-content .button-hero {
+        background: linear-gradient(310deg, #f97316, #fb923c);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+        transition: all 0.2s ease;
+    }
+    
+    .monaco-overlay-content .button-hero:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+        color: #fff;
     }
     
     /* Classic Editor Dark Theme */
@@ -378,5 +462,23 @@ function base47_he_editor_page() {
         100% { opacity: 1; }
     }
     </style>
+    
+    <?php if ( ! base47_he_has_feature( 'monaco_editor' ) ) : ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Show Monaco with Pro overlay when clicking locked button
+        $('#base47-he-mode-advanced-locked').on('click', function(e) {
+            e.preventDefault();
+            // Hide classic editor
+            $('#base47-he-code').hide();
+            // Show Monaco container with overlay
+            $('#base47-monaco-editor').show();
+            // Update button states
+            $('.base47-he-mode-btn').removeClass('active');
+            $(this).addClass('active');
+        });
+    });
+    </script>
+    <?php endif; ?>
     <?php
 }

@@ -103,7 +103,7 @@ function base47_he_dashboard_page() {
         
         <?php if ( ! base47_he_is_pro_active() ) : ?>
         <!-- Pro Upgrade CTA -->
-        <div class="base47-upgrade-cta">
+        <div class="base47-upgrade-cta" style="margin: 2rem 0;">
             <h3>🚀 Upgrade to Base47 HTML Editor Pro</h3>
             <p>Unlock Monaco Editor, unlimited templates, auto-backups, and more premium features!</p>
             <div class="base47-upgrade-features">
@@ -124,7 +124,7 @@ function base47_he_dashboard_page() {
                     <span>Priority Support</span>
                 </div>
             </div>
-            <a href="<?php echo esc_url( base47_he_get_pro_url() ); ?>" class="button button-hero" target="_blank">
+            <a href="<?php echo esc_url( base47_he_get_pro_url() ); ?>" class="button button-hero" target="_blank" style="background: #fff; color: #f97316; border: none; font-weight: 600;">
                 Get Pro Now
                 <span class="dashicons dashicons-external"></span>
             </a>
