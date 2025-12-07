@@ -197,36 +197,6 @@ function base47_he_settings_page() {
                     </div>
                     <div class="card-body">
                         
-                        <!-- Editor Theme -->
-                        <div class="setting-row">
-                            <div class="setting-label">
-                                <label>Editor Theme</label>
-                                <p class="description">Visual theme for Monaco editor</p>
-                            </div>
-                            <div class="setting-control">
-                                <select name="editor_theme" class="form-select">
-                                    <option value="light" <?php selected( $settings['editor_theme'], 'light' ); ?>>Light</option>
-                                    <option value="dark" <?php selected( $settings['editor_theme'], 'dark' ); ?>>Dark</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Font Size -->
-                        <div class="setting-row">
-                            <div class="setting-label">
-                                <label>Font Size</label>
-                                <p class="description">Editor text size</p>
-                            </div>
-                            <div class="setting-control">
-                                <select name="editor_font_size" class="form-select">
-                                    <option value="12px" <?php selected( $settings['editor_font_size'], '12px' ); ?>>12px</option>
-                                    <option value="14px" <?php selected( $settings['editor_font_size'], '14px' ); ?>>14px</option>
-                                    <option value="16px" <?php selected( $settings['editor_font_size'], '16px' ); ?>>16px</option>
-                                    <option value="18px" <?php selected( $settings['editor_font_size'], '18px' ); ?>>18px</option>
-                                </select>
-                            </div>
-                        </div>
-                        
                         <!-- Default Editor Mode -->
                         <div class="setting-row">
                             <div class="setting-label">
@@ -234,28 +204,21 @@ function base47_he_settings_page() {
                                 <p class="description">Which editor loads by default</p>
                             </div>
                             <div class="setting-control">
-                                <select name="editor_mode" class="form-select">
-                                    <option value="advanced" <?php selected( $settings['editor_mode'], 'advanced' ); ?>>Advanced (Monaco)</option>
-                                    <option value="classic" <?php selected( $settings['editor_mode'], 'classic' ); ?>>Classic (Textarea)</option>
-                                </select>
+                                <?php if ( base47_he_has_feature( 'monaco_editor' ) ) : ?>
+                                    <select name="editor_mode" class="form-select">
+                                        <option value="advanced" <?php selected( $settings['editor_mode'], 'advanced' ); ?>>Advanced (Monaco)</option>
+                                        <option value="classic" <?php selected( $settings['editor_mode'], 'classic' ); ?>>Classic (Textarea)</option>
+                                    </select>
+                                <?php else : ?>
+                                    <select name="editor_mode" class="form-select" disabled>
+                                        <option value="classic">Classic (Textarea) - Free</option>
+                                    </select>
+                                    <span style="margin-left: 8px;"><?php echo base47_he_get_feature_badge( 'monaco_editor' ); ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                         
-                        <!-- Line Numbers -->
-                        <div class="setting-row">
-                            <div class="setting-label">
-                                <label>Show Line Numbers</label>
-                                <p class="description">Display line numbers in editor</p>
-                            </div>
-                            <div class="setting-control">
-                                <label class="base47-toggle">
-                                    <input type="checkbox" name="line_numbers" value="1" <?php checked( $settings['line_numbers'] ); ?>>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Line Wrapping -->
+                        <!-- Line Wrapping (Free) -->
                         <div class="setting-row">
                             <div class="setting-label">
                                 <label>Line Wrapping</label>
@@ -269,7 +232,7 @@ function base47_he_settings_page() {
                             </div>
                         </div>
                         
-                        <!-- Auto-save Interval -->
+                        <!-- Auto-save Interval (Basic in Free) -->
                         <div class="setting-row">
                             <div class="setting-label">
                                 <label>Auto-save Interval</label>
@@ -279,9 +242,51 @@ function base47_he_settings_page() {
                                 <select name="autosave_interval" class="form-select">
                                     <option value="0" <?php selected( $settings['autosave_interval'], 0 ); ?>>Disabled</option>
                                     <option value="30" <?php selected( $settings['autosave_interval'], 30 ); ?>>30 seconds</option>
-                                    <option value="60" <?php selected( $settings['autosave_interval'], 60 ); ?>>60 seconds</option>
-                                    <option value="120" <?php selected( $settings['autosave_interval'], 120 ); ?>>120 seconds</option>
                                 </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Editor Theme (Pro - Monaco only) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('monaco_editor') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Editor Theme <?php echo base47_he_get_feature_badge('monaco_editor'); ?></label>
+                                <p class="description">Visual theme for Monaco editor</p>
+                            </div>
+                            <div class="setting-control">
+                                <select name="editor_theme" class="form-select" <?php disabled(!base47_he_has_feature('monaco_editor')); ?>>
+                                    <option value="light" <?php selected( $settings['editor_theme'], 'light' ); ?>>Light</option>
+                                    <option value="dark" <?php selected( $settings['editor_theme'], 'dark' ); ?>>Dark</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Font Size (Pro - Monaco only) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('monaco_editor') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Font Size <?php echo base47_he_get_feature_badge('monaco_editor'); ?></label>
+                                <p class="description">Monaco editor text size</p>
+                            </div>
+                            <div class="setting-control">
+                                <select name="editor_font_size" class="form-select" <?php disabled(!base47_he_has_feature('monaco_editor')); ?>>
+                                    <option value="12px" <?php selected( $settings['editor_font_size'], '12px' ); ?>>12px</option>
+                                    <option value="14px" <?php selected( $settings['editor_font_size'], '14px' ); ?>>14px</option>
+                                    <option value="16px" <?php selected( $settings['editor_font_size'], '16px' ); ?>>16px</option>
+                                    <option value="18px" <?php selected( $settings['editor_font_size'], '18px' ); ?>>18px</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Line Numbers (Pro - Monaco only) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('monaco_editor') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Show Line Numbers <?php echo base47_he_get_feature_badge('monaco_editor'); ?></label>
+                                <p class="description">Display line numbers in Monaco</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="line_numbers" value="1" <?php checked( $settings['line_numbers'] ); ?> <?php disabled(!base47_he_has_feature('monaco_editor')); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
                         </div>
                         
@@ -296,7 +301,7 @@ function base47_he_settings_page() {
                     </div>
                     <div class="card-body">
                         
-                        <!-- Enable Logging -->
+                        <!-- Enable Logging (Free) -->
                         <div class="setting-row">
                             <div class="setting-label">
                                 <label>Enable Logging</label>
@@ -310,7 +315,7 @@ function base47_he_settings_page() {
                             </div>
                         </div>
                         
-                        <!-- Log Level -->
+                        <!-- Log Level (Free: Errors/Warnings, Pro: Info/Debug) -->
                         <div class="setting-row">
                             <div class="setting-label">
                                 <label>Log Level</label>
@@ -320,37 +325,53 @@ function base47_he_settings_page() {
                                 <select name="log_level" class="form-select">
                                     <option value="errors" <?php selected( $settings['log_level'], 'errors' ); ?>>Errors Only</option>
                                     <option value="warnings" <?php selected( $settings['log_level'], 'warnings' ); ?>>Warnings</option>
-                                    <option value="info" <?php selected( $settings['log_level'], 'info' ); ?>>Info</option>
-                                    <option value="debug" <?php selected( $settings['log_level'], 'debug' ); ?>>Debug</option>
+                                    <option value="info" <?php selected( $settings['log_level'], 'info' ); ?> <?php disabled(!base47_he_has_feature('advanced_logs')); ?>>Info <?php echo !base47_he_has_feature('advanced_logs') ? base47_he_get_feature_badge('advanced_logs') : ''; ?></option>
+                                    <option value="debug" <?php selected( $settings['log_level'], 'debug' ); ?> <?php disabled(!base47_he_has_feature('advanced_logs')); ?>>Debug <?php echo !base47_he_has_feature('advanced_logs') ? base47_he_get_feature_badge('advanced_logs') : ''; ?></option>
                                 </select>
                             </div>
                         </div>
                         
-                        <!-- Log Retention -->
+                        <!-- Log Retention (Free: 7/14 days, Pro: up to 90) -->
                         <div class="setting-row">
                             <div class="setting-label">
                                 <label>Log Retention</label>
                                 <p class="description">Auto-delete old logs</p>
                             </div>
                             <div class="setting-control">
-                                <div class="input-group">
-                                    <input type="number" name="log_retention" value="<?php echo esc_attr( $settings['log_retention'] ); ?>" min="1" max="90" class="form-control">
-                                    <span class="input-suffix">days</span>
-                                </div>
+                                <?php if ( base47_he_has_feature( 'advanced_logs' ) ) : ?>
+                                    <div class="input-group">
+                                        <input type="number" name="log_retention" value="<?php echo esc_attr( $settings['log_retention'] ); ?>" min="1" max="90" class="form-control">
+                                        <span class="input-suffix">days</span>
+                                    </div>
+                                <?php else : ?>
+                                    <select name="log_retention" class="form-select">
+                                        <option value="7" <?php selected( $settings['log_retention'], 7 ); ?>>7 days</option>
+                                        <option value="14" <?php selected( $settings['log_retention'], 14 ); ?>>14 days</option>
+                                    </select>
+                                    <span style="margin-left: 8px;"><?php echo base47_he_get_feature_badge( 'advanced_logs' ); ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                         
-                        <!-- Max Log Size -->
+                        <!-- Max Log Size (Free: fixed, Pro: configurable) -->
                         <div class="setting-row">
                             <div class="setting-label">
                                 <label>Max Log Size</label>
                                 <p class="description">Maximum size per log file</p>
                             </div>
                             <div class="setting-control">
-                                <div class="input-group">
-                                    <input type="number" name="max_log_size" value="<?php echo esc_attr( $settings['max_log_size'] ); ?>" min="1" max="50" class="form-control">
-                                    <span class="input-suffix">MB</span>
-                                </div>
+                                <?php if ( base47_he_has_feature( 'advanced_logs' ) ) : ?>
+                                    <div class="input-group">
+                                        <input type="number" name="max_log_size" value="<?php echo esc_attr( $settings['max_log_size'] ); ?>" min="1" max="50" class="form-control">
+                                        <span class="input-suffix">MB</span>
+                                    </div>
+                                <?php else : ?>
+                                    <div class="input-group">
+                                        <input type="number" name="max_log_size" value="5" class="form-control" disabled>
+                                        <span class="input-suffix">MB</span>
+                                    </div>
+                                    <span style="margin-left: 8px;"><?php echo base47_he_get_feature_badge( 'advanced_logs' ); ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                         
@@ -386,35 +407,7 @@ function base47_he_settings_page() {
                     </div>
                     <div class="card-body">
                         
-                        <!-- Show File Paths -->
-                        <div class="setting-row">
-                            <div class="setting-label">
-                                <label>Show File Paths</label>
-                                <p class="description">Display template paths in preview</p>
-                            </div>
-                            <div class="setting-control">
-                                <label class="base47-toggle">
-                                    <input type="checkbox" name="show_file_paths" value="1" <?php checked( $settings['show_file_paths'] ); ?>>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Show Loaded Assets -->
-                        <div class="setting-row">
-                            <div class="setting-label">
-                                <label>Show Loaded Assets</label>
-                                <p class="description">Show Smart Loader asset map</p>
-                            </div>
-                            <div class="setting-control">
-                                <label class="base47-toggle">
-                                    <input type="checkbox" name="show_asset_map" value="1" <?php checked( $settings['show_asset_map'] ); ?>>
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Disable Smart Loader in Debug -->
+                        <!-- Disable Smart Loader (Free - for safety) -->
                         <div class="setting-row">
                             <div class="setting-label">
                                 <label>Disable Smart Loader</label>
@@ -428,29 +421,57 @@ function base47_he_settings_page() {
                             </div>
                         </div>
                         
-                        <!-- Experimental Features -->
-                        <div class="setting-row">
+                        <!-- Show File Paths (Pro) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('advanced_logs') ? 'base47-pro-disabled' : ''; ?>">
                             <div class="setting-label">
-                                <label>Experimental Features</label>
-                                <p class="description">Enable beta features (use with caution)</p>
+                                <label>Show File Paths <?php echo base47_he_get_feature_badge('advanced_logs'); ?></label>
+                                <p class="description">Display template paths in preview</p>
                             </div>
                             <div class="setting-control">
                                 <label class="base47-toggle">
-                                    <input type="checkbox" name="experimental_features" value="1" <?php checked( $settings['experimental_features'] ); ?>>
+                                    <input type="checkbox" name="show_file_paths" value="1" <?php checked( $settings['show_file_paths'] ); ?> <?php disabled(!base47_he_has_feature('advanced_logs')); ?>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
                         </div>
                         
-                        <!-- Performance Metrics -->
-                        <div class="setting-row">
+                        <!-- Show Loaded Assets (Pro) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('advanced_logs') ? 'base47-pro-disabled' : ''; ?>">
                             <div class="setting-label">
-                                <label>Performance Metrics</label>
+                                <label>Show Loaded Assets <?php echo base47_he_get_feature_badge('advanced_logs'); ?></label>
+                                <p class="description">Show Smart Loader asset map</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="show_asset_map" value="1" <?php checked( $settings['show_asset_map'] ); ?> <?php disabled(!base47_he_has_feature('advanced_logs')); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Experimental Features (Pro) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('advanced_logs') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Experimental Features <?php echo base47_he_get_feature_badge('advanced_logs'); ?></label>
+                                <p class="description">Enable beta features (use with caution)</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="base47-toggle">
+                                    <input type="checkbox" name="experimental_features" value="1" <?php checked( $settings['experimental_features'] ); ?> <?php disabled(!base47_he_has_feature('advanced_logs')); ?>>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Metrics (Pro) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('advanced_logs') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Performance Metrics <?php echo base47_he_get_feature_badge('advanced_logs'); ?></label>
                                 <p class="description">Display performance data in admin</p>
                             </div>
                             <div class="setting-control">
                                 <label class="base47-toggle">
-                                    <input type="checkbox" name="show_performance_metrics" value="1" <?php checked( $settings['show_performance_metrics'] ); ?>>
+                                    <input type="checkbox" name="show_performance_metrics" value="1" <?php checked( $settings['show_performance_metrics'] ); ?> <?php disabled(!base47_he_has_feature('advanced_logs')); ?>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -520,37 +541,7 @@ function base47_he_settings_page() {
                     </div>
                     <div class="card-body">
                         
-                        <!-- Export Settings -->
-                        <div class="setting-row">
-                            <div class="setting-label">
-                                <label>Export Settings</label>
-                                <p class="description">Download settings as JSON file</p>
-                            </div>
-                            <div class="setting-control">
-                                <button type="button" id="base47-export-settings" class="btn-soft-secondary">
-                                    <span class="dashicons dashicons-download"></span>
-                                    Export Settings
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Import Settings -->
-                        <div class="setting-row">
-                            <div class="setting-label">
-                                <label>Import Settings</label>
-                                <p class="description">Upload previously exported settings</p>
-                            </div>
-                            <div class="setting-control">
-                                <input type="file" id="base47-import-file" accept=".json" style="display:none;">
-                                <button type="button" id="base47-import-settings" class="btn-soft-secondary">
-                                    <span class="dashicons dashicons-upload"></span>
-                                    Import Settings
-                                </button>
-                                <span id="base47-import-status" class="status-message"></span>
-                            </div>
-                        </div>
-                        
-                        <!-- Reset Settings -->
+                        <!-- Reset Settings (Free) -->
                         <div class="setting-row">
                             <div class="setting-label">
                                 <label>Reset to Defaults</label>
@@ -561,6 +552,50 @@ function base47_he_settings_page() {
                                     <span class="dashicons dashicons-undo"></span>
                                     Reset to Defaults
                                 </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Export Settings (Pro) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('advanced_logs') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Export Settings <?php echo base47_he_get_feature_badge('advanced_logs'); ?></label>
+                                <p class="description">Download settings as JSON file</p>
+                            </div>
+                            <div class="setting-control">
+                                <?php if ( base47_he_has_feature( 'advanced_logs' ) ) : ?>
+                                    <button type="button" id="base47-export-settings" class="btn-soft-secondary">
+                                        <span class="dashicons dashicons-download"></span>
+                                        Export Settings
+                                    </button>
+                                <?php else : ?>
+                                    <button type="button" class="btn-soft-secondary" disabled>
+                                        <span class="dashicons dashicons-download"></span>
+                                        Export Settings
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <!-- Import Settings (Pro) -->
+                        <div class="setting-row <?php echo !base47_he_has_feature('advanced_logs') ? 'base47-pro-disabled' : ''; ?>">
+                            <div class="setting-label">
+                                <label>Import Settings <?php echo base47_he_get_feature_badge('advanced_logs'); ?></label>
+                                <p class="description">Upload previously exported settings</p>
+                            </div>
+                            <div class="setting-control">
+                                <?php if ( base47_he_has_feature( 'advanced_logs' ) ) : ?>
+                                    <input type="file" id="base47-import-file" accept=".json" style="display:none;">
+                                    <button type="button" id="base47-import-settings" class="btn-soft-secondary">
+                                        <span class="dashicons dashicons-upload"></span>
+                                        Import Settings
+                                    </button>
+                                    <span id="base47-import-status" class="status-message"></span>
+                                <?php else : ?>
+                                    <button type="button" class="btn-soft-secondary" disabled>
+                                        <span class="dashicons dashicons-upload"></span>
+                                        Import Settings
+                                    </button>
+                                <?php endif; ?>
                             </div>
                         </div>
                         

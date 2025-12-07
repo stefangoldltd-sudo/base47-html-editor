@@ -348,27 +348,28 @@ function base47_he_render_theme_manager_section() {
                         </div>
 
                         <!-- Manifest -->
-                        <div class="base47-tm-mode-option">
+                        <div class="base47-tm-mode-option <?php echo !base47_he_has_feature('manifest_loader') ? 'base47-pro-disabled' : ''; ?>">
                             <input type="radio"
                                    id="mode_manifest_<?php echo esc_attr( $slug ); ?>"
                                    name="asset_mode_<?php echo esc_attr( $slug ); ?>"
                                    value="manifest"
                                    <?php checked( $use_manifest ); ?>
-                                   <?php disabled( ! $has_manifest ); ?>>
+                                   <?php disabled( ! $has_manifest || ! base47_he_has_feature('manifest_loader') ); ?>>
                             <label for="mode_manifest_<?php echo esc_attr( $slug ); ?>" class="base47-tm-mode-label">
-                                Manifest
+                                Manifest <?php echo base47_he_get_feature_badge('manifest_loader'); ?>
                             </label>
                         </div>
 
                         <!-- Smart Loader++ -->
-                        <div class="base47-tm-mode-option">
+                        <div class="base47-tm-mode-option <?php echo !base47_he_has_feature('smart_loader') ? 'base47-pro-disabled' : ''; ?>">
                             <input type="radio"
                                    id="mode_smart_<?php echo esc_attr( $slug ); ?>"
                                    name="asset_mode_<?php echo esc_attr( $slug ); ?>"
                                    value="smart"
-                                   <?php checked( $use_smart ); ?>>
+                                   <?php checked( $use_smart ); ?>
+                                   <?php disabled( ! base47_he_has_feature('smart_loader') ); ?>>
                             <label for="mode_smart_<?php echo esc_attr( $slug ); ?>" class="base47-tm-mode-label">
-                                Smart++
+                                Smart++ <?php echo base47_he_get_feature_badge('smart_loader'); ?>
                             </label>
                         </div>
                     </div>

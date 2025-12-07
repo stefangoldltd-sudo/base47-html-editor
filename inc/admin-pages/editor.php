@@ -91,7 +91,13 @@ function base47_he_editor_page() {
             </form>
              <?php if ( $selected ) : ?>
     <button id="base47-he-save" class="button button-primary">Save</button>
-    <button id="base47-he-restore" class="button">Restore</button>
+    <?php if ( base47_he_has_feature( 'auto_backups' ) ) : ?>
+        <button id="base47-he-restore" class="button">Restore</button>
+    <?php else : ?>
+        <button id="base47-he-restore-locked" class="button" style="position: relative;">
+            Restore <?php echo base47_he_get_feature_badge( 'auto_backups' ); ?>
+        </button>
+    <?php endif; ?>
     <button id="base47-he-open-preview" class="button">Open Preview</button>
 <?php endif; ?>
         </div>
@@ -110,10 +116,10 @@ function base47_he_editor_page() {
                         </button>
                     <?php else : ?>
                         <!-- Free: Classic active, Monaco locked -->
-                        <button type="button" class="button base47-he-mode-btn active" disabled style="cursor: default;">
+                        <button type="button" id="base47-he-mode-classic-free" class="button base47-he-mode-btn active">
                             <span class="dashicons dashicons-edit"></span> Classic Editor (Free)
                         </button>
-                        <button type="button" id="base47-he-mode-advanced-locked" class="button base47-he-mode-btn" style="position: relative;">
+                        <button type="button" id="base47-he-mode-advanced-locked" class="button base47-he-mode-btn">
                             <span class="dashicons dashicons-editor-code"></span> Advanced Editor
                             <?php echo base47_he_get_feature_badge( 'monaco_editor' ); ?>
                         </button>
@@ -144,9 +150,21 @@ function base47_he_editor_page() {
             <div class="base47-he-editor-right">
                 <div class="base47-he-preview-toolbar">
                     <button type="button" class="button preview-size-btn active" data-size="100%">Full</button>
-                    <button type="button" class="button preview-size-btn" data-size="1024">Desktop</button>
-                    <button type="button" class="button preview-size-btn" data-size="768">Tablet</button>
-                    <button type="button" class="button preview-size-btn" data-size="375">Mobile</button>
+                    <?php if ( base47_he_has_feature( 'advanced_preview' ) ) : ?>
+                        <button type="button" class="button preview-size-btn" data-size="1024">Desktop</button>
+                        <button type="button" class="button preview-size-btn" data-size="768">Tablet</button>
+                        <button type="button" class="button preview-size-btn" data-size="375">Mobile</button>
+                    <?php else : ?>
+                        <button type="button" class="button" disabled title="Responsive preview is a Pro feature">
+                            Desktop <?php echo base47_he_get_feature_badge( 'advanced_preview' ); ?>
+                        </button>
+                        <button type="button" class="button" disabled title="Responsive preview is a Pro feature">
+                            Tablet <?php echo base47_he_get_feature_badge( 'advanced_preview' ); ?>
+                        </button>
+                        <button type="button" class="button" disabled title="Responsive preview is a Pro feature">
+                            Mobile <?php echo base47_he_get_feature_badge( 'advanced_preview' ); ?>
+                        </button>
+                    <?php endif; ?>
                 </div>
                 <div class="base47-he-preview-wrap">
                     <iframe id="base47-he-preview" src="<?php echo esc_url( $preview ); ?>"></iframe>
@@ -463,10 +481,11 @@ function base47_he_editor_page() {
     }
     </style>
     
-    <?php if ( ! base47_he_has_feature( 'monaco_editor' ) ) : ?>
+    <?php if ( ! base47_he_has_feature( 'monaco_editor' ) || ! base47_he_has_feature( 'auto_backups' ) ) : ?>
     <script>
     jQuery(document).ready(function($) {
-        // Show Monaco with Pro overlay when clicking locked button
+        <?php if ( ! base47_he_has_feature( 'monaco_editor' ) ) : ?>
+        // Show Monaco with Pro overlay when clicking locked Advanced button
         $('#base47-he-mode-advanced-locked').on('click', function(e) {
             e.preventDefault();
             // Hide classic editor
@@ -477,6 +496,27 @@ function base47_he_editor_page() {
             $('.base47-he-mode-btn').removeClass('active');
             $(this).addClass('active');
         });
+        
+        // Switch back to Classic editor
+        $('#base47-he-mode-classic-free').on('click', function(e) {
+            e.preventDefault();
+            // Hide Monaco
+            $('#base47-monaco-editor').hide();
+            // Show classic editor
+            $('#base47-he-code').show();
+            // Update button states
+            $('.base47-he-mode-btn').removeClass('active');
+            $(this).addClass('active');
+        });
+        <?php endif; ?>
+        
+        <?php if ( ! base47_he_has_feature( 'auto_backups' ) ) : ?>
+        // Show Pro overlay when clicking locked Restore button
+        $('#base47-he-restore-locked').on('click', function(e) {
+            e.preventDefault();
+            alert('🔒 Restore is a Pro Feature\n\nUpgrade to Pro to unlock:\n• Automatic backups\n• One-click restore\n• Version history\n\nVisit: <?php echo esc_js( base47_he_get_pro_url() ); ?>');
+        });
+        <?php endif; ?>
     });
     </script>
     <?php endif; ?>
