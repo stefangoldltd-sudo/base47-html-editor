@@ -54,6 +54,23 @@ function base47_he_editor_page() {
     ?>
     <div class="wrap base47-he-wrap">
         <h1>Live Editor</h1>
+        
+        <?php if ( ! base47_he_has_feature( 'monaco_editor' ) ) : ?>
+        <div class="base47-pro-notice" style="margin: 20px 0;">
+            <div class="pro-notice-icon">
+                <span class="dashicons dashicons-lock"></span>
+            </div>
+            <div class="pro-notice-content">
+                <h4>Monaco Editor is a Pro Feature</h4>
+                <p>Upgrade to Pro to unlock the Monaco Editor (VS Code experience) with IntelliSense, multi-cursor editing, and advanced features.</p>
+                <a href="<?php echo esc_url( base47_he_get_pro_url() ); ?>" class="button button-primary" target="_blank">
+                    Upgrade to Pro
+                    <span class="dashicons dashicons-external"></span>
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
+        
         <div class="base47-he-editor-topbar">
             <form method="get">
                 <input type="hidden" name="page" value="base47-he-editor">

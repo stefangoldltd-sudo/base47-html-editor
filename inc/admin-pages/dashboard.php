@@ -101,6 +101,36 @@ function base47_he_dashboard_page() {
             </div>
         </div>
         
+        <?php if ( ! base47_he_is_pro_active() ) : ?>
+        <!-- Pro Upgrade CTA -->
+        <div class="base47-upgrade-cta">
+            <h3>🚀 Upgrade to Base47 HTML Editor Pro</h3>
+            <p>Unlock Monaco Editor, unlimited templates, auto-backups, and more premium features!</p>
+            <div class="base47-upgrade-features">
+                <div class="upgrade-feature-item">
+                    <span class="dashicons dashicons-yes"></span>
+                    <span>Monaco Editor (VS Code)</span>
+                </div>
+                <div class="upgrade-feature-item">
+                    <span class="dashicons dashicons-yes"></span>
+                    <span>Unlimited Templates</span>
+                </div>
+                <div class="upgrade-feature-item">
+                    <span class="dashicons dashicons-yes"></span>
+                    <span>Auto-Backups & Restore</span>
+                </div>
+                <div class="upgrade-feature-item">
+                    <span class="dashicons dashicons-yes"></span>
+                    <span>Priority Support</span>
+                </div>
+            </div>
+            <a href="<?php echo esc_url( base47_he_get_pro_url() ); ?>" class="button button-hero" target="_blank">
+                Get Pro Now
+                <span class="dashicons dashicons-external"></span>
+            </a>
+        </div>
+        <?php endif; ?>
+        
         <!-- Main Content Grid -->
         <div class="base47-dashboard-grid">
             
