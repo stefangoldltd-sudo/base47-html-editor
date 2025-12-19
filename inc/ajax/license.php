@@ -36,31 +36,78 @@ function base47_he_ajax_activate_license() {
     $domain = parse_url( home_url(), PHP_URL_HOST );
     
     // ========================================
-    // TODO: REPLACE WITH YOUR API VALIDATION
+    // BASE47 CORE API INTEGRATION (v2.9.9.2.7)
     // ========================================
     
-    // For now, accept any key starting with "PRO-" or "DEV-"
-    // This is for TESTING ONLY - replace with real API call
+    // Call Base47 Core API to verify license
+    $api_url = rest_url( 'base47/v1/license/verify' );
     
-    if ( strpos( $license_key, 'PRO-' ) === 0 || strpos( $license_key, 'DEV-' ) === 0 ) {
-        // Simulate successful activation
-        update_option( 'base47_he_license_key', $license_key );
-        update_option( 'base47_he_license_status', 'active' );
-        update_option( 'base47_he_license_data', [
-            'plan' => 'Unlimited',
-            'expires' => date( 'Y-m-d', strtotime( '+1 year' ) ),
+    $response = wp_remote_post( $api_url, [
+        'body' => [
+            'license_key' => $license_key,
+            'site_url' => home_url(),
+            'product' => 'base47-html-editor',
+        ],
+        'timeout' => 15,
+        'sslverify' => false, // For local testing
+    ] );
+    
+    if ( is_wp_error( $response ) ) {
+        wp_send_json_error( [ 
+            'message' => 'Failed to connect to license server: ' . $response->get_error_message() 
+        ] );
+    }
+    
+    $body = wp_remote_retrieve_body( $response );
+    $data = json_decode( $body, true );
+    
+    if ( isset( $data['valid'] ) && $data['valid'] === true ) {
+        // License is valid - activate it
+        $license_data = [
+            'plan' => $data['plan'] ?? 'Pro',
+            'expires' => $data['expires_at'] ?? 'Never',
             'status' => 'active',
             'activated_at' => current_time( 'mysql' ),
             'domain' => $domain,
-        ] );
+            'license_type' => $data['license_type'] ?? 'standard',
+            'max_activations' => $data['max_activations'] ?? 1,
+            'activations_count' => $data['activations_count'] ?? 0,
+        ];
+        
+        update_option( 'base47_he_license_key', $license_key );
+        update_option( 'base47_he_license_status', 'active' );
+        update_option( 'base47_he_license_data', $license_data );
+        
+        // Build success message based on license type
+        $type_label = '';
+        switch ( $data['license_type'] ?? 'standard' ) {
+            case 'dev':
+                $type_label = ' (Development License)';
+                break;
+            case 'admin':
+                $type_label = ' (Admin License)';
+                break;
+            case 'partner':
+                $type_label = ' (Partner License)';
+                break;
+            case 'reviewer':
+                $type_label = ' (Reviewer License)';
+                break;
+            case 'lifetime':
+                $type_label = ' (Lifetime License)';
+                break;
+        }
         
         wp_send_json_success( [ 
-            'message' => 'License activated successfully!',
-            'plan' => 'Unlimited',
-            'expires' => date( 'Y-m-d', strtotime( '+1 year' ) ),
+            'message' => 'License activated successfully!' . $type_label,
+            'plan' => $data['plan'] ?? 'Pro',
+            'expires' => $data['expires_at'] ?? 'Never',
+            'license_type' => $data['license_type'] ?? 'standard',
+            'max_activations' => $data['max_activations'] ?? 1,
         ] );
     } else {
-        wp_send_json_error( [ 'message' => 'Invalid license key format' ] );
+        $error_message = $data['message'] ?? 'Invalid license key';
+        wp_send_json_error( [ 'message' => $error_message ] );
     }
     
     /*
