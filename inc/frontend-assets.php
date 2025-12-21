@@ -23,15 +23,37 @@ function base47_he_enqueue_frontend_assets() {
         return;
     }
     
+    // CRITICAL: Skip if we're in canvas mode
+    // Canvas mode pages have inline assets, don't need enqueuing
+    global $post;
+    if ( $post && get_page_template_slug( $post->ID ) === 'template-canvas.php' ) {
+        return; // Canvas mode - assets are inline
+    }
+    
+    // Debug log
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        error_log( '🔥 base47_he_enqueue_frontend_assets() RUNNING' );
+    }
+    
     // Get all active template sets
     $active_sets = base47_he_get_active_sets();
     
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        error_log( '🔥 Active sets: ' . print_r( $active_sets, true ) );
+    }
+    
     if ( empty( $active_sets ) ) {
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( '🔥 NO ACTIVE SETS FOUND!' );
+        }
         return;
     }
     
     // Enqueue assets for each active set
     foreach ( $active_sets as $set_slug ) {
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( '🔥 Enqueuing assets for: ' . $set_slug );
+        }
         base47_he_enqueue_assets_for_set( $set_slug );
     }
 }
