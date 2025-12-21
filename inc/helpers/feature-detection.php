@@ -12,11 +12,11 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Check if Pro plugin is installed and active
+ * Check if Pro plugin is installed (regardless of license status)
  * 
  * @return bool
  */
-function base47_he_is_pro_active() {
+function base47_he_is_pro_installed() {
     // Check if Pro plugin constant is defined
     if ( defined( 'BASE47_HE_PRO_VERSION' ) ) {
         return true;
@@ -25,6 +25,29 @@ function base47_he_is_pro_active() {
     // Check if Pro plugin class exists
     if ( class_exists( 'Base47_HTML_Editor_Pro' ) ) {
         return true;
+    }
+    
+    return false;
+}
+
+/**
+ * Check if Pro plugin is installed and active
+ * 
+ * @return bool
+ */
+function base47_he_is_pro_active() {
+    // Check if Pro plugin constant is defined
+    if ( defined( 'BASE47_HE_PRO_VERSION' ) ) {
+        // Pro plugin is installed - now check if license is active
+        $license_status = get_option( 'base47_he_license_status', 'inactive' );
+        return ( $license_status === 'active' );
+    }
+    
+    // Check if Pro plugin class exists
+    if ( class_exists( 'Base47_HTML_Editor_Pro' ) ) {
+        // Pro plugin is installed - now check if license is active
+        $license_status = get_option( 'base47_he_license_status', 'inactive' );
+        return ( $license_status === 'active' );
     }
     
     // Allow Pro plugin to register itself via filter
