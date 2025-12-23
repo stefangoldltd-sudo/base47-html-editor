@@ -25,7 +25,7 @@ function base47_he_admin_menu() {
         'manage_options',
         'base47-he-dashboard',
         'base47_he_dashboard_page',
-        'dashicons-layout',
+        plugins_url('admin-assets/images/base47-icon.svg', dirname(__FILE__)),
         60
     );
 

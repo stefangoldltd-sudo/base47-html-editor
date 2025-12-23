@@ -416,9 +416,31 @@ function base47_he_render_template( $filename, $set_slug = '' ) {
     $GLOBALS['base47_current_set_slug'] = $set_slug;
 
     $html = file_get_contents( $full );
-    $html = base47_he_strip_shell( $html );
-    $html = base47_he_rewrite_assets( $html, $base_url, true );
-    $html = do_shortcode( $html );
+    
+    // Check if we're in PURE canvas mode
+    $pure_canvas = isset( $GLOBALS['base47_pure_canvas_mode'] ) && $GLOBALS['base47_pure_canvas_mode'];
+    
+    if ( $pure_canvas ) {
+        // PURE CANVAS MODE: Extract body content but keep ALL inline styles/scripts
+        // This preserves the exact layout without WordPress wrappers
+        
+        // Extract everything between <body> tags
+        if ( preg_match( '#<body\b[^>]*>(.*?)</body>#is', $html, $m ) ) {
+            $html = $m[1];
+        }
+        
+        // Rewrite asset URLs only
+        $html = base47_he_rewrite_assets( $html, $base_url, true );
+        
+        // Process nested shortcodes if any
+        $html = do_shortcode( $html );
+        
+    } else {
+        // NORMAL MODE: Full WordPress integration with shell stripping
+        $html = base47_he_strip_shell( $html );
+        $html = base47_he_rewrite_assets( $html, $base_url, true );
+        $html = do_shortcode( $html );
+    }
 
     base47_he_enqueue_assets_for_set( $set_slug );
 
