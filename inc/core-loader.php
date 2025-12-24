@@ -421,15 +421,10 @@ function base47_he_render_template( $filename, $set_slug = '' ) {
     $pure_canvas = isset( $GLOBALS['base47_pure_canvas_mode'] ) && $GLOBALS['base47_pure_canvas_mode'];
     
     if ( $pure_canvas ) {
-        // PURE CANVAS MODE: Extract body content but keep ALL inline styles/scripts
-        // This preserves the exact layout without WordPress wrappers
+        // PURE CANVAS MODE: Keep complete HTML structure with all assets
+        // Just rewrite asset URLs and process shortcodes
         
-        // Extract everything between <body> tags
-        if ( preg_match( '#<body\b[^>]*>(.*?)</body>#is', $html, $m ) ) {
-            $html = $m[1];
-        }
-        
-        // Rewrite asset URLs only
+        // Rewrite asset URLs
         $html = base47_he_rewrite_assets( $html, $base_url, true );
         
         // Process nested shortcodes if any
@@ -496,4 +491,5 @@ function base47_he_register_legacy_shortcodes() {
         });
     }
 }
+add_action( 'init', 'base47_he_register_legacy_shortcodes', 21 );
 add_action( 'init', 'base47_he_register_legacy_shortcodes', 21 );

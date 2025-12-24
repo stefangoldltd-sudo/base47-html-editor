@@ -18,6 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Register admin menu pages.
  */
 function base47_he_admin_menu() {
+    // Base47 icon as data URI (SVG)
+    $icon_svg = 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="5.5" height="11.5" rx="0.8" fill="#fb6340"/><rect x="8" y="2" width="5.5" height="5.5" rx="0.8" fill="#32325d"/><rect x="8" y="8" width="5.5" height="5.5" rx="0.8" fill="#32325d"/><rect x="2" y="14" width="11.5" height="4" rx="0.8" fill="#fb6340"/><rect x="14" y="2" width="5.5" height="16" rx="0.8" fill="#32325d"/></svg>');
+    
     // MAIN
     add_menu_page(
         'Base47 HTML',
@@ -25,7 +28,7 @@ function base47_he_admin_menu() {
         'manage_options',
         'base47-he-dashboard',
         'base47_he_dashboard_page',
-        plugins_url('admin-assets/images/base47-icon.svg', dirname(__FILE__)),
+        $icon_svg,
         60
     );
 
