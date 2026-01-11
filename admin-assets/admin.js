@@ -128,11 +128,23 @@ function getActiveSet() {
         }, function (resp) {
             if (resp.success) {
 
-                // Reload iframe (old behaviour)
-                const src = $preview.attr('src').split('&_rand=')[0];
-                $preview.attr('src', src + '&_rand=' + Date.now());
+                // Refresh preview with pure HTML (not WordPress page)
+                $.post(BASE47_HE.ajax_url, {
+                    action: 'base47_he_live_preview',
+                    nonce:  BASE47_HE.nonce,
+                    file:   $file.val(),
+                    set:    getActiveSet(),
+                    content: $code.val()
+                }, function (previewResp) {
+                    if (previewResp.success && previewResp.data && previewResp.data.html) {
+                        const iframe = $preview.get(0);
+                        iframe.contentWindow.document.open();
+                        iframe.contentWindow.document.write(previewResp.data.html);
+                        iframe.contentWindow.document.close();
+                    }
+                });
 
-                $('#base47-he-save').text('Saved ?');
+                $('#base47-he-save').text('Saved ✓');
                 setTimeout(() => $('#base47-he-save').text('Save'), 900);
             }
         });
