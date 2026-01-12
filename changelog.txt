@@ -2,335 +2,323 @@
 BASE47 HTML EDITOR — CHANGELOG
 ========================================================
 
+Version 2.9.9.3.2 – January 12, 2026
+------------------------------------------
+MARKETPLACE INTEGRATION:
+• Connected marketplace to real API at 47-studio.com/base47
+• Replaced mock data with live template downloads
+• Added proper error handling for API failures
+• Improved security with request validation
+• Enhanced download system with ZIP extraction
 
-------------------------------------------
-Version 2.6.0 – December 2025
-------------------------------------------
+TECHNICAL IMPROVEMENTS:
+• Updated plugin version to 2.9.9.3.2
+• Improved API endpoint structure
+• Better WordPress HTTP API integration
+• Enhanced template installation process
 
-REBRANDING:
-• Complete rebranding from Base47 HTML Editor to Base47 HTML Editor
-• All functions, constants, and options renamed from mivon_* to base47_*
-• Shortcodes updated to [base47-*] format
-• Backward compatibility maintained for legacy [mivon-*] shortcodes
-• Automatic data migration from old options to new options
-• Admin interface updated with Base47 branding
-
+Version 2.9.9.3.1 – January 11, 2026
 ------------------------------------------
-Version 2.5.2 – November 18, 2025
-------------------------------------------
+MARKETPLACE SYSTEM LAUNCH:
+• Added complete Template Marketplace interface
+• Browse and install templates from 47-studio.com/base47
+• Advanced filtering by category, type, and rating
+• One-click template installation
+• Live preview system with device switching
+• Template rating and review system
+• Professional UI with Soft UI design
 
 NEW FEATURES:
-* Added automatic Special Widgets discovery (reads any folder with widget.json under /special-widgets/).
-* New universal shortcode: [mivon_widget slug=”…”]
-* Auto-generated admin list with name, description, shortcode, and preview link.
+• Marketplace admin page with grid layout
+• Template search and filtering
+• Preview modal with responsive views
+• Installation progress tracking
+• Automatic theme activation after install
+• Error handling and user feedback
 
-IMPROVEMENTS:
-* Special Widgets now load only their own CSS/JS — no conflicts with template sets.
-* Cleaner internal system: removed old hardcoded slider widget.
-* Fully modular widget architecture (drop a folder → widget appears).
-
-TECHNICAL:
-* New registry function mivon_he_get_special_widgets_registry().
-* New shortcode handler mivon_he_special_widget_shortcode().
-* Auto path-rewriting and safe enqueue for widget assets.
-
-NOTES:
-* Feature is stable but not the focus for ongoing development — kept mainly for flexibility.
-* Plugin works the same if Special Widgets are not used.
-
-COMPATIBILITY:
-* Fully backward compatible with all versions up to 2.5.1.
-
+Version 2.9.9.3.0 – January 10, 2026
 ------------------------------------------
-Version 2.5.1 - November 17, 2025
+TEMPLATE DUPLICATION FEATURE:
+• Added "Duplicate" button to Live Editor
+• Modal interface for naming duplicates
+• Complete template duplication with assets
+• Automatic shortcode generation
+• Preserves unsaved edits during duplication
+• Filename validation and conflict prevention
+
+UI IMPROVEMENTS:
+• Enhanced Live Editor toolbar
+• Better modal design and interactions
+• Improved user feedback with notifications
+• Professional button styling
+
+Version 2.9.7.7 – December 6, 2024
 ------------------------------------------
-NEW FEATURES:
-* Manifest vs Loader toggle - choose asset loading method per template set
-* Special Widgets system for reusable components
-* Slider V1 widget with shortcode [mivon_slider_v1]
-* Theme Manager toggle for Loader (Fast) vs Manifest per template set
-* Special Widgets admin page in plugin menu
+CRITICAL HOTFIX:
+• Fixed Live Editor resizer snapping out of place
+• Fixed editor and preview boxes being too small
+• Fixed preview loading entire WordPress inside iframe
+• Fixed mode switcher buttons not working
+• Fixed Theme Manager page broken HTML structure
+• Fixed Changelog page not showing content
+
+SOFT UI INTEGRATION:
+• Added blue gradient header to Live Editor
+• Styled control topbar with selector groups
+• Professional button styling for Save/Restore/Preview
+• Responsive mobile layout improvements
+• Preserved all functionality while adding visual styling
+
+Version 2.9.7.1 – December 5, 2024
+------------------------------------------
+SOFT UI MINI-PAGES:
+• Changelog Page: Purple gradient header with interactive accordion
+• Logs Page: Blue gradient header with responsive table
+• Settings Page: Green gradient header with toggle switches
+• Widgets Page: Orange gradient header with card grid
+
+DESIGN IMPROVEMENTS:
+• Consistent Soft UI design across all admin pages
+• Wave pattern overlays on headers
+• Stats cards with gradient icons
+• Smooth animations and transitions
+• Fully responsive layouts for mobile devices
+
+Version 2.9.7 – December 4, 2024
+------------------------------------------
+SHORTCODES PAGE REDESIGN:
+• Complete Soft UI redesign of Shortcodes page
+• Blue gradient header with wave pattern
+• Modern template cards with theme badges
+• Live search filtering by template name
+• Toast notifications on shortcode copy
+• Preview panel with empty state handling
+
+Version 2.6.0 – December 2024
+------------------------------------------
+COMPLETE REBRANDING:
+• Rebranded from Mivon HTML Editor to Base47 HTML Editor
+• Updated all functions from mivon_* to base47_*
+• Changed shortcodes to [base47-*] format
+• Maintained backward compatibility for [mivon-*] shortcodes
+• Automatic data migration from old to new options
+• Updated admin interface with Base47 branding
+
+Version 2.5.2 – November 18, 2024
+------------------------------------------
+SPECIAL WIDGETS SYSTEM:
+• Added automatic Special Widgets discovery
+• New universal shortcode: [base47_widget slug="..."]
+• Auto-generated admin list with previews
+• Modular widget architecture
+• Clean CSS/JS loading without conflicts
+
+Version 2.5.1 – November 17, 2024
+------------------------------------------
+MANIFEST SYSTEM ENHANCEMENTS:
+• Added Manifest vs Loader toggle per template set
+• Special Widgets system for reusable components
+• Slider V1 widget with shortcode support
+• Performance improvements for heavy themes
+• Fixed JavaScript errors in slider components
 
 BUG FIXES:
-* Fixed slider JavaScript errors (TypeError: Cannot set properties 'transition' of undefined)
-* Fixed performance issues - heavy themes can now use faster Loader instead of Manifest
-* Fixed missing CSS helper classes for slider widget (.d-flex, .container, etc.)
+• Fixed slider JavaScript TypeError issues
+• Fixed performance problems with heavy themes
+• Removed jQuery dependency from slider
+• Added conflict detection for libraries
+• Enhanced safety checks in JavaScript
+
+Version 2.5.0 – November 17, 2024
+------------------------------------------
+MANIFEST SYSTEM LAUNCH:
+• Introduced manifest.json system for asset management
+• Per-template-set asset configuration
+• Smart asset loading - only when templates used
+• Custom handle prefixes per template set
+• Flexible asset structure for complex libraries
+
+PERFORMANCE IMPROVEMENTS:
+• Massive performance boost - eliminated unnecessary loading
+• Better memory usage for multi-template sites
+• Cleaner asset organization
+• Enhanced code structure and maintainability
+
+Version 2.4.0 – November 2024
+------------------------------------------
+LIVE EDITOR PRO UPGRADE:
+• Major Live Editor layout overhaul
+• Full-width responsive workspace
+• Always-visible Keyboard Shortcuts Panel
+• New "Open Preview" button functionality
+• Improved preview iframe sizing
+• Enhanced drag resizer behavior
+• Professional toolbar design improvements
+
+Version 2.3.0 – November 2024
+------------------------------------------
+SPECIAL WIDGETS SYSTEM:
+• Introduced Special Widgets system
+• New admin submenu for widgets
+• Automatic shortcode generator
+• Integrated Slider V1 (Redox Hero Slider)
+• Isolated asset loader for widgets
+• Preview functionality for widgets
+
+Version 2.2.3 – November 2024
+------------------------------------------
+LIVE PREVIEW ENGINE:
+• Added real-time LIVE Preview with AJAX
+• Cache-bypass using random parameters
+• Enhanced live preview rendering
+• Improved asset URL rewriting in preview
+• Fixed browser caching issues
+
+Version 2.2.0 – November 2024
+------------------------------------------
+MULTI-SET SHORTCODE SYSTEM:
+• Automatic shortcode registration per template
+• Improved naming convention for shortcodes
+• Auto-updating shortcodes when templates renamed
+• Nested shortcode support with do_shortcode
+• Removed duplicate shortcode registration
+
+Version 2.1.5 – November 2024
+------------------------------------------
+THEME MANAGER LAUNCH:
+• Added Theme Manager with toggle system
+• Activate/deactivate template sets
+• Only active sets visible in editor and shortcodes
+• Improved default theme auto-detection
+• Safety fallback for missing active sets
+
+Version 2.1.4 – November 2024
+------------------------------------------
+TEMPLATE DISCOVERY:
+• Auto-detection of folders ending in "-templates"
+• Improved sorting of template sets
+• Auto-register empty folders for compatibility
+• Enhanced directory scanning with cleanup
+
+Version 2.1.3 – November 2024
+------------------------------------------
+ASSET REWRITE ENGINE:
+• Automatic rewriting of asset paths
+• Support for src, href, and data-background attributes
+• Optional cache-busting with version parameters
+• Fixed relative paths in nested templates
+• Prevented broken images after template imports
+
+Version 2.1.2 – November 2024
+------------------------------------------
+ADMIN UI ENHANCEMENTS:
+• Re-styled Shortcodes grid with thumbnails
+• Added "Copy shortcode" functionality
+• Improved layout spacing and alignment
+• Added iframe preview for each template
+• Modern dashboard statistics boxes
+
+Version 2.1.1 – November 2024
+------------------------------------------
+STABILITY IMPROVEMENTS:
+• Fixed Live Editor "Save" button not working
+• Fixed admin layout breaking on some installations
+• Fixed preview iframe not refreshing after updates
+• Added stable default theme resolver
+• Improved safety checks for missing template sets
+
+Version 2.1.0 – November 2024
+------------------------------------------
+THEME MANAGER FOUNDATION:
+• Added Theme Manager with toggle switches
+• New option for enabled/disabled template sets
+• Shortcodes registered only for enabled themes
+• Front-end rendering respects toggle settings
+• Activation hook initializes default state
 
 IMPROVEMENTS:
-* Removed jQuery dependency from slider (now pure vanilla JS)
-* Conditional asset loading for special widgets (only loads when shortcode used)
-* Conflict detection prevents double-loading of Bootstrap, Swiper, FontAwesome
-* Dynamic path resolution (works even if plugin renamed)
-* Safety checks and defensive programming in JavaScript
-* Better performance for heavy themes (Mivon, Lezar, Bfolio, Redox)
+• Enhanced asset rewrite system
+• Improved directory scanning for template sets
+• Added backward compatibility helpers
+• Codebase cleanup and reorganization
+
+Version 2.0.8 – November 2024
+------------------------------------------
+LIVE PREVIEW FIXES:
+• Fixed Live Preview refresh without breaking layout
+• Correct asset rewriting for all theme sets
+• Smoother and more precise resizer in Live Editor
+• Improved editor performance while typing
+• Cross-theme shortcode system compatibility
 
 TECHNICAL:
-* Added MIVON_HE_OPT_USE_MANIFEST option for per-set manifest preference
-* Enhanced mivon_he_enqueue_assets_for_set() with toggle logic
-* New function mivon_enqueue_slider_v1_assets() for conditional widget loading
-* New shortcode mivon_slider_v1 for portfolio slider
-* Updated slider-only.js to vanilla JavaScript with safety checks
-* Added CSS helper classes to slider-only.css
+• Support for unlimited theme folders
+• Automatic detection of template sets
+• Refactored AJAX handling
+• WordPress 6.7+ and PHP 8.2 compatibility
 
-BACKWARD COMPATIBILITY:
-* Fully backward compatible with v2.5.0
-* Existing templates work without changes
-* Default behavior: uses Loader (like pre-2.5.0)
-* Old manifest.json files still work if Manifest mode selected
-
-
+Version 2.0.7 – November 2024
 ------------------------------------------
-Version 2.5.0 – Manifest System & Asset Optimization
+MULTI-TEMPLATE SUPPORT:
+• Added support for multiple template sets
+• Backward compatibility for existing shortcodes
+• New shortcode naming for additional sets
+• Live Editor template set selection
+• Admin dashboard shows counts per set
+• Improved asset rewriting per set
+
+Version 2.0.6 – November 2024
 ------------------------------------------
-Release Date: November 17, 2025
+MULTI-THEME FOUNDATION:
+• Added multi-theme support infrastructure
+• Fixed shortcode output rendering issues
+• Fixed live editor preview updating
+• Improved automatic asset path rewriting
+• Enhanced performance and safety
+• Custom shortcode prefixes per theme
 
-🎯 MAJOR NEW FEATURES:
-• Introduced manifest.json system for advanced asset management
-• Per-template-set asset configuration (global + per-template control)
-• Smart asset loading - only load CSS/JS when templates are actually used
-• Custom handle prefixes per template set for better organization
-• Flexible asset structure supporting complex template libraries
-
-🔧 IMPROVEMENTS:
-• Massive performance boost - eliminated unnecessary asset loading
-• Better memory usage for sites with multiple template packs
-• Cleaner asset organization and conflict prevention
-• Enhanced code structure and maintainability
-• Improved asset discovery and validation
-
-✅ FIXES:
-• Fixed asset conflicts between different template sets
-• Fixed all CSS/JS loading on every page (now conditional)
-• Fixed handle naming conflicts in multi-set environments
-• Fixed asset path resolution issues
-• Fixed memory overhead from loading unused assets
-
-📚 TECHNICAL DETAILS:
-• New function: mivon_he_get_all_manifests() - discovers all manifest files
-• Enhanced: mivon_he_enqueue_assets_for_set() - manifest-first loading
-• Backward compatible: old asset loading (assets/css/*.css) still works
-• Manifest structure supports both "global" and per-template assets
-• Automatic handle generation with MD5 for uniqueness
-
-📖 MANIFEST STRUCTURE:
-{
-  "handle_prefix": "mivon-lezar",
-  "css": ["css/bootstrap.min.css", "css/style.css"],
-  "js": ["js/jquery.min.js", "js/main.js"]
-}
-
-🔄 MIGRATION:
-• Existing templates work without changes (fallback system active)
-• Add manifest.json to template folders for optimization
-• See documentation for manifest examples
-
-
+Version 2.0.5 – November 2024
 ------------------------------------------
-Version 2.4.0 – Live Editor Pro Upgrade
+PREVIEW ENHANCEMENTS:
+• Added support for second HTML shell
+• Optimized admin CSS and JavaScript
+• Fixed editor iframe resize logic
+• General stability improvements
+
+Version 2.0.4 – November 2024
 ------------------------------------------
-• Major Live Editor layout overhaul – now full-width, responsive, and expanded workspace  
-• Added always-visible Keyboard Shortcuts Panel (new UI section)  
-  - Cmd/Ctrl + S → Save  
-  - Cmd/Ctrl + P → Open preview  
-  - Cmd/Ctrl + 1 → Desktop preview  
-  - Cmd/Ctrl + 2 → Tablet preview  
-  - Cmd/Ctrl + 3 → Mobile preview  
-• New “Open Preview” button next to Save/Restore  
-• Improved preview iframe sizing + instant resizing UX  
-• Improved drag resizer behavior (smoother & more accurate)  
-• Fixed layout issues where buttons drifted to wrong position  
-• Cleaned and polished toolbar design  
-• Clean UI spacing, consistent card layout, improved admin readability  
-• Improved JS structure (sections, naming, handling)  
-• Improved safety checks for preview iframe loading  
-• Many micro UI enhancements for a more professional editor feel  
+STRUCTURE REBUILD:
+• Rebuilt plugin structure for stable editing
+• Restored shortcode box styling
+• Added changelog and settings subpages
+• Improved overall plugin architecture
 
+Version 2.0.3 – November 2024
 ------------------------------------------
-Version 2.3.0 – Special Widgets System + Slider V1
+LIVE EDITOR LAUNCH:
+• Introduced full live HTML editor
+• Added preview and restore functionality
+• Added admin CSS/JS assets
+• Shortcode grid view with iframe previews
+
+Version 2.0.2 – November 2024
 ------------------------------------------
-• Introduced “Special Widgets” system + new admin submenu  
-• Added automatic shortcode generator for special widgets  
-• Integrated Slider V1 (Redox Hero Slider) into plugin  
-• Added isolated asset loader for slider-v1:  
-  - Swiper JS / CSS  
-  - Bootstrap (if included in widget folder)  
-  - FontAwesome  
-  - slider-only.js / slider-only.css  
-• Ensured widget assets do not conflict with theme templates  
-• Added shortcode: [mivon_slider_v1]  
-• Added preview button for slider widget in admin  
-• Improved shortcode scanning logic for nested templates  
+TEMPLATE INTEGRATION:
+• Initial integration of HTML template bundle
+• Automatic shortcode registration per template
+• Basic template rendering system
 
+Version 2.0.1 – November 2024
 ------------------------------------------
-Version 2.2.3 – Live Preview Engine Upgrade
+FOUNDATION IMPROVEMENTS:
+• Minor bug fixes and UI improvements
+• Enhanced layout consistency
+• Improved admin interface stability
+
+Version 2.0.0 – November 2024
 ------------------------------------------
-• Added real-time LIVE Preview with AJAX debouncing  
-• Added caching-bypass using _rand parameter on Save  
-• Enhanced live preview rendering (document.write fix)  
-• Improved stripping of <html>, <head>, <body> from preview  
-• More reliable rewrite of asset URLs inside preview  
-• Fix: preview sometimes loaded old content due to browser caching  
-
-------------------------------------------
-Version 2.2.0 – Multi-Set Shortcode Registration
-------------------------------------------
-• Each template gets an automatic shortcode based on:  
-  - active set  
-  - filename  
-• Improved naming convention:  
-  - mivon-templates → [mivon-slug]  
-  - other-templates → [mivon-setname-slug]  
-• Shortcodes now auto-update when template renamed  
-• Do_shortcode applied inside templates (nested shortcodes enabled)  
-• Fix: duplicate shortcode registration removed  
-• Fix: inactive sets no longer produce shortcodes  
-
-------------------------------------------
-Version 2.1.5 – Theme Manager + Multi-Set Engine
-------------------------------------------
-• Added Theme Manager (toggle system) in admin  
-• You can now activate/deactivate template sets  
-• Only active sets are visible in:  
-  - Live Editor  
-  - Shortcodes page  
-  - Rendering system  
-• Improved default theme auto-detection  
-• Added safety fallback when active sets missing  
-• Fix: editor not loading templates from deactivated theme  
-
-------------------------------------------
-Version 2.1.4 – Template Discovery Improvements
-------------------------------------------
-• Auto-detection of all folders ending in "-templates" or "-templetes"  
-• Improved sorting of sets alphabetically  
-• Auto-register empty mivon-templates folder for backward compatibility  
-• DirectoryIterator cleanup + efficient looping  
-
-------------------------------------------
-Version 2.1.3 – Asset Rewrite Engine
-------------------------------------------
-• Automatic rewriting of:  
-  - src="assets/..."  
-  - href="assets/..."  
-  - data-background="assets/..."  
-• Added optional ?ver= timestamp for cache-busting  
-• Fixed relative paths not working in nested templates  
-• Prevents broken images after importing templates  
-
-------------------------------------------
-Version 2.1.2 – Admin UI Enhancements
-------------------------------------------
-• Re-styled Shortcodes grid with thumbnails  
-• Added “Copy shortcode” button  
-• Improved layout spacing and alignment  
-• Added iframe preview for each template  
-• Added modern dashboard statistics boxes  
-
-------------------------------------------
-Version 2.1.1.0 – Previous Stable Version
-------------------------------------------
-• Initial Live Editor  
-• Shortcode generator  
-• Basic admin UI  
-• Core template rendering  
-• Basic asset rewriting  
-• Version before all major upgrades above  
-
-
-2.1.1 — November 2025
----------------------
-• FIXED — Live Editor "Save" button not working (missing admin.js enqueue).
-• FIXED — Admin layout breaking on installations where admin.css could not load.
-• FIXED — Preview iframe not refreshing after updates.
-• FIXED — Localize-script executed before script enqueue (now corrected).
-• ADDED — Stable default theme resolver.
-• ADDED — Clean structured enqueue flow for admin assets.
-• IMPROVED — Safety checks for missing template sets.
-• CLEANUP — Removed dead code, improved consistency.
-
-2.1.0 V2
------
-• Added Theme Manager (toggle active template sets).
-• Active-only shortcodes (big improvement).
-• Safer defaults and better template detection.
-• Multi-set foundations.
-
-2.1.x
------
-• Multiple template set support.
-• Overhauled rendering engine.
-• Improved shortcode naming.
-
-= 2.1.0 =
-Release Date: 2025-11-12
-- Major Feature: Added full **Theme Manager** with toggle switches.
-- Added new option `mivon_he_enabled_themes` to store enabled/disabled template sets.
-- Shortcodes are now registered only for **enabled themes**.
-- Front-end rendering respects toggles — disabled themes won’t render shortcodes.
-- “Settings” page replaced by the new **Theme Manager** interface with save form.
-- Activation hook initializes default state (enables only mivon-templates on first install).
-- Improved asset rewrite system (better detection of absolute `/assets/` paths).
-- Improved directory scanning: supports both “-templates” and “-templetes” suffixes.
-- Added backward compatibility helpers (`mivon_he_asset()`, `mivon_bfolio_asset()`, `mivon_asset()`).
-- Codebase cleanup and reorganization for readability and maintainability.
-
-
-= 2.0.8 (November 2025) =
-* FIXED: Live Preview now properly refreshes without breaking layout or losing CSS/JS.
-* FIXED: Correct asset rewriting for all theme sets (mivon-templates, bfolio-rtl-templetes, and future ones).
-* FIXED: Resizer in Live Editor is smoother and more precise.
-* IMPROVED: Editor performance while typing (debounced preview refresh).
-* IMPROVED: Cross-theme shortcode system – fully compatible with multiple sets.
-* ADDED: Support for unlimited theme folders ending with “-templates”.
-* ADDED: Automatic detection of sets (Mivon, Bfolio, etc.) across the plugin.
-* CLEANUP: Refactored AJAX handling to prevent duplicate requests.
-* STABLE: Tested compatibility on WordPress 6.7+ and PHP 8.2.
-
-= 2.0.7 =
-* Added support for multiple template sets (any folder ending with "-templates" in the plugin root).
-* Kept backward compatibility for existing shortcodes from "mivon-templates".
-* New shortcode naming for extra sets (example: [mivon-bfolio-home]).
-* Live Editor now lets you choose both the template set and the file.
-* Admin dashboard now shows template counts per set.
-* AJAX endpoints now accept an optional "set" parameter but still auto-detect the file if "set" is missing.
-* Improved asset rewriting to respect each set's own /assets/ folder.
-
-
-== 2.0.6 (November 2025) ==
-* Added multi-theme support (mivon-templates + bfolio-rtl-templetes)
-* Fixed: shortcode output showing as text instead of rendering HTML
-* Fixed: live editor preview not updating after save
-* Fixed: full HTML restored for live preview iframe
-* Improved: automatic asset path rewriting per theme
-* Improved: performance and safety for file operations
-* Improved: UI sync for Save / Restore buttons
-* Added: support for custom shortcode prefixes per theme (e.g. [mivon-bfolio-home])
-* Refactored: AJAX structure to handle theme source dynamically
-* Cleaned: CSS layout consistency and admin padding fixes
-
-== 2.0.5 ==
-* Added support for second HTML shell (preview=true mode)
-* Optimized admin CSS / JS
-* Fixed editor iframe resize logic
-* Stability improvements
-
-== 2.0.4 ==
-* Rebuilt plugin structure for stable live editing
-* Restored shortcode box styling
-* Added changelog & settings subpages
-
-== 2.0.3 ==
-* Introduced full live HTML editor (with preview + restore)
-* Added admin CSS/JS assets
-* Added shortcode grid view with iframe previews
-
-== 2.0.2 ==
-* Initial integration of “mivon-templates” HTML bundle
-* Automatic shortcode registration for each HTML template
-
-== 2.0.1 ==
-* Minor bug fixes and UI layout improvements
-
-== 2.0.0 ==
-* Initial public release of Mivon HTML Editor plugin
-* Core: shortcode generator + basic dashboard
+INITIAL RELEASE:
+• Initial public release of Base47 HTML Editor
+• Core shortcode generator functionality
+• Basic dashboard and admin interface
+• Template rendering system foundation

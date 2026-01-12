@@ -87,6 +87,87 @@ function base47_he_ajax_save_template() {
 add_action( 'wp_ajax_base47_he_save_template', 'base47_he_ajax_save_template' );
 
 /**
+ * AJAX: Duplicate template
+ */
+function base47_he_ajax_duplicate_template() {
+    check_ajax_referer( 'base47_he', 'nonce' );
+    
+    $file     = isset( $_POST['file'] )     ? sanitize_text_field( wp_unslash( $_POST['file'] ) )     : '';
+    $set      = isset( $_POST['set'] )      ? sanitize_text_field( wp_unslash( $_POST['set'] ) )      : '';
+    $new_name = isset( $_POST['new_name'] ) ? sanitize_text_field( wp_unslash( $_POST['new_name'] ) ) : '';
+    $content  = isset( $_POST['content'] )  ? wp_unslash( $_POST['content'] ) : '';
+
+    if ( ! $file ) wp_send_json_error( 'Original template not specified.' );
+    if ( ! $new_name ) wp_send_json_error( 'New template name not specified.' );
+
+    // Validate new filename
+    if ( ! preg_match( '/^[a-zA-Z0-9_-]+\.html?$/i', $new_name ) ) {
+        wp_send_json_error( 'Invalid filename. Use only letters, numbers, hyphens, underscores, and .html extension.' );
+    }
+
+    $sets = base47_he_get_template_sets();
+    if ( empty( $set ) ) {
+        $info = base47_he_locate_template( $file );
+        if ( ! $info ) wp_send_json_error( 'Original template not found.' );
+        $set_path = dirname( $info['path'] ) . '/';
+        $theme = $info['set'];
+    } else {
+        if ( ! isset( $sets[ $set ] ) ) wp_send_json_error( 'Template set not found.' );
+        $set_path = $sets[ $set ]['path'];
+        $theme = $set;
+        
+        $original_file = $set_path . $file;
+        if ( ! file_exists( $original_file ) ) wp_send_json_error( 'Original template not found.' );
+    }
+
+    $new_file_path = $set_path . $new_name;
+
+    // Check if new file already exists
+    if ( file_exists( $new_file_path ) ) {
+        wp_send_json_error( 'A template with this name already exists.' );
+    }
+
+    // Use current content from editor if provided, otherwise read from original file
+    if ( empty( $content ) ) {
+        $content = file_get_contents( $original_file );
+        if ( false === $content ) {
+            wp_send_json_error( 'Could not read original template content.' );
+        }
+    }
+
+    // Create the duplicate file
+    $written = file_put_contents( $new_file_path, $content );
+    if ( false === $written ) {
+        base47_he_log( "Failed to duplicate template: {$file} to {$new_name} (Theme: {$theme})", 'error' );
+        wp_send_json_error( 'Could not create duplicate file. Check permissions.' );
+    }
+
+    // Update theme.json to include the new page
+    $theme_json_path = $set_path . 'theme.json';
+    if ( file_exists( $theme_json_path ) ) {
+        $theme_data = json_decode( file_get_contents( $theme_json_path ), true );
+        if ( $theme_data && isset( $theme_data['pages'] ) ) {
+            if ( ! in_array( $new_name, $theme_data['pages'] ) ) {
+                $theme_data['pages'][] = $new_name;
+                file_put_contents( $theme_json_path, json_encode( $theme_data, JSON_PRETTY_PRINT ) );
+            }
+        }
+    }
+
+    // Log successful duplication
+    $user = wp_get_current_user();
+    $username = $user->user_login ?? 'Unknown';
+    base47_he_log( "Template duplicated: {$file} to {$new_name} (Theme: {$theme}) by {$username}", 'info' );
+
+    wp_send_json_success( [
+        'message' => 'Template duplicated successfully!',
+        'new_file' => $new_name,
+        'redirect_url' => admin_url( 'admin.php?page=base47-he-editor&set=' . urlencode( $set ) . '&file=' . urlencode( $new_name ) )
+    ] );
+}
+add_action( 'wp_ajax_base47_he_duplicate_template', 'base47_he_ajax_duplicate_template' );
+
+/**
  * AJAX: Live preview (real-time preview in editor)
  */
 add_action( 'wp_ajax_base47_he_live_preview', function() {
