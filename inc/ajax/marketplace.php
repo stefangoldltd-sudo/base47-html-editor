@@ -416,14 +416,6 @@ function base47_he_get_mock_template_data( $template_id ) {
     
     return false; // Template not found
 }
-    $data = json_decode( $body, true );
-    
-    if ( ! is_array( $data ) ) {
-        return new WP_Error( 'invalid_response', 'Invalid response from marketplace API' );
-    }
-    
-    return $data;
-}
 
 /**
  * Fetch template preview URL from marketplace API

@@ -315,6 +315,16 @@ function base47_he_admin_assets( $hook ) {
         );
     }
     
+    // Marketplace page CSS (Phase 16.5)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-marketplace' ) {
+        wp_enqueue_style(
+            'base47-he-marketplace',
+            BASE47_HE_URL . 'admin-assets/marketplace.css',
+            [ 'base47-he-admin' ],
+            BASE47_HE_VERSION
+        );
+    }
+    
     // Live Editor page - editor.css removed in 2.9.7.7 (caused layout issues)
 
     wp_enqueue_script(

@@ -1,80 +1,72 @@
 /**
- * Changelog Page - Soft UI v3.0
+ * Changelog Page - Clean & Simple Design
  * 
- * Modern timeline-based changelog with filtering and categorization
- * Based on Soft UI Dashboard by Creative Tim
+ * Header + Stats Bubbles + Simple Version Rows
  * 
  * @package Base47_HTML_Editor
- * @since 2.9.9.3.2
+ * @since 2.9.9.3.12
  */
 
 /* ========================================
-   SOFT UI VARIABLES
+   VARIABLES
    ======================================== */
 
 :root {
-    --soft-primary: #f97316;
-    --soft-secondary: #71717a;
-    --soft-success: #22c55e;
-    --soft-info: #3b82f6;
-    --soft-warning: #f59e0b;
-    --soft-danger: #ef4444;
-    --soft-dark: #18181b;
-    --soft-light: #e4e4e7;
+    --primary: #f97316;
+    --secondary: #71717a;
+    --success: #22c55e;
+    --info: #3b82f6;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --dark: #18181b;
+    --light: #e4e4e7;
     
-    --soft-gradient-primary: linear-gradient(310deg, #f97316, #fb923c);
-    --soft-gradient-purple: linear-gradient(310deg, #7928ca, #ff0080);
-    --soft-gradient-success: linear-gradient(310deg, #22c55e, #84cc16);
-    --soft-gradient-info: linear-gradient(310deg, #3b82f6, #06b6d4);
-    --soft-gradient-warning: linear-gradient(310deg, #f59e0b, #fbbf24);
-    --soft-gradient-danger: linear-gradient(310deg, #ef4444, #f87171);
+    --gradient-primary: linear-gradient(310deg, #f97316, #fb923c);
+    --gradient-info: linear-gradient(310deg, #3b82f6, #06b6d4);
     
-    --soft-shadow-xs: 0 2px 9px -5px rgba(0, 0, 0, 0.15);
-    --soft-shadow-sm: 0 0.25rem 0.375rem -0.0625rem rgba(20, 20, 20, 0.12), 0 0.125rem 0.25rem -0.0625rem rgba(20, 20, 20, 0.07);
-    --soft-shadow-md: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07);
-    --soft-shadow-lg: 0 8px 26px -4px rgba(20, 20, 20, 0.15), 0 8px 9px -5px rgba(20, 20, 20, 0.06);
+    --shadow-sm: 0 0.25rem 0.375rem -0.0625rem rgba(20, 20, 20, 0.12);
+    --shadow-md: 0 4px 7px -1px rgba(0, 0, 0, 0.11);
     
-    --soft-radius-sm: 0.25rem;
-    --soft-radius-md: 0.5rem;
-    --soft-radius-lg: 0.75rem;
-    --soft-radius-xl: 1rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
     
-    --soft-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* ========================================
-   CHANGELOG PAGE CONTAINER
+   CONTAINER
    ======================================== */
 
-.base47-changelog-soft-ui {
-    font-family: var(--soft-font-family);
+.base47-changelog-clean {
+    font-family: var(--font-family);
     background: #f8f9fa;
     padding: 2rem 20px 2rem 0;
     margin-left: 0 !important;
     max-width: 100%;
 }
 
-.wrap.base47-changelog-soft-ui {
+.wrap.base47-changelog-clean {
     margin-left: 0 !important;
     margin-right: 20px;
 }
 
 /* ========================================
-   PAGE HEADER
+   HEADER
    ======================================== */
 
-.base47-changelog-header-soft {
-    background: var(--soft-gradient-purple);
-    border-radius: var(--soft-radius-xl);
-    padding: 2.5rem;
+.changelog-header {
+    background: var(--gradient-info);
+    border-radius: var(--radius-xl);
+    padding: 3rem;
     margin-bottom: 2rem;
-    box-shadow: var(--soft-shadow-lg);
+    box-shadow: var(--shadow-md);
     color: #fff;
+    text-align: center;
     position: relative;
     overflow: hidden;
 }
 
-.base47-changelog-header-soft::before {
+.changelog-header::before {
     content: '';
     position: absolute;
     top: 0;
@@ -91,593 +83,285 @@
     z-index: 1;
 }
 
-.base47-changelog-header-soft h1 {
-    font-size: 2.25rem;
+.changelog-header h1 {
+    font-size: 2.5rem;
     font-weight: 700;
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 1rem 0;
     color: #fff;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: center;
+    gap: 1rem;
 }
 
-.base47-changelog-header-soft h1 .dashicons {
-    font-size: 2rem;
-    width: 2rem;
-    height: 2rem;
+.changelog-header h1 .dashicons {
+    font-size: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
 }
 
-.base47-changelog-header-soft p {
-    font-size: 1rem;
+.changelog-header p {
+    font-size: 1.125rem;
     margin: 0;
-    opacity: 0.95;
-    color: #fff;
-    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* ========================================
-   STATS CARDS
+   STATS BUBBLES
    ======================================== */
 
-.base47-changelog-stats {
+.changelog-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
-.base47-changelog-stat-card {
+.stat-bubble {
     background: #fff;
-    border-radius: var(--soft-radius-xl);
-    padding: 1.75rem;
-    box-shadow: var(--soft-shadow-sm);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    transition: all 0.3s ease;
+    gap: 1.5rem;
     border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
 }
 
-.base47-changelog-stat-card:hover {
+.stat-bubble:hover {
     transform: translateY(-4px);
-    box-shadow: var(--soft-shadow-lg);
+    box-shadow: var(--shadow-md);
 }
 
 .stat-icon {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: var(--soft-radius-lg);
-    background: var(--soft-gradient-primary);
+    width: 4rem;
+    height: 4rem;
+    border-radius: var(--radius-lg);
+    background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--soft-shadow-xs);
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
 }
 
 .stat-icon .dashicons {
-    font-size: 1.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    color: #fff;
-}
-
-.stat-content .stat-number {
     font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--soft-dark);
-    line-height: 1;
-    margin-bottom: 0.25rem;
-}
-
-.stat-content .stat-label {
-    font-size: 0.875rem;
-    color: var(--soft-secondary);
-    font-weight: 500;
-}
-
-/* ========================================
-   FILTER TABS
-   ======================================== */
-
-.base47-changelog-filters {
-    display: flex;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-}
-
-.filter-btn {
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 2rem;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--soft-secondary);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    box-shadow: var(--soft-shadow-xs);
-}
-
-.filter-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--soft-shadow-md);
-    border-color: var(--soft-primary);
-}
-
-.filter-btn.active {
-    background: var(--soft-gradient-primary);
-    color: #fff;
-    border-color: transparent;
-    box-shadow: var(--soft-shadow-md);
-}
-
-.filter-btn .dashicons {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
-}
-
-/* ========================================
-   CHANGELOG TIMELINE
-   ======================================== */
-
-.base47-changelog-timeline {
-    position: relative;
-    max-width: 1000px;
-}
-
-.base47-changelog-timeline::before {
-    content: '';
-    position: absolute;
-    left: 2rem;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(to bottom, var(--soft-primary), var(--soft-info));
-    border-radius: 1px;
-}
-
-.base47-changelog-version {
-    position: relative;
-    margin-bottom: 2rem;
-    padding-left: 5rem;
-    transition: all 0.3s ease;
-}
-
-.base47-changelog-version.is-current {
-    transform: scale(1.02);
-}
-
-/* Timeline Dot */
-.timeline-dot {
-    position: absolute;
-    left: 1.25rem;
-    top: 1.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 50%;
-    background: var(--soft-gradient-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 0 4px #fff, var(--soft-shadow-md);
-    z-index: 2;
-}
-
-.base47-changelog-version.type-hotfix .timeline-dot {
-    background: var(--soft-gradient-danger);
-}
-
-.base47-changelog-version.type-feature .timeline-dot {
-    background: var(--soft-gradient-success);
-}
-
-.base47-changelog-version.is-current .timeline-dot {
-    background: var(--soft-gradient-warning);
-    box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(249, 115, 22, 0.2), var(--soft-shadow-lg);
-}
-
-.timeline-dot .dashicons {
-    font-size: 0.75rem;
-    width: 0.75rem;
-    height: 0.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
     color: #fff;
 }
 
-/* Version Card */
-.version-card {
-    background: #fff;
-    border-radius: var(--soft-radius-xl);
-    box-shadow: var(--soft-shadow-sm);
-    overflow: hidden;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.version-card:hover {
-    box-shadow: var(--soft-shadow-lg);
-}
-
-.base47-changelog-version.is-current .version-card {
-    border-color: var(--soft-primary);
-    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.15);
-}
-
-/* Version Header */
-.version-header {
-    padding: 1.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    transition: background 0.2s ease;
-    user-select: none;
-}
-
-.version-header:hover {
-    background: #f8f9fa;
-}
-
-.base47-changelog-version.is-current .version-header {
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(251, 146, 60, 0.05) 100%);
-}
-
-.version-info {
+.stat-content {
     flex: 1;
 }
 
-.version-main {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
-}
-
-/* Version Badge */
-.version-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-size: 0.875rem;
+.stat-number {
+    font-size: 2rem;
     font-weight: 700;
-    background: var(--soft-gradient-primary);
-    color: #fff;
-    box-shadow: var(--soft-shadow-xs);
-}
-
-.version-badge.type-hotfix {
-    background: var(--soft-gradient-danger);
-}
-
-.version-badge.type-feature {
-    background: var(--soft-gradient-success);
-}
-
-.version-badge.type-update {
-    background: var(--soft-gradient-info);
-}
-
-/* Badges */
-.current-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 2rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: rgba(249, 115, 22, 0.15);
-    color: var(--soft-primary);
-}
-
-.major-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 2rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: rgba(139, 69, 19, 0.15);
-    color: #8b4513;
-}
-
-/* Version Date */
-.version-date {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--soft-secondary);
-    font-weight: 500;
+    color: var(--dark);
+    line-height: 1;
     margin-bottom: 0.5rem;
 }
 
-.version-date .dashicons {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Version Description */
-.version-description {
-    font-size: 0.9375rem;
-    color: var(--soft-dark);
-    font-weight: 500;
-}
+/* ========================================
+   VERSION ROWS
+   ======================================== */
 
-/* Version Toggle */
-.version-toggle {
+.changelog-versions {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5rem;
-}
-
-.toggle-icon {
-    font-size: 1.25rem;
-    width: 1.25rem;
-    height: 1.25rem;
-    color: var(--soft-secondary);
-    transition: transform 0.3s ease;
-}
-
-.toggle-icon.rotated {
-    transform: rotate(180deg);
-}
-
-.changes-count {
-    font-size: 0.75rem;
-    color: var(--soft-secondary);
-    font-weight: 500;
-}
-
-/* Version Content */
-.version-content {
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    padding: 1.5rem;
-}
-
-/* Changes Grid */
-.changes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
 }
 
-.changes-category {
-    background: #f8f9fa;
-    border-radius: var(--soft-radius-lg);
-    padding: 1.25rem;
+.version-row {
+    background: #fff;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
 }
 
-.category-title {
-    font-size: 0.9375rem;
-    font-weight: 700;
-    color: var(--soft-dark);
-    margin: 0 0 1rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.version-row:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-.category-title .dashicons {
-    font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
-    color: var(--soft-primary);
+.version-row.current-version {
+    border-color: var(--primary);
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.15);
 }
 
-.category-count {
-    background: var(--soft-primary);
-    color: #fff;
-    font-size: 0.75rem;
-    padding: 0.125rem 0.5rem;
-    border-radius: 1rem;
-    font-weight: 600;
-    margin-left: auto;
-}
-
-.changes-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.changes-list li {
-    padding: 0.5rem 0;
-    padding-left: 1.5rem;
-    position: relative;
-    color: var(--soft-dark);
-    font-size: 0.875rem;
-    line-height: 1.6;
+.version-header {
+    padding: 2rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.changes-list li:last-child {
-    border-bottom: none;
-}
-
-.changes-list li::before {
-    content: '•';
-    position: absolute;
-    left: 0;
-    top: 0.5rem;
-    color: var(--soft-primary);
-    font-weight: 700;
-    font-size: 1rem;
-}
-
-/* No Changes State */
-.no-changes {
-    text-align: center;
-    padding: 2rem;
-    color: var(--soft-secondary);
-}
-
-.no-changes .dashicons {
-    font-size: 2rem;
-    width: 2rem;
-    height: 2rem;
-    margin-bottom: 0.5rem;
-    opacity: 0.5;
-}
-
-.no-changes p {
-    margin: 0;
-    font-size: 0.9375rem;
-}
-
-/* ========================================
-   FOOTER
-   ======================================== */
-
-.base47-changelog-footer {
-    background: var(--soft-gradient-info);
-    border-radius: var(--soft-radius-xl);
-    padding: 2rem;
-    margin-top: 3rem;
-    color: #fff;
-    box-shadow: var(--soft-shadow-md);
-}
-
-.footer-content {
+.version-info {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
     flex-wrap: wrap;
 }
 
-.footer-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
-}
-
-.footer-info .dashicons {
+.version-number {
     font-size: 1.5rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
-}
-
-.footer-info strong {
-    font-size: 1.125rem;
-    margin-bottom: 0.25rem;
-    display: block;
-}
-
-.footer-info p {
+    font-weight: 700;
+    color: var(--dark);
     margin: 0;
-    font-size: 0.9375rem;
-    opacity: 0.9;
 }
 
-.footer-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-.footer-btn {
-    background: rgba(255, 255, 255, 0.2);
+.current-badge {
+    background: var(--gradient-primary);
     color: #fff;
-    text-decoration: none;
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--soft-radius-lg);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.version-date {
     font-size: 0.875rem;
+    color: var(--secondary);
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
 }
 
-.footer-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    color: #fff;
+.version-title h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0;
 }
 
-.footer-btn .dashicons {
+.version-content {
+    padding: 2rem;
+}
+
+.version-summary {
     font-size: 1rem;
-    width: 1rem;
-    height: 1rem;
+    color: var(--secondary);
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+}
+
+.changes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.change-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.change-item:hover {
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    transform: translateX(4px);
+}
+
+.change-bullet {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.change-text {
+    font-size: 0.9375rem;
+    color: var(--dark);
+    line-height: 1.5;
+    flex: 1;
 }
 
 /* ========================================
    RESPONSIVE
    ======================================== */
 
-@media (max-width: 782px) {
-    .base47-changelog-header-soft {
-        padding: 1.5rem;
+@media (max-width: 768px) {
+    .base47-changelog-clean {
+        padding: 1rem 10px 1rem 0;
     }
     
-    .base47-changelog-header-soft h1 {
-        font-size: 1.75rem;
+    .changelog-header {
+        padding: 2rem;
     }
     
-    .base47-changelog-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .base47-changelog-filters {
-        justify-content: center;
-    }
-    
-    .base47-changelog-timeline::before {
-        left: 1rem;
-    }
-    
-    .base47-changelog-version {
-        padding-left: 3rem;
-    }
-    
-    .timeline-dot {
-        left: 0.25rem;
-    }
-    
-    .version-header {
-        padding: 1rem;
+    .changelog-header h1 {
+        font-size: 2rem;
         flex-direction: column;
-        align-items: flex-start;
+        gap: 0.5rem;
     }
     
-    .version-toggle {
-        align-self: stretch;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .changes-grid {
+    .changelog-stats {
         grid-template-columns: 1fr;
     }
     
-    .footer-content {
-        flex-direction: column;
-        text-align: center;
+    .stat-bubble {
+        padding: 1.5rem;
+        gap: 1rem;
     }
     
-    .footer-actions {
-        justify-content: center;
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .version-header {
+        padding: 1.5rem;
+    }
+    
+    .version-content {
+        padding: 1.5rem;
+    }
+    
+    .version-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .version-number {
+        font-size: 1.25rem;
     }
 }
 
 @media (max-width: 480px) {
-    .base47-changelog-stats {
-        grid-template-columns: 1fr;
+    .changelog-header h1 {
+        font-size: 1.75rem;
     }
     
-    .filter-btn {
-        flex: 1;
-        justify-content: center;
+    .version-header {
+        padding: 1rem;
+    }
+    
+    .version-content {
+        padding: 1rem;
+    }
+    
+    .change-item {
+        padding: 0.5rem;
     }
 }
