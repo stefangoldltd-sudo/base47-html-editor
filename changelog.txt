@@ -2,6 +2,73 @@
 BASE47 HTML EDITOR — CHANGELOG
 ========================================================
 
+Version 2.9.9.3.6 – January 12, 2026
+------------------------------------------
+DASHBOARD IMPROVEMENTS:
+• Updated all external links to 47-studio.com/base47
+• Enhanced Pro upgrade CTA with modern design
+• Fixed CSS variables for proper color variety
+• Improved responsive design and mobile experience
+• Added professional animations and hover effects
+
+DESIGN SYSTEM:
+• Corrected color variables for success, info, warning states
+• Enhanced visual hierarchy throughout dashboard
+• Professional gradient backgrounds and effects
+• Consistent Soft UI v3.0 design implementation
+
+Version 2.9.9.3.5 – January 12, 2026
+------------------------------------------
+PRO UPGRADE PAGE REDESIGN:
+• Complete redesign with conversion-optimized layout
+• Modern hero section with animated illustrations
+• Professional pricing cards with yearly/monthly toggle
+• Enhanced feature showcase with highlight badges
+• Customer testimonials for social proof
+• Interactive FAQ accordion with smooth animations
+• Trust badges and guarantee messaging
+• Fully responsive design for all devices
+
+TECHNICAL IMPROVEMENTS:
+• Complete CSS rewrite with Soft UI v3.0 design
+• Enhanced JavaScript for pricing toggle and FAQ
+• Professional animations and micro-interactions
+• Optimized for mobile and tablet devices
+
+Version 2.9.9.3.4 – January 12, 2026
+------------------------------------------
+LICENSE PAGE REDESIGN:
+• Complete redesign with modern license management
+• Hero status cards with animated indicators
+• Professional license details with organized layout
+• Enhanced activation form with better UX
+• Customer testimonials for social proof
+• Integrated support section with direct links
+• Fully responsive design for all devices
+
+UI ENHANCEMENTS:
+• Pulse animations for active licenses
+• Professional gradients and shadow system
+• Enhanced typography and spacing
+• Better mobile experience
+
+Version 2.9.9.3.3 – January 12, 2026
+------------------------------------------
+CHANGELOG PAGE REDESIGN:
+• Complete redesign with professional timeline layout
+• Advanced filtering by version type (All, Major, New Features, Hotfixes)
+• Statistics dashboard with version counts
+• Categorized changes (Features, Improvements, Bug Fixes, Technical)
+• Interactive accordion with smooth animations
+• Modern Soft UI v3.0 design system
+• Fully responsive design
+
+TECHNICAL IMPROVEMENTS:
+• Enhanced JavaScript for filtering and interactions
+• Professional CSS with gradients and animations
+• Better data organization and presentation
+• Improved mobile experience
+
 Version 2.9.9.3.2 – January 12, 2026
 ------------------------------------------
 MARKETPLACE INTEGRATION:
@@ -48,6 +115,114 @@ TEMPLATE DUPLICATION FEATURE:
 
 UI IMPROVEMENTS:
 • Enhanced Live Editor toolbar
+• Better user feedback and error handling
+• Improved template management workflow
+
+Version 2.9.9.2.15 – December 15, 2025
+------------------------------------------
+PREVIEW SYSTEM FIX:
+• Fixed preview after save showing WordPress page instead of pure HTML
+• Updated save function to use live preview AJAX method
+• Improved template preview accuracy
+• Better user experience in Live Editor
+
+BUG FIXES:
+• Resolved preview display issues
+• Fixed template rendering problems
+• Improved editor reliability
+
+Version 2.9.9.2.8 – December 10, 2025
+------------------------------------------
+CORE IMPROVEMENTS:
+• Enhanced template loading system
+• Improved shortcode generation
+• Better error handling and logging
+• Performance optimizations
+
+STABILITY:
+• Fixed various minor bugs
+• Improved plugin reliability
+• Better WordPress compatibility
+
+Version 2.9.8 – November 2025
+------------------------------------------
+DASHBOARD REDESIGN:
+• Professional Soft UI dashboard design
+• Welcome banner with call-to-action buttons
+• Statistics overview with visual cards
+• Quick actions grid for easy navigation
+• System information display
+• Ecosystem products showcase
+• Help and support links section
+
+UI ENHANCEMENTS:
+• Modern gradient backgrounds
+• Professional animations and hover effects
+• Responsive design for all devices
+• Enhanced visual hierarchy
+
+Version 2.9.7 – October 2025
+------------------------------------------
+LIVE EDITOR IMPROVEMENTS:
+• Enhanced Monaco Editor integration
+• Better syntax highlighting
+• Improved code completion
+• Real-time preview updates
+
+TEMPLATE SYSTEM:
+• Better template detection
+• Improved shortcode generation
+• Enhanced theme management
+• Performance optimizations
+
+Version 2.9.6 – September 2025
+------------------------------------------
+THEME MANAGER REDESIGN:
+• Professional Soft UI design
+• Toggle switches for theme activation
+• Better visual feedback
+• Improved user experience
+
+CORE FEATURES:
+• Enhanced template loading
+• Better error handling
+• Improved performance
+• WordPress 6.3 compatibility
+
+Version 2.9.5 – August 2025
+------------------------------------------
+SHORTCODES PAGE REDESIGN:
+• Modern grid layout
+• Search functionality
+• Copy-to-clipboard buttons
+• Better organization
+
+IMPROVEMENTS:
+• Enhanced user interface
+• Better mobile experience
+• Improved accessibility
+• Performance optimizations
+
+Version 2.9.0 – July 2025
+------------------------------------------
+MAJOR RELEASE:
+• Complete plugin rebranding from Mivon to Base47
+• Updated all function names and prefixes
+• New professional branding
+• Enhanced documentation
+
+CORE FEATURES:
+• Live HTML editor with Monaco
+• Template management system
+• Shortcode generation
+• Theme toggle functionality
+• Special widgets support
+
+TECHNICAL:
+• WordPress 6.2+ compatibility
+• PHP 7.4+ requirement
+• Enhanced security
+• Performance improvements
 • Better modal design and interactions
 • Improved user feedback with notifications
 • Professional button styling
