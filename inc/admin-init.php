@@ -62,6 +62,16 @@ function base47_he_admin_menu() {
         'base47_he_theme_manager_page'
     );
 
+    // Marketplace
+    add_submenu_page(
+        'base47-he-dashboard',
+        'Marketplace',
+        'Marketplace',
+        'manage_options',
+        'base47-he-marketplace',
+        'base47_he_marketplace_page'
+    );
+
     // Special Widgets 
     add_submenu_page(
         'base47-he-dashboard',
