@@ -89,8 +89,9 @@ function base47_he_editor_page() {
                     <?php endforeach; ?>
                 </select>
             </form>
-             <?php if ( $selected ) : ?>
+    <?php if ( $selected ) : ?>
     <button id="base47-he-save" class="button button-primary">Save</button>
+    <button id="base47-he-duplicate" class="button button-secondary">Duplicate</button>
     <?php if ( base47_he_has_feature( 'auto_backups' ) ) : ?>
         <button id="base47-he-restore" class="button">Restore</button>
     <?php else : ?>
@@ -232,6 +233,33 @@ function base47_he_editor_page() {
             <div class="base47-he-modal-footer">
                 <button id="base47-he-restore-selected" class="button button-primary" disabled>Restore Selected</button>
                 <button id="base47-he-download-selected" class="button" disabled>Download Backup</button>
+                <button class="button base47-he-modal-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Duplicate Template Modal -->
+    <div id="base47-he-duplicate-modal" class="base47-he-modal" style="display:none;">
+        <div class="base47-he-modal-content">
+            <div class="base47-he-modal-header">
+                <h2>Duplicate Template</h2>
+                <span class="base47-he-modal-close">&times;</span>
+            </div>
+            <div class="base47-he-modal-body">
+                <p>Create a copy of the current template with a new name.</p>
+                <div class="base47-he-duplicate-form">
+                    <label for="base47-he-duplicate-name">New Template Name:</label>
+                    <input type="text" id="base47-he-duplicate-name" placeholder="e.g., my-custom-page.html" style="width: 100%; margin-top: 8px; padding: 8px;">
+                    <p class="description" style="margin-top: 8px; color: #666;">
+                        The new template will be saved in the same theme set. Include the .html extension.
+                    </p>
+                    <div id="base47-he-duplicate-error" class="base47-he-duplicate-error" style="display: none;">
+                        <p style="color: #d63638; margin: 10px 0;"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="base47-he-modal-footer">
+                <button id="base47-he-duplicate-confirm" class="button button-primary">Create Duplicate</button>
                 <button class="button base47-he-modal-close">Cancel</button>
             </div>
         </div>

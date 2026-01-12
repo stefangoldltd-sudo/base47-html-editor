@@ -151,6 +151,100 @@ function getActiveSet() {
     });
 
     /* ==========================
+       DUPLICATE TEMPLATE (EDITOR)
+    ========================== */
+    $('#base47-he-duplicate').on('click', function (e) {
+        e.preventDefault();
+        
+        // Open duplicate modal
+        $('#base47-he-duplicate-modal').fadeIn(200);
+        
+        // Reset form
+        $('#base47-he-duplicate-name').val('');
+        $('#base47-he-duplicate-error').hide();
+        $('#base47-he-duplicate-confirm').prop('disabled', false);
+        
+        // Focus on input
+        setTimeout(() => {
+            $('#base47-he-duplicate-name').focus();
+        }, 250);
+    });
+
+    // Duplicate confirmation
+    $('#base47-he-duplicate-confirm').on('click', function (e) {
+        e.preventDefault();
+        
+        const newName = $('#base47-he-duplicate-name').val().trim();
+        const $error = $('#base47-he-duplicate-error');
+        const $btn = $(this);
+        
+        // Reset error state
+        $error.hide();
+        
+        // Validate input
+        if (!newName) {
+            $error.find('p').text('Please enter a template name.');
+            $error.show();
+            return;
+        }
+        
+        // Validate filename format
+        if (!/^[a-zA-Z0-9_-]+\.html?$/i.test(newName)) {
+            $error.find('p').text('Invalid filename. Use only letters, numbers, hyphens, underscores, and .html extension.');
+            $error.show();
+            return;
+        }
+        
+        // Disable button and show loading
+        $btn.prop('disabled', true).text('Creating...');
+        
+        // Send duplication request
+        $.post(BASE47_HE.ajax_url, {
+            action: 'base47_he_duplicate_template',
+            nonce: BASE47_HE.nonce,
+            file: $file.val(),
+            set: getActiveSet(),
+            new_name: newName,
+            content: $code.val() // Include current editor content
+        }, function (resp) {
+            if (resp.success) {
+                // Close modal
+                $('#base47-he-duplicate-modal').fadeOut(200);
+                
+                // Show success message
+                if ($('.base47-sc-soft-ui').length) {
+                    showSoftUIToast('Template duplicated successfully!', '✓');
+                } else {
+                    alert('Template duplicated successfully!');
+                }
+                
+                // Redirect to the new template
+                if (resp.data && resp.data.redirect_url) {
+                    window.location.href = resp.data.redirect_url;
+                }
+            } else {
+                // Show error
+                $error.find('p').text(resp.data || 'Failed to duplicate template.');
+                $error.show();
+                
+                // Re-enable button
+                $btn.prop('disabled', false).text('Create Duplicate');
+            }
+        }).fail(function() {
+            $error.find('p').text('Network error. Please try again.');
+            $error.show();
+            $btn.prop('disabled', false).text('Create Duplicate');
+        });
+    });
+
+    // Handle Enter key in duplicate name input
+    $('#base47-he-duplicate-name').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            $('#base47-he-duplicate-confirm').click();
+        }
+    });
+
+    /* ==========================
        RESTORE BACKUP MODAL (EDITOR)
     ========================== */
     let selectedBackup = null;
