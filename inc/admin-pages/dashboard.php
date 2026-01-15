@@ -404,19 +404,19 @@ function base47_he_dashboard_page() {
                     </div>
                     <div class="card-body">
                         <div class="support-links">
-                            <a href="https://base47.com/docs" target="_blank" class="support-link">
+                            <a href="https://47-studio.com/base47/docs" target="_blank" class="support-link">
                                 <span class="dashicons dashicons-book"></span>
                                 Documentation
                             </a>
-                            <a href="https://base47.com/tutorials" target="_blank" class="support-link">
+                            <a href="https://47-studio.com/base47/tutorials" target="_blank" class="support-link">
                                 <span class="dashicons dashicons-video-alt3"></span>
                                 Video Tutorials
                             </a>
-                            <a href="https://base47.com/support" target="_blank" class="support-link">
+                            <a href="<?php echo admin_url( 'admin.php?page=base47-he-support' ); ?>" class="support-link">
                                 <span class="dashicons dashicons-email"></span>
-                                Contact Support
+                                Open Support Ticket
                             </a>
-                            <a href="https://base47.com/community" target="_blank" class="support-link">
+                            <a href="https://47-studio.com/base47/community" target="_blank" class="support-link">
                                 <span class="dashicons dashicons-groups"></span>
                                 Community Forum
                             </a>
@@ -445,5 +445,6 @@ function base47_he_dashboard_page() {
         </div>
         
     </div>
+    
     <?php
 }

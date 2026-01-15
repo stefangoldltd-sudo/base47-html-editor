@@ -318,15 +318,69 @@ function base47_he_collect_system_info() {
 }
 
 /**
- * Send ticket notification email (placeholder for future implementation)
+ * Send ticket notification email
  */
 function base47_he_send_ticket_notification( $ticket_id, $subject, $message ) {
-    // This would send an email to support team
-    // For now, we'll just log it
-    base47_he_log( 'info', "New support ticket #{$ticket_id}: {$subject}" );
+    // Get support email from settings
+    $settings = base47_he_get_settings();
+    $support_email = $settings['support_email'] ?? 'support@47-studio.com';
     
-    // Future implementation could send email to support@base47.com
-    // wp_mail( 'support@base47.com', "New Support Ticket #{$ticket_id}", $message );
+    // Validate email
+    if ( ! is_email( $support_email ) ) {
+        base47_he_log( 'error', "Invalid support email address: {$support_email}" );
+        return false;
+    }
+    
+    // Get user info
+    $user = wp_get_current_user();
+    $user_email = $user->user_email;
+    $user_name = $user->display_name;
+    $site_name = get_bloginfo( 'name' );
+    $site_url = get_site_url();
+    
+    // Email subject
+    $email_subject = "[{$site_name}] New Support Ticket #{$ticket_id}: {$subject}";
+    
+    // Email content
+    $email_message = "
+New support ticket submitted on {$site_name}
+
+Ticket Details:
+- Ticket ID: #{$ticket_id}
+- Subject: {$subject}
+- User: {$user_name} ({$user_email})
+- Site: {$site_url}
+- Date: " . current_time( 'F j, Y \a\t g:i A' ) . "
+
+Message:
+{$message}
+
+---
+
+View ticket: {$site_url}/wp-admin/admin.php?page=base47-he-support&action=view&ticket={$ticket_id}
+
+This is an automated message from Base47 HTML Editor Support System.
+";
+    
+    // Email headers
+    $headers = [
+        'Content-Type: text/plain; charset=UTF-8',
+        "From: {$site_name} <noreply@" . parse_url( $site_url, PHP_URL_HOST ) . ">",
+        "Reply-To: {$user_name} <{$user_email}>",
+        'X-Mailer: Base47 HTML Editor Support System'
+    ];
+    
+    // Send email
+    $sent = wp_mail( $support_email, $email_subject, $email_message, $headers );
+    
+    // Log the result
+    if ( $sent ) {
+        base47_he_log( 'info', "Support ticket notification sent to {$support_email} for ticket #{$ticket_id}" );
+    } else {
+        base47_he_log( 'error', "Failed to send support ticket notification to {$support_email} for ticket #{$ticket_id}" );
+    }
+    
+    return $sent;
 }
 
 /**

@@ -7,6 +7,9 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+// Include local WordPress marketplace functions
+require_once plugin_dir_path( __FILE__ ) . 'marketplace-local.php';
+
 /**
  * AJAX: Load marketplace templates
  */
@@ -15,14 +18,25 @@ function base47_he_ajax_load_marketplace() {
     
     $filters = isset( $_POST['filters'] ) ? $_POST['filters'] : [];
     
-    // Connect to 47-studio.com/base47 API
-    $api_response = base47_he_fetch_marketplace_templates( $filters );
+    // Use local WordPress marketplace system
+    $templates = base47_he_load_local_templates( $filters );
     
-    if ( is_wp_error( $api_response ) ) {
-        wp_send_json_error( 'Could not connect to marketplace: ' . $api_response->get_error_message() );
+    if ( is_wp_error( $templates ) ) {
+        wp_send_json_error( 'Could not load templates: ' . $templates->get_error_message() );
     }
     
-    wp_send_json_success( $api_response );
+    // Format response to match expected structure
+    $response_data = [
+        'templates' => $templates,
+        'pagination' => [
+            'current_page' => 1,
+            'total_pages' => 1,
+            'total_templates' => count($templates),
+            'per_page' => count($templates)
+        ]
+    ];
+    
+    wp_send_json_success( $response_data );
 }
 add_action( 'wp_ajax_base47_he_load_marketplace', 'base47_he_ajax_load_marketplace' );
 
@@ -38,8 +52,8 @@ function base47_he_ajax_install_marketplace_template() {
         wp_send_json_error( 'Template ID not specified.' );
     }
     
-    // Get template data from marketplace API (47-studio.com/base47)
-    $template_data = base47_he_fetch_marketplace_template( $template_id );
+    // Get template data from local WordPress uploads
+    $template_data = base47_he_get_local_template( $template_id );
     if ( is_wp_error( $template_data ) ) {
         wp_send_json_error( 'Could not fetch template: ' . $template_data->get_error_message() );
     }
@@ -60,8 +74,8 @@ function base47_he_ajax_install_marketplace_template() {
         wp_send_json_error( 'Could not create template directory. Check permissions.' );
     }
     
-    // Download and extract template files
-    $download_result = base47_he_download_template( $template_data, $template_path );
+    // Download and extract template files from local uploads
+    $download_result = base47_he_install_local_template( $template_data, $template_path );
     if ( is_wp_error( $download_result ) ) {
         wp_send_json_error( $download_result->get_error_message() );
     }
@@ -74,9 +88,7 @@ function base47_he_ajax_install_marketplace_template() {
     }
     
     // Log installation
-    $user = wp_get_current_user();
-    $username = $user->user_login ?? 'Unknown';
-    base47_he_log( "Marketplace template installed: {$template_data['name']} ({$template_data['slug']}) by {$username}", 'info' );
+    base47_he_log_local_download( $template_id );
     
     wp_send_json_success( [
         'message' => 'Template installed successfully!',
@@ -98,17 +110,17 @@ function base47_he_ajax_get_template_preview() {
         wp_send_json_error( 'Template ID not specified.' );
     }
     
-    // Get preview URL from marketplace API (47-studio.com/base47)
-    $preview_url = base47_he_fetch_template_preview_url( $template_id );
-    if ( is_wp_error( $preview_url ) ) {
-        wp_send_json_error( 'Could not fetch preview: ' . $preview_url->get_error_message() );
+    // Get preview URL from local template data
+    $template_data = base47_he_get_local_template( $template_id );
+    if ( is_wp_error( $template_data ) ) {
+        wp_send_json_error( 'Could not fetch template: ' . $template_data->get_error_message() );
     }
-    if ( ! $preview_url ) {
+    if ( ! $template_data || empty( $template_data['preview_url'] ) ) {
         wp_send_json_error( 'Preview not available for this template.' );
     }
     
     wp_send_json_success( [
-        'preview_url' => $preview_url
+        'preview_url' => $template_data['preview_url']
     ] );
 }
 add_action( 'wp_ajax_base47_he_get_template_preview', 'base47_he_ajax_get_template_preview' );
@@ -125,8 +137,8 @@ function base47_he_ajax_get_template_details() {
         wp_send_json_error( 'Template ID not specified.' );
     }
     
-    // Get template details from marketplace API (47-studio.com/base47)
-    $template_details = base47_he_fetch_marketplace_template( $template_id );
+    // Get template details from local storage
+    $template_details = base47_he_get_local_template( $template_id );
     if ( is_wp_error( $template_details ) ) {
         wp_send_json_error( 'Could not fetch template: ' . $template_details->get_error_message() );
     }
@@ -152,8 +164,8 @@ function base47_he_ajax_rate_template() {
         wp_send_json_error( 'Invalid rating data.' );
     }
     
-    // Submit rating to marketplace API (47-studio.com/base47)
-    $result = base47_he_submit_marketplace_rating( $template_id, $rating, $review );
+    // Submit rating to local storage
+    $result = base47_he_submit_local_rating( $template_id, $rating, $review );
     if ( is_wp_error( $result ) ) {
         wp_send_json_error( $result->get_error_message() );
     }

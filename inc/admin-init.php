@@ -69,7 +69,7 @@ function base47_he_admin_menu() {
         'Marketplace',
         'manage_options',
         'base47-he-marketplace',
-        'base47_he_marketplace_page'
+        'base47_he_marketplace_page_v2'
     );
 
     // Special Widgets 
@@ -80,6 +80,16 @@ function base47_he_admin_menu() {
         'manage_options',
         'base47-special-widgets',
         'base47_special_widgets_page'
+    );
+
+    // Support
+    add_submenu_page(
+        'base47-he-dashboard',
+        'Support',
+        'Support',
+        'manage_options',
+        'base47-he-support',
+        'base47_he_support_page'
     );
     
     // Settings
@@ -160,6 +170,22 @@ function base47_he_admin_assets( $hook ) {
         BASE47_HE_URL . 'admin-assets/base47-colors.css',
         [],
         BASE47_HE_VERSION
+    );
+    
+    // Tooltips & Help System
+    wp_enqueue_style(
+        'base47-tooltips',
+        BASE47_HE_URL . 'admin-assets/tooltips.css',
+        [ 'base47-colors' ],
+        BASE47_HE_VERSION
+    );
+    
+    wp_enqueue_script(
+        'base47-tooltips',
+        BASE47_HE_URL . 'admin-assets/tooltips.js',
+        [ 'jquery' ],
+        BASE47_HE_VERSION,
+        true
     );
     
     // Pro Notices & Badges (Phase 16.1)
@@ -315,13 +341,48 @@ function base47_he_admin_assets( $hook ) {
         );
     }
     
-    // Marketplace page CSS (Phase 16.5)
+    // Marketplace page CSS & JS
     if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-marketplace' ) {
         wp_enqueue_style(
             'base47-he-marketplace',
             BASE47_HE_URL . 'admin-assets/marketplace.css',
+            [],
+            BASE47_HE_VERSION
+        );
+        
+        wp_enqueue_script(
+            'base47-he-marketplace',
+            BASE47_HE_URL . 'admin-assets/marketplace.js',
+            [ 'jquery' ],
+            BASE47_HE_VERSION,
+            true
+        );
+        
+        wp_localize_script(
+            'base47-he-marketplace',
+            'base47HeAdmin',
+            [
+                'nonce' => wp_create_nonce('base47_he_nonce'),
+                'ajaxUrl' => admin_url('admin-ajax.php')
+            ]
+        );
+    }
+
+    // Support page CSS (Phase 16.6)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-support' ) {
+        wp_enqueue_style(
+            'base47-he-support',
+            BASE47_HE_URL . 'admin-assets/support.css',
             [ 'base47-he-admin' ],
             BASE47_HE_VERSION
+        );
+        
+        wp_enqueue_script(
+            'base47-he-support',
+            BASE47_HE_URL . 'admin-assets/support.js',
+            [ 'jquery' ],
+            BASE47_HE_VERSION,
+            true
         );
     }
     

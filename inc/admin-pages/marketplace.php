@@ -1,621 +1,190 @@
 <?php
 /**
- * Marketplace Admin Page
+ * Marketplace Admin Page - Modern Design
  * 
- * Browse and install templates from base47.com marketplace
+ * Template marketplace with orange gradient banner, filter system, and template cards
+ * 
+ * @package Base47_HTML_Editor
+ * @since 2.9.9.4
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-function base47_he_marketplace_page() {
+function base47_he_marketplace_page_v2() {
     if ( ! current_user_can( 'manage_options' ) ) return;
     ?>
-    <div class="wrap base47-he-wrap">
-        <h1>Template Marketplace</h1>
-        <p>Browse and install professional templates from the Base47 marketplace at 47-studio.com.</p>
+    <div class="wrap base47-marketplace-wrap">
         
-        <!-- Marketplace Filters -->
-        <div class="base47-marketplace-filters">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label for="marketplace-search">Search Templates:</label>
-                    <input type="text" id="marketplace-search" placeholder="Search by name, category, or tags..." class="regular-text">
+        <!-- Welcome Banner -->
+        <div class="base47-welcome-banner">
+            <div class="banner-bg-circle"></div>
+            <div class="banner-content">
+                <div class="banner-text">
+                    <div class="banner-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        <span>TEMPLATE STORE</span>
+                    </div>
+                    <h1>Template Marketplace</h1>
+                    <p>Browse and install professional templates with one click. Transform your website instantly.</p>
+                </div>
+                <div class="banner-illustration">
+                    <div class="illustration-circle outer"></div>
+                    <div class="illustration-circle middle"></div>
+                    <div class="illustration-circle inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="floating-dot dot-1"></div>
+            <div class="floating-dot dot-2"></div>
+            <div class="floating-dot dot-3"></div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="base47-stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon gradient-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-value" id="templates-count">12</p>
+                    <p class="stat-label">Templates</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon gradient-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-value">12</p>
+                    <p class="stat-label">Categories</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon gradient-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-value">Free & Pro</p>
+                    <p class="stat-label">Available</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon gradient-purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-value">1-Click</p>
+                    <p class="stat-label">Install</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Section -->
+        <div class="base47-filter-section">
+            <div class="filter-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                <span>Filter Templates</span>
+            </div>
+            
+            <div class="filter-grid">
+                <div class="filter-search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" id="template-search" placeholder="Search templates...">
                 </div>
                 
-                <div class="filter-group">
-                    <label for="marketplace-category">Category:</label>
-                    <select id="marketplace-category">
-                        <option value="">All Categories</option>
-                        <option value="business">Business</option>
-                        <option value="ecommerce">E-commerce</option>
-                        <option value="restaurant">Restaurant</option>
-                        <option value="fitness">Fitness</option>
-                        <option value="realestate">Real Estate</option>
-                        <option value="education">Education</option>
-                        <option value="app">App Landing</option>
-                        <option value="event">Event</option>
-                        <option value="medical">Medical</option>
-                        <option value="portfolio">Portfolio</option>
-                        <option value="blog">Blog</option>
-                        <option value="nonprofit">Non-Profit</option>
-                    </select>
-                </div>
+                <select id="template-category" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="business">Business/Corporate</option>
+                    <option value="portfolio">Portfolio</option>
+                    <option value="blog">Blog/Magazine</option>
+                    <option value="landing">Landing Page</option>
+                    <option value="restaurant">Restaurant</option>
+                    <option value="medical">Medical</option>
+                    <option value="realestate">Real Estate</option>
+                    <option value="fitness">Fitness</option>
+                </select>
                 
-                <div class="filter-group">
-                    <label for="marketplace-type">Type:</label>
-                    <select id="marketplace-type">
-                        <option value="">All Types</option>
-                        <option value="free">Free</option>
-                        <option value="premium">Premium</option>
-                    </select>
-                </div>
+                <select id="template-type" class="filter-select">
+                    <option value="">All Types</option>
+                    <option value="free">Free</option>
+                    <option value="premium">Premium</option>
+                </select>
                 
-                <div class="filter-group">
-                    <label for="marketplace-sort">Sort By:</label>
-                    <select id="marketplace-sort">
+                <div class="filter-actions">
+                    <select id="template-sort" class="filter-select">
                         <option value="popular">Most Popular</option>
-                        <option value="newest">Newest First</option>
-                        <option value="rating">Highest Rated</option>
-                        <option value="name">Name A-Z</option>
+                        <option value="newest">Newest/Recent</option>
                         <option value="downloads">Most Downloads</option>
                     </select>
+                    
+                    <button type="button" id="refresh-templates" class="btn-refresh" title="Refresh">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </button>
                 </div>
-                
-                <button id="marketplace-apply-filters" class="button button-primary">Apply Filters</button>
-                <button id="marketplace-refresh" class="button">🔄 Refresh</button>
             </div>
         </div>
-
-        <!-- Loading State -->
-        <div id="marketplace-loading" class="marketplace-loading" style="display: none;">
-            <div class="loading-spinner"></div>
-            <p>Loading templates from marketplace...</p>
-        </div>
-
-        <!-- Error State -->
-        <div id="marketplace-error" class="marketplace-error" style="display: none;">
-            <div class="error-icon">⚠️</div>
-            <h3>Unable to Connect to Marketplace</h3>
-            <p>Please check your internet connection and try again.</p>
-            <button id="marketplace-retry" class="button button-primary">Retry</button>
-        </div>
-
+        
         <!-- Templates Grid -->
-        <div id="marketplace-grid" class="marketplace-grid">
+        <div id="templates-grid" class="templates-grid">
             <!-- Templates will be loaded here via AJAX -->
         </div>
-
-        <!-- Pagination -->
-        <div id="marketplace-pagination" class="marketplace-pagination" style="display: none;">
-            <button id="marketplace-prev" class="button" disabled>← Previous</button>
-            <span id="marketplace-page-info">Page 1 of 1</span>
-            <button id="marketplace-next" class="button" disabled>Next →</button>
+        
+        <!-- Loading State -->
+        <div id="templates-loading" class="templates-loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Loading templates...</p>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="templates-empty" class="templates-empty" style="display: none;">
+            <div class="empty-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <p class="empty-text">No templates found</p>
+            <p class="empty-subtext">Try adjusting your filters or search term.</p>
+        </div>
+        
+    </div>
+    
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="preview-modal" style="display: none;">
+        <div class="preview-modal-overlay"></div>
+        <div class="preview-container">
+            <div class="preview-header">
+                <div class="preview-title">
+                    <h3 id="preview-template-name">Template Preview</h3>
+                </div>
+                <div class="device-switcher">
+                    <button type="button" class="device-btn active" data-device="desktop">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </button>
+                    <button type="button" class="device-btn" data-device="tablet">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    </button>
+                    <button type="button" class="device-btn" data-device="mobile">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    </button>
+                </div>
+                <button type="button" class="btn-close" id="preview-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="preview-body">
+                <iframe id="preview-frame-wrapper" class="preview-iframe" src=""></iframe>
+            </div>
+            <div class="preview-actions">
+                <button type="button" id="preview-install-btn" class="btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Install Template
+                </button>
+                <button type="button" class="btn-secondary" id="preview-close-btn">Close</button>
+            </div>
         </div>
     </div>
-
-    <!-- Template Preview Modal -->
-    <div id="marketplace-preview-modal" class="base47-he-modal" style="display: none;">
-        <div class="base47-he-modal-content marketplace-preview-content">
-            <div class="base47-he-modal-header">
-                <h2 id="preview-template-name">Template Preview</h2>
-                <span class="base47-he-modal-close">&times;</span>
-            </div>
-            <div class="base47-he-modal-body">
-                <div class="preview-toolbar">
-                    <button class="preview-size-btn active" data-size="desktop">🖥️ Desktop</button>
-                    <button class="preview-size-btn" data-size="tablet">📱 Tablet</button>
-                    <button class="preview-size-btn" data-size="mobile">📱 Mobile</button>
-                </div>
-                <div class="preview-container">
-                    <iframe id="marketplace-preview-iframe" src="" frameborder="0"></iframe>
-                </div>
-            </div>
-            <div class="base47-he-modal-footer">
-                <button id="preview-install-template" class="button button-primary">Install Template</button>
-                <button class="button base47-he-modal-close">Close Preview</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Template Details Modal -->
-    <div id="marketplace-details-modal" class="base47-he-modal" style="display: none;">
-        <div class="base47-he-modal-content marketplace-details-content">
-            <div class="base47-he-modal-header">
-                <h2 id="details-template-name">Template Details</h2>
-                <span class="base47-he-modal-close">&times;</span>
-            </div>
-            <div class="base47-he-modal-body">
-                <div id="template-details-content">
-                    <!-- Template details will be loaded here -->
-                </div>
-            </div>
-            <div class="base47-he-modal-footer">
-                <button id="details-install-template" class="button button-primary">Install Template</button>
-                <button id="details-preview-template" class="button">Preview</button>
-                <button class="button base47-he-modal-close">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <style>
-    /* Marketplace Styles */
-    .base47-marketplace-filters {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        border: 1px solid #e5e7eb;
-    }
     
-    .filter-row {
-        display: flex;
-        gap: 15px;
-        align-items: end;
-        flex-wrap: wrap;
-    }
-    
-    .filter-group {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .filter-group label {
-        font-weight: 600;
-        font-size: 13px;
-        color: #374151;
-    }
-    
-    .filter-group input,
-    .filter-group select {
-        padding: 8px 12px;
-        border: 2px solid #e5e7eb;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-    
-    .filter-group input:focus,
-    .filter-group select:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    
-    /* Loading State */
-    .marketplace-loading {
-        text-align: center;
-        padding: 60px 20px;
-        color: #6b7280;
-    }
-    
-    .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #e5e7eb;
-        border-top: 4px solid #3b82f6;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Error State */
-    .marketplace-error {
-        text-align: center;
-        padding: 60px 20px;
-        color: #6b7280;
-    }
-    
-    .error-icon {
-        font-size: 48px;
-        margin-bottom: 20px;
-    }
-    
-    /* Templates Grid */
-    .marketplace-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .marketplace-template-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    
-    .marketplace-template-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        border-color: #3b82f6;
-    }
-    
-    .template-thumbnail {
-        position: relative;
-        height: 200px;
-        background: #f3f4f6;
-        overflow: hidden;
-    }
-    
-    .template-thumbnail img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .template-type-badge {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-    
-    .template-type-badge.free {
-        background: #22c55e;
-        color: white;
-    }
-    
-    .template-type-badge.premium {
-        background: #f59e0b;
-        color: white;
-    }
-    
-    .template-actions {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        display: flex;
-        gap: 8px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    
-    .marketplace-template-card:hover .template-actions {
-        opacity: 1;
-    }
-    
-    .template-action-btn {
-        width: 32px;
-        height: 32px;
-        border: none;
-        border-radius: 6px;
-        background: rgba(255, 255, 255, 0.9);
-        color: #374151;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-    }
-    
-    .template-action-btn:hover {
-        background: white;
-        transform: scale(1.1);
-    }
-    
-    .template-info {
-        padding: 16px;
-    }
-    
-    .template-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 4px;
-    }
-    
-    .template-category {
-        font-size: 12px;
-        color: #6b7280;
-        text-transform: uppercase;
-        font-weight: 500;
-        margin-bottom: 8px;
-    }
-    
-    .template-description {
-        font-size: 14px;
-        color: #4b5563;
-        line-height: 1.4;
-        margin-bottom: 12px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    
-    .template-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        font-size: 12px;
-        color: #6b7280;
-    }
-    
-    .template-rating {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .template-downloads {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .template-footer {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .template-footer .button {
-        flex: 1;
-        text-align: center;
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-    
-    /* Pagination */
-    .marketplace-pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-        padding: 20px 0;
-    }
-    
-    /* Preview Modal */
-    .marketplace-preview-content {
-        width: 90%;
-        max-width: 1200px;
-        height: 80vh;
-    }
-    
-    .preview-toolbar {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 15px;
-        padding: 0 20px;
-    }
-    
-    .preview-size-btn {
-        padding: 8px 16px;
-        border: 2px solid #e5e7eb;
-        background: white;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .preview-size-btn.active {
-        border-color: #3b82f6;
-        background: #3b82f6;
-        color: white;
-    }
-    
-    .preview-container {
-        height: calc(80vh - 200px);
-        padding: 0 20px;
-    }
-    
-    .preview-container iframe {
-        width: 100%;
-        height: 100%;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .preview-container iframe.tablet-view {
-        width: 768px;
-        max-width: 100%;
-        margin: 0 auto;
-        display: block;
-    }
-    
-    .preview-container iframe.mobile-view {
-        width: 375px;
-        max-width: 100%;
-        margin: 0 auto;
-        display: block;
-    }
-    
-    /* Details Modal */
-    .marketplace-details-content {
-        width: 80%;
-        max-width: 800px;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-        .filter-row {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        
-        .marketplace-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .marketplace-preview-content {
-            width: 95%;
-            height: 90vh;
-        }
-        
-        .preview-toolbar {
-            flex-wrap: wrap;
-        }
-    }
-    </style>
-
-    <script>
-    jQuery(document).ready(function($) {
-        // Initialize marketplace
-        loadMarketplaceTemplates();
-        
-        // Filter handlers
-        $('#marketplace-apply-filters, #marketplace-refresh').on('click', function() {
-            loadMarketplaceTemplates();
-        });
-        
-        // Search on enter
-        $('#marketplace-search').on('keypress', function(e) {
-            if (e.which === 13) {
-                loadMarketplaceTemplates();
-            }
-        });
-        
-        // Load templates function
-        function loadMarketplaceTemplates() {
-            const $loading = $('#marketplace-loading');
-            const $error = $('#marketplace-error');
-            const $grid = $('#marketplace-grid');
-            
-            // Show loading state
-            $loading.show();
-            $error.hide();
-            $grid.empty();
-            
-            // Get filter values
-            const filters = {
-                search: $('#marketplace-search').val(),
-                category: $('#marketplace-category').val(),
-                type: $('#marketplace-type').val(),
-                sort: $('#marketplace-sort').val()
-            };
-            
-            // AJAX request to load templates
-            $.post(ajaxurl, {
-                action: 'base47_he_load_marketplace',
-                nonce: '<?php echo wp_create_nonce('base47_he'); ?>',
-                filters: filters
-            }, function(response) {
-                $loading.hide();
-                
-                if (response.success && response.data) {
-                    displayTemplates(response.data.templates);
-                    updatePagination(response.data.pagination);
-                } else {
-                    $error.show();
-                }
-            }).fail(function() {
-                $loading.hide();
-                $error.show();
-            });
-        }
-        
-        // Display templates in grid
-        function displayTemplates(templates) {
-            const $grid = $('#marketplace-grid');
-            $grid.empty();
-            
-            if (templates.length === 0) {
-                $grid.html('<div class="no-templates"><h3>No templates found</h3><p>Try adjusting your search filters.</p></div>');
-                return;
-            }
-            
-            templates.forEach(function(template) {
-                const templateCard = createTemplateCard(template);
-                $grid.append(templateCard);
-            });
-        }
-        
-        // Create template card HTML
-        function createTemplateCard(template) {
-            const typeClass = template.type === 'free' ? 'free' : 'premium';
-            const price = template.type === 'free' ? 'Free' : '$' + template.price;
-            
-            return `
-                <div class="marketplace-template-card" data-template-id="${template.id}">
-                    <div class="template-thumbnail">
-                        <img src="${template.thumbnail}" alt="${template.name}">
-                        <div class="template-type-badge ${typeClass}">${template.type}</div>
-                        <div class="template-actions">
-                            <button class="template-action-btn preview-btn" title="Preview">👁️</button>
-                            <button class="template-action-btn details-btn" title="Details">ℹ️</button>
-                        </div>
-                    </div>
-                    <div class="template-info">
-                        <div class="template-name">${template.name}</div>
-                        <div class="template-category">${template.category}</div>
-                        <div class="template-description">${template.description}</div>
-                        <div class="template-meta">
-                            <div class="template-rating">
-                                <span>⭐</span>
-                                <span>${template.rating} (${template.reviews})</span>
-                            </div>
-                            <div class="template-downloads">
-                                <span>📥</span>
-                                <span>${template.downloads}</span>
-                            </div>
-                        </div>
-                        <div class="template-footer">
-                            <button class="button button-primary install-btn">Install ${price}</button>
-                            <button class="button preview-btn">Preview</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Template card event handlers
-        $(document).on('click', '.preview-btn', function() {
-            const templateId = $(this).closest('.marketplace-template-card').data('template-id');
-            openPreviewModal(templateId);
-        });
-        
-        $(document).on('click', '.details-btn', function() {
-            const templateId = $(this).closest('.marketplace-template-card').data('template-id');
-            openDetailsModal(templateId);
-        });
-        
-        $(document).on('click', '.install-btn', function() {
-            const templateId = $(this).closest('.marketplace-template-card').data('template-id');
-            installTemplate(templateId);
-        });
-        
-        // Modal functions
-        function openPreviewModal(templateId) {
-            // Implementation for preview modal
-            $('#marketplace-preview-modal').fadeIn(200);
-        }
-        
-        function openDetailsModal(templateId) {
-            // Implementation for details modal
-            $('#marketplace-details-modal').fadeIn(200);
-        }
-        
-        function installTemplate(templateId) {
-            // Implementation for template installation
-            if (confirm('Install this template?')) {
-                // AJAX call to install template
-            }
-        }
-        
-        // Close modals
-        $('.base47-he-modal-close').on('click', function() {
-            $(this).closest('.base47-he-modal').fadeOut(200);
-        });
-        
-        // Update pagination
-        function updatePagination(pagination) {
-            // Implementation for pagination
-        }
-    });
-    </script>
     <?php
 }
-?>
