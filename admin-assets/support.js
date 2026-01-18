@@ -25,6 +25,9 @@ jQuery(document).ready(function($) {
         // Handle system info toggle
         $('#include-system-info').on('change', toggleSystemInfo);
         
+        // Handle ticket deletion
+        $(document).on('click', '.ticket-delete-btn', handleTicketDeletion);
+        
         // Initialize tooltips if available
         if (typeof tippy !== 'undefined') {
             initTooltips();
@@ -198,6 +201,71 @@ jQuery(document).ready(function($) {
         } else {
             $systemInfo.slideUp();
         }
+    }
+    
+    /**
+     * Handle ticket deletion
+     */
+    function handleTicketDeletion(e) {
+        e.preventDefault();
+        
+        const $btn = $(this);
+        const ticketId = $btn.data('ticket-id');
+        const $ticketItem = $btn.closest('.ticket-item');
+        
+        // Confirm deletion
+        if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
+            return;
+        }
+        
+        // Show loading state
+        const originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<span class="dashicons dashicons-update-alt"></span> Deleting...');
+        
+        // Delete ticket
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'base47_he_delete_ticket',
+                ticket_id: ticketId,
+                nonce: '<?php echo wp_create_nonce("base47_he_delete_ticket"); ?>'
+            },
+            success: function(response) {
+                try {
+                    const data = typeof response === 'string' ? JSON.parse(response) : response;
+                    
+                    if (data.success) {
+                        // Fade out and remove ticket
+                        $ticketItem.fadeOut(400, function() {
+                            $(this).remove();
+                            
+                            // Update ticket count
+                            updateTicketCount();
+                            
+                            // Show empty state if no tickets left
+                            if ($('.ticket-item').length === 0) {
+                                location.reload();
+                            }
+                        });
+                        
+                        showNotification('success', 'Ticket deleted successfully');
+                    } else {
+                        showNotification('error', data.message || 'Failed to delete ticket');
+                        $btn.prop('disabled', false).html(originalHtml);
+                    }
+                } catch (error) {
+                    console.error('Error parsing response:', error);
+                    showNotification('error', 'An unexpected error occurred');
+                    $btn.prop('disabled', false).html(originalHtml);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX error:', error);
+                showNotification('error', 'Network error. Please try again.');
+                $btn.prop('disabled', false).html(originalHtml);
+            }
+        });
     }
     
     /**

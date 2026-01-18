@@ -44,8 +44,30 @@ function base47_he_install_theme_from_upload() {
     }
 
     $zip = new ZipArchive();
-    if (true !== $zip->open($tmp)) {
-        return new WP_Error('open_failed', 'Could not open ZIP file.');
+    $open_result = $zip->open($tmp);
+    
+    if (true !== $open_result) {
+        $error_messages = [
+            ZipArchive::ER_EXISTS => 'File already exists',
+            ZipArchive::ER_INCONS => 'ZIP archive inconsistent',
+            ZipArchive::ER_INVAL => 'Invalid argument',
+            ZipArchive::ER_MEMORY => 'Memory allocation failure',
+            ZipArchive::ER_NOENT => 'No such file',
+            ZipArchive::ER_NOZIP => 'Not a valid ZIP archive',
+            ZipArchive::ER_OPEN => 'Cannot open file',
+            ZipArchive::ER_READ => 'Read error',
+            ZipArchive::ER_SEEK => 'Seek error',
+        ];
+        
+        $error_detail = isset($error_messages[$open_result]) ? $error_messages[$open_result] : 'Unknown error';
+        
+        return new WP_Error(
+            'open_failed', 
+            sprintf(
+                'Could not open ZIP file. %s. The file may be corrupted or not a valid ZIP archive. Please try downloading again.',
+                $error_detail
+            )
+        );
     }
 
     // Detect root folder inside ZIP
@@ -64,7 +86,10 @@ function base47_he_install_theme_from_upload() {
 
     if (! $root_folder) {
         $zip->close();
-        return new WP_Error('no_root_folder', 'ZIP must contain a root folder (e.g. lezar-templates/).');
+        return new WP_Error(
+            'no_root_folder', 
+            'Invalid ZIP structure. The ZIP must contain a root folder (e.g., "lezar-templates/"). Please ensure your ZIP file has the correct structure: ZIP → Folder → Files.'
+        );
     }
 
     // VALIDATION: Folder must end with -templates or -templetes

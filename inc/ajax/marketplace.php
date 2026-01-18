@@ -2,515 +2,291 @@
 /**
  * Marketplace AJAX Handlers
  * 
- * Handles marketplace operations: load templates, install, preview, etc.
+ * Handles template loading, installation, and preview
+ * 
+ * @package Base47_HTML_Editor
+ * @since 2.9.9.4
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// Include local WordPress marketplace functions
-require_once plugin_dir_path( __FILE__ ) . 'marketplace-local.php';
-
 /**
- * AJAX: Load marketplace templates
+ * Load marketplace templates
  */
-function base47_he_ajax_load_marketplace() {
-    check_ajax_referer( 'base47_he', 'nonce' );
+add_action( 'wp_ajax_base47_he_load_marketplace', 'base47_he_load_marketplace' );
+function base47_he_load_marketplace() {
+    check_ajax_referer( 'base47_he_nonce', 'nonce' );
     
-    $filters = isset( $_POST['filters'] ) ? $_POST['filters'] : [];
-    
-    // Use local WordPress marketplace system
-    $templates = base47_he_load_local_templates( $filters );
-    
-    if ( is_wp_error( $templates ) ) {
-        wp_send_json_error( 'Could not load templates: ' . $templates->get_error_message() );
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Insufficient permissions' );
     }
     
-    // Format response to match expected structure
-    $response_data = [
-        'templates' => $templates,
-        'pagination' => [
-            'current_page' => 1,
-            'total_pages' => 1,
-            'total_templates' => count($templates),
-            'per_page' => count($templates)
-        ]
-    ];
+    // Load templates from JSON file
+    $upload_dir = wp_upload_dir();
+    $json_file = $upload_dir['basedir'] . '/base47-downloads/templates.json';
     
-    wp_send_json_success( $response_data );
-}
-add_action( 'wp_ajax_base47_he_load_marketplace', 'base47_he_ajax_load_marketplace' );
-
-/**
- * AJAX: Install marketplace template
- */
-function base47_he_ajax_install_marketplace_template() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( wp_unslash( $_POST['template_id'] ) ) : '';
-    
-    if ( ! $template_id ) {
-        wp_send_json_error( 'Template ID not specified.' );
+    if ( file_exists( $json_file ) ) {
+        $json_content = file_get_contents( $json_file );
+        $data = json_decode( $json_content, true );
+        
+        if ( $data && isset( $data['templates'] ) ) {
+            // Replace placeholders with actual URLs
+            $site_url = get_site_url();
+            $uploads_url = $upload_dir['baseurl'];
+            
+            $templates = array();
+            foreach ( $data['templates'] as $template ) {
+                // Replace URL placeholders
+                $template['thumbnail'] = str_replace( '{UPLOADS_URL}', $uploads_url, $template['thumbnail'] );
+                $template['preview_url'] = str_replace( '{SITE_URL}', $site_url, $template['preview_url'] );
+                $template['download_url'] = str_replace( '{UPLOADS_URL}', $uploads_url, $template['download_url'] );
+                
+                // Convert to format expected by JavaScript
+                $templates[] = array(
+                    'id' => $template['id'],
+                    'name' => $template['name'],
+                    'description' => $template['description'],
+                    'category' => strtolower( str_replace( ' ', '', $template['category'] ) ),
+                    'type' => $template['type'],
+                    'price' => $template['price'] > 0 ? '$' . $template['price'] : 'Free',
+                    'rating' => $template['rating'],
+                    'reviews' => $template['reviews'],
+                    'downloads' => $template['downloads'],
+                    'thumbnail' => $template['thumbnail'],
+                    'preview_url' => $template['preview_url']
+                );
+            }
+            
+            wp_send_json_success( array(
+                'templates' => $templates
+            ) );
+        }
     }
     
-    // Get template data from local WordPress uploads
-    $template_data = base47_he_get_local_template( $template_id );
-    if ( is_wp_error( $template_data ) ) {
-        wp_send_json_error( 'Could not fetch template: ' . $template_data->get_error_message() );
-    }
-    if ( ! $template_data ) {
-        wp_send_json_error( 'Template not found in marketplace.' );
-    }
-    
-    // Check if template already exists
-    $themes_root = base47_he_get_themes_root();
-    $template_path = $themes_root . $template_data['slug'] . '-templates/';
-    
-    if ( is_dir( $template_path ) ) {
-        wp_send_json_error( 'Template set already installed.' );
-    }
-    
-    // Create template directory
-    if ( ! wp_mkdir_p( $template_path ) ) {
-        wp_send_json_error( 'Could not create template directory. Check permissions.' );
-    }
-    
-    // Download and extract template files from local uploads
-    $download_result = base47_he_install_local_template( $template_data, $template_path );
-    if ( is_wp_error( $download_result ) ) {
-        wp_send_json_error( $download_result->get_error_message() );
-    }
-    
-    // Activate the new template set
-    $active_themes = get_option( BASE47_HE_OPT_ACTIVE_THEMES, [] );
-    if ( ! in_array( $template_data['slug'] . '-templates', $active_themes ) ) {
-        $active_themes[] = $template_data['slug'] . '-templates';
-        update_option( BASE47_HE_OPT_ACTIVE_THEMES, $active_themes );
-    }
-    
-    // Log installation
-    base47_he_log_local_download( $template_id );
-    
-    wp_send_json_success( [
-        'message' => 'Template installed successfully!',
-        'template_name' => $template_data['name'],
-        'redirect_url' => admin_url( 'admin.php?page=base47-he-theme-manager' )
-    ] );
-}
-add_action( 'wp_ajax_base47_he_install_marketplace_template', 'base47_he_ajax_install_marketplace_template' );
-
-/**
- * AJAX: Get template preview URL
- */
-function base47_he_ajax_get_template_preview() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( wp_unslash( $_POST['template_id'] ) ) : '';
-    
-    if ( ! $template_id ) {
-        wp_send_json_error( 'Template ID not specified.' );
-    }
-    
-    // Get preview URL from local template data
-    $template_data = base47_he_get_local_template( $template_id );
-    if ( is_wp_error( $template_data ) ) {
-        wp_send_json_error( 'Could not fetch template: ' . $template_data->get_error_message() );
-    }
-    if ( ! $template_data || empty( $template_data['preview_url'] ) ) {
-        wp_send_json_error( 'Preview not available for this template.' );
-    }
-    
-    wp_send_json_success( [
-        'preview_url' => $template_data['preview_url']
-    ] );
-}
-add_action( 'wp_ajax_base47_he_get_template_preview', 'base47_he_ajax_get_template_preview' );
-
-/**
- * AJAX: Get template details
- */
-function base47_he_ajax_get_template_details() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( wp_unslash( $_POST['template_id'] ) ) : '';
-    
-    if ( ! $template_id ) {
-        wp_send_json_error( 'Template ID not specified.' );
-    }
-    
-    // Get template details from local storage
-    $template_details = base47_he_get_local_template( $template_id );
-    if ( is_wp_error( $template_details ) ) {
-        wp_send_json_error( 'Could not fetch template: ' . $template_details->get_error_message() );
-    }
-    if ( ! $template_details ) {
-        wp_send_json_error( 'Template not found.' );
-    }
-    
-    wp_send_json_success( $template_details );
-}
-add_action( 'wp_ajax_base47_he_get_template_details', 'base47_he_ajax_get_template_details' );
-
-/**
- * AJAX: Submit template rating
- */
-function base47_he_ajax_rate_template() {
-    check_ajax_referer( 'base47_he', 'nonce' );
-    
-    $template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( wp_unslash( $_POST['template_id'] ) ) : '';
-    $rating = isset( $_POST['rating'] ) ? intval( $_POST['rating'] ) : 0;
-    $review = isset( $_POST['review'] ) ? sanitize_textarea_field( wp_unslash( $_POST['review'] ) ) : '';
-    
-    if ( ! $template_id || $rating < 1 || $rating > 5 ) {
-        wp_send_json_error( 'Invalid rating data.' );
-    }
-    
-    // Submit rating to local storage
-    $result = base47_he_submit_local_rating( $template_id, $rating, $review );
-    if ( is_wp_error( $result ) ) {
-        wp_send_json_error( $result->get_error_message() );
-    }
-    
-    wp_send_json_success( [
-        'message' => 'Thank you for your rating!'
-    ] );
-}
-add_action( 'wp_ajax_base47_he_rate_template', 'base47_he_ajax_rate_template' );
-
-/* --------------------------------------------------------------------------
-| API FUNCTIONS - 47-studio.com/base47
--------------------------------------------------------------------------- */
-
-/**
- * Fetch templates from marketplace API
- */
-function base47_he_fetch_marketplace_templates( $filters = [] ) {
-    $api_url = 'https://47-studio.com/base47/api/templates';
-    
-    // Build query parameters
-    $params = [];
-    if ( ! empty( $filters['search'] ) ) {
-        $params['search'] = sanitize_text_field( $filters['search'] );
-    }
-    if ( ! empty( $filters['category'] ) ) {
-        $params['category'] = sanitize_text_field( $filters['category'] );
-    }
-    if ( ! empty( $filters['type'] ) ) {
-        $params['type'] = sanitize_text_field( $filters['type'] );
-    }
-    if ( ! empty( $filters['sort'] ) ) {
-        $params['sort'] = sanitize_text_field( $filters['sort'] );
-    }
-    
-    if ( ! empty( $params ) ) {
-        $api_url .= '?' . http_build_query( $params );
-    }
-    
-    // Make API request
-    $response = wp_remote_get( $api_url, [
-        'timeout' => 15,
-        'headers' => [
-            'User-Agent' => 'Base47-HTML-Editor/' . BASE47_HE_VERSION,
-            'Accept' => 'application/json'
-        ]
-    ] );
-    
-    // If API is not available, return mock data for now
-    if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
-        return base47_he_get_mock_marketplace_data( $filters );
-    }
-    
-    $body = wp_remote_retrieve_body( $response );
-    $data = json_decode( $body, true );
-    
-    if ( ! is_array( $data ) ) {
-        return base47_he_get_mock_marketplace_data( $filters );
-    }
-    
-    return $data;
-}
-
-/**
- * Get mock marketplace data (fallback when API is not available)
- */
-function base47_he_get_mock_marketplace_data( $filters = [] ) {
-    $templates = [
-        [
-            'id' => 'business-pro-v1',
-            'name' => 'Business Pro',
-            'description' => 'Professional business template with modern design and responsive layout.',
-            'category' => 'Business',
-            'type' => 'Landing Page',
-            'rating' => 4.8,
-            'downloads' => 1250,
-            'preview_url' => 'https://47-studio.com/base47/previews/business-pro',
-            'thumbnail' => 'https://47-studio.com/base47/thumbs/business-pro.jpg',
+    // Fallback to sample data if JSON file doesn't exist
+    $templates = array(
+        array(
+            'id' => 1,
+            'name' => 'SaaS Landing',
+            'description' => 'High-converting landing page designed for SaaS products with modern design and call-to-actions.',
+            'category' => 'landing',
+            'type' => 'free',
             'price' => 'Free',
-            'author' => 'Base47 Team',
-            'tags' => ['business', 'corporate', 'professional'],
-            'created' => '2026-01-10',
-            'updated' => '2026-01-12'
-        ],
-        [
-            'id' => 'agency-creative-v2',
-            'name' => 'Creative Agency',
-            'description' => 'Bold and creative template perfect for design agencies and creative professionals.',
-            'category' => 'Agency',
-            'type' => 'Portfolio',
             'rating' => 4.9,
-            'downloads' => 890,
-            'preview_url' => 'https://47-studio.com/base47/previews/agency-creative',
-            'thumbnail' => 'https://47-studio.com/base47/thumbs/agency-creative.jpg',
-            'price' => 'Free',
-            'author' => 'Base47 Team',
-            'tags' => ['agency', 'creative', 'portfolio'],
-            'created' => '2026-01-08',
-            'updated' => '2026-01-11'
-        ],
-        [
-            'id' => 'ecommerce-shop-v1',
-            'name' => 'E-commerce Shop',
-            'description' => 'Complete e-commerce template with product showcase and shopping cart integration.',
-            'category' => 'E-commerce',
-            'type' => 'Shop',
+            'reviews' => 312,
+            'downloads' => 7250,
+            'thumbnail' => 'https://via.placeholder.com/400x300/667eea/ffffff?text=SaaS+Landing',
+            'preview_url' => 'https://example.com/preview/saas-landing'
+        ),
+        array(
+            'id' => 2,
+            'name' => 'E-Commerce Pro',
+            'description' => 'Complete e-commerce solution with product galleries, cart, and checkout pages.',
+            'category' => 'business',
+            'type' => 'premium',
+            'price' => '$49',
             'rating' => 4.7,
-            'downloads' => 2100,
-            'preview_url' => 'https://47-studio.com/base47/previews/ecommerce-shop',
-            'thumbnail' => 'https://47-studio.com/base47/thumbs/ecommerce-shop.jpg',
+            'reviews' => 256,
+            'downloads' => 5840,
+            'thumbnail' => 'https://via.placeholder.com/400x300/f97316/ffffff?text=E-Commerce',
+            'preview_url' => 'https://example.com/preview/ecommerce-pro'
+        ),
+        array(
+            'id' => 3,
+            'name' => 'Developer Portfolio',
+            'description' => 'Tech-focused portfolio for developers with project showcase and contact form.',
+            'category' => 'portfolio',
+            'type' => 'free',
             'price' => 'Free',
-            'author' => 'Base47 Team',
-            'tags' => ['ecommerce', 'shop', 'products'],
-            'created' => '2026-01-05',
-            'updated' => '2026-01-10'
-        ],
-        [
-            'id' => 'restaurant-deluxe-v1',
-            'name' => 'Restaurant Deluxe',
-            'description' => 'Elegant restaurant template with menu showcase and reservation system.',
-            'category' => 'Restaurant',
-            'type' => 'Business',
-            'rating' => 4.6,
-            'downloads' => 750,
-            'preview_url' => 'https://47-studio.com/base47/previews/restaurant-deluxe',
-            'thumbnail' => 'https://47-studio.com/base47/thumbs/restaurant-deluxe.jpg',
-            'price' => 'Free',
-            'author' => 'Base47 Team',
-            'tags' => ['restaurant', 'food', 'menu'],
-            'created' => '2026-01-03',
-            'updated' => '2026-01-09'
-        ],
-        [
-            'id' => 'fitness-gym-v1',
-            'name' => 'Fitness Gym',
-            'description' => 'Dynamic fitness template with class schedules and trainer profiles.',
-            'category' => 'Fitness',
-            'type' => 'Business',
-            'rating' => 4.5,
-            'downloads' => 650,
-            'preview_url' => 'https://47-studio.com/base47/previews/fitness-gym',
-            'thumbnail' => 'https://47-studio.com/base47/thumbs/fitness-gym.jpg',
-            'price' => 'Free',
-            'author' => 'Base47 Team',
-            'tags' => ['fitness', 'gym', 'health'],
-            'created' => '2026-01-01',
-            'updated' => '2026-01-08'
-        ],
-        [
-            'id' => 'real-estate-pro-v1',
-            'name' => 'Real Estate Pro',
-            'description' => 'Professional real estate template with property listings and agent profiles.',
-            'category' => 'Real Estate',
-            'type' => 'Business',
             'rating' => 4.8,
-            'downloads' => 920,
-            'preview_url' => 'https://47-studio.com/base47/previews/real-estate-pro',
-            'thumbnail' => 'https://47-studio.com/base47/thumbs/real-estate-pro.jpg',
+            'reviews' => 145,
+            'downloads' => 5120,
+            'thumbnail' => 'https://via.placeholder.com/400x300/3b82f6/ffffff?text=Portfolio',
+            'preview_url' => 'https://example.com/preview/developer-portfolio'
+        ),
+        array(
+            'id' => 4,
+            'name' => 'Creative Agency',
+            'description' => 'Bold and creative template for digital agencies with portfolio and team sections.',
+            'category' => 'business',
+            'type' => 'premium',
+            'price' => '$59',
+            'rating' => 4.6,
+            'reviews' => 178,
+            'downloads' => 3890,
+            'thumbnail' => 'https://via.placeholder.com/400x300/8b5cf6/ffffff?text=Agency',
+            'preview_url' => 'https://example.com/preview/creative-agency'
+        ),
+        array(
+            'id' => 5,
+            'name' => 'Blog Modern',
+            'description' => 'Beautiful blog template with modern design, perfect for content creators.',
+            'category' => 'blog',
+            'type' => 'free',
             'price' => 'Free',
-            'author' => 'Base47 Team',
-            'tags' => ['real-estate', 'property', 'listings'],
-            'created' => '2025-12-28',
-            'updated' => '2026-01-07'
-        ]
-    ];
+            'rating' => 4.5,
+            'reviews' => 203,
+            'downloads' => 4120,
+            'thumbnail' => 'https://via.placeholder.com/400x300/10b981/ffffff?text=Blog',
+            'preview_url' => 'https://example.com/preview/blog-modern'
+        ),
+        array(
+            'id' => 6,
+            'name' => 'Real Estate Prime',
+            'description' => 'Luxury real estate template with property listings, agent profiles and search.',
+            'category' => 'realestate',
+            'type' => 'premium',
+            'price' => '$65',
+            'rating' => 4.9,
+            'reviews' => 178,
+            'downloads' => 3890,
+            'thumbnail' => 'https://via.placeholder.com/400x300/f59e0b/ffffff?text=Real+Estate',
+            'preview_url' => 'https://example.com/preview/realestate-prime'
+        ),
+        array(
+            'id' => 7,
+            'name' => 'Restaurant Deluxe',
+            'description' => 'Elegant restaurant template with menu, reservations, and gallery sections.',
+            'category' => 'restaurant',
+            'type' => 'free',
+            'price' => 'Free',
+            'rating' => 4.7,
+            'reviews' => 145,
+            'downloads' => 3420,
+            'thumbnail' => 'https://via.placeholder.com/400x300/ef4444/ffffff?text=Restaurant',
+            'preview_url' => 'https://example.com/preview/restaurant-deluxe'
+        ),
+        array(
+            'id' => 8,
+            'name' => 'Fitness Studio',
+            'description' => 'Dynamic fitness template with class schedules, trainer profiles, and pricing.',
+            'category' => 'fitness',
+            'type' => 'premium',
+            'price' => '$45',
+            'rating' => 4.8,
+            'reviews' => 124,
+            'downloads' => 2890,
+            'thumbnail' => 'https://via.placeholder.com/400x300/10b981/ffffff?text=Fitness',
+            'preview_url' => 'https://example.com/preview/fitness-studio'
+        ),
+        array(
+            'id' => 9,
+            'name' => 'EduLearn',
+            'description' => 'Online learning platform template with courses, instructors, and student dashboard.',
+            'category' => 'education',
+            'type' => 'premium',
+            'price' => '$55',
+            'rating' => 4.6,
+            'reviews' => 203,
+            'downloads' => 4670,
+            'thumbnail' => 'https://via.placeholder.com/400x300/3b82f6/ffffff?text=Education',
+            'preview_url' => 'https://example.com/preview/edulearn'
+        ),
+        array(
+            'id' => 10,
+            'name' => 'Medical Clinic',
+            'description' => 'Professional medical template with appointment booking and doctor profiles.',
+            'category' => 'medical',
+            'type' => 'free',
+            'price' => 'Free',
+            'rating' => 4.5,
+            'reviews' => 167,
+            'downloads' => 3240,
+            'thumbnail' => 'https://via.placeholder.com/400x300/667eea/ffffff?text=Medical',
+            'preview_url' => 'https://example.com/preview/medical-clinic'
+        ),
+        array(
+            'id' => 11,
+            'name' => 'Business Starter',
+            'description' => 'A clean and professional template for small businesses and startups.',
+            'category' => 'business',
+            'type' => 'free',
+            'price' => 'Free',
+            'rating' => 4.4,
+            'reviews' => 189,
+            'downloads' => 3420,
+            'thumbnail' => 'https://via.placeholder.com/400x300/f97316/ffffff?text=Business',
+            'preview_url' => 'https://example.com/preview/business-starter'
+        ),
+        array(
+            'id' => 12,
+            'name' => 'App Landing Pro',
+            'description' => 'Modern app landing page with features showcase, pricing, and download buttons.',
+            'category' => 'landing',
+            'type' => 'premium',
+            'price' => '$39',
+            'rating' => 4.9,
+            'reviews' => 234,
+            'downloads' => 5890,
+            'thumbnail' => 'https://via.placeholder.com/400x300/8b5cf6/ffffff?text=App+Landing',
+            'preview_url' => 'https://example.com/preview/app-landing-pro'
+        )
+    );
     
-    // Apply filters
-    if ( ! empty( $filters['search'] ) ) {
-        $search = strtolower( $filters['search'] );
-        $templates = array_filter( $templates, function( $template ) use ( $search ) {
-            return strpos( strtolower( $template['name'] ), $search ) !== false ||
-                   strpos( strtolower( $template['description'] ), $search ) !== false ||
-                   in_array( $search, array_map( 'strtolower', $template['tags'] ) );
-        });
-    }
-    
-    if ( ! empty( $filters['category'] ) && $filters['category'] !== 'all' ) {
-        $templates = array_filter( $templates, function( $template ) use ( $filters ) {
-            return strtolower( $template['category'] ) === strtolower( $filters['category'] );
-        });
-    }
-    
-    if ( ! empty( $filters['type'] ) && $filters['type'] !== 'all' ) {
-        $templates = array_filter( $templates, function( $template ) use ( $filters ) {
-            return strtolower( $template['type'] ) === strtolower( $filters['type'] );
-        });
-    }
-    
-    // Sort results
-    if ( ! empty( $filters['sort'] ) ) {
-        switch ( $filters['sort'] ) {
-            case 'popular':
-                usort( $templates, function( $a, $b ) {
-                    return $b['downloads'] - $a['downloads'];
-                });
-                break;
-            case 'rating':
-                usort( $templates, function( $a, $b ) {
-                    return $b['rating'] <=> $a['rating'];
-                });
-                break;
-            case 'newest':
-                usort( $templates, function( $a, $b ) {
-                    return strcmp( $b['created'], $a['created'] );
-                });
-                break;
-            case 'name':
-                usort( $templates, function( $a, $b ) {
-                    return strcmp( $a['name'], $b['name'] );
-                });
-                break;
-        }
-    }
-    
-    return array_values( $templates );
+    wp_send_json_success( array(
+        'templates' => $templates
+    ) );
 }
 
 /**
- * Fetch single template from marketplace API
+ * Install marketplace template
  */
-function base47_he_fetch_marketplace_template( $template_id ) {
-    $api_url = 'https://47-studio.com/base47/api/templates/' . urlencode( $template_id );
+add_action( 'wp_ajax_base47_he_install_marketplace_template', 'base47_he_install_marketplace_template' );
+function base47_he_install_marketplace_template() {
+    check_ajax_referer( 'base47_he_nonce', 'nonce' );
     
-    $response = wp_remote_get( $api_url, [
-        'timeout' => 15,
-        'headers' => [
-            'User-Agent' => 'Base47-HTML-Editor/' . BASE47_HE_VERSION,
-            'Accept' => 'application/json'
-        ]
-    ] );
-    
-    // If API is not available, return mock data for now
-    if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
-        return base47_he_get_mock_template_data( $template_id );
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Insufficient permissions' );
     }
     
-    $body = wp_remote_retrieve_body( $response );
-    $data = json_decode( $body, true );
+    $template_id = isset( $_POST['template_id'] ) ? intval( $_POST['template_id'] ) : 0;
     
-    if ( ! is_array( $data ) ) {
-        return base47_he_get_mock_template_data( $template_id );
+    if ( ! $template_id ) {
+        wp_send_json_error( 'Invalid template ID' );
     }
     
-    return $data;
+    // TODO: Implement actual template installation logic
+    // This would typically:
+    // 1. Download template files from remote server
+    // 2. Extract to appropriate directory
+    // 3. Register template in database
+    // 4. Create necessary pages/posts
+    
+    // Simulate installation delay
+    sleep( 1 );
+    
+    // For now, just return success
+    wp_send_json_success( array(
+        'message' => 'Template installed successfully!',
+        'redirect_url' => admin_url( 'admin.php?page=base47-he-theme-manager' )
+    ) );
 }
 
 /**
- * Get mock template data for single template
+ * Get template preview URL
  */
-function base47_he_get_mock_template_data( $template_id ) {
-    $mock_templates = base47_he_get_mock_marketplace_data();
+add_action( 'wp_ajax_base47_he_get_template_preview', 'base47_he_get_template_preview' );
+function base47_he_get_template_preview() {
+    check_ajax_referer( 'base47_he_nonce', 'nonce' );
     
-    foreach ( $mock_templates as $template ) {
-        if ( $template['id'] === $template_id ) {
-            // Add download URL for mock data
-            $template['download_url'] = 'https://47-studio.com/base47/downloads/' . $template_id . '.zip';
-            return $template;
-        }
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Insufficient permissions' );
     }
     
-    return false; // Template not found
+    $template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( $_POST['template_id'] ) : '';
+    
+    if ( ! $template_id ) {
+        wp_send_json_error( 'Invalid template ID' );
+    }
+    
+    // Get uploads directory
+    $upload_dir = wp_upload_dir();
+    $uploads_url = $upload_dir['baseurl'];
+    
+    // Build preview URL - point directly to the template's index.html file
+    $preview_url = $uploads_url . '/base47-downloads/templates/' . $template_id . '/index.html';
+    
+    wp_send_json_success( array(
+        'preview_url' => $preview_url
+    ) );
 }
-
-/**
- * Fetch template preview URL from marketplace API
- */
-function base47_he_fetch_template_preview_url( $template_id ) {
-    $template_data = base47_he_fetch_marketplace_template( $template_id );
-    
-    if ( is_wp_error( $template_data ) ) {
-        return $template_data;
-    }
-    
-    if ( ! $template_data || empty( $template_data['preview_url'] ) ) {
-        return false;
-    }
-    
-    return $template_data['preview_url'];
-}
-
-/**
- * Download and install template from marketplace
- */
-function base47_he_download_template( $template_data, $install_path ) {
-    // Get download URL from template data
-    $download_url = $template_data['download_url'] ?? '';
-    
-    if ( empty( $download_url ) ) {
-        return new WP_Error( 'no_download_url', 'No download URL provided for template.' );
-    }
-    
-    // Download template ZIP file
-    $temp_file = download_url( $download_url );
-    
-    if ( is_wp_error( $temp_file ) ) {
-        return $temp_file;
-    }
-    
-    // Extract ZIP file
-    $result = unzip_file( $temp_file, $install_path );
-    
-    // Clean up temp file
-    @unlink( $temp_file );
-    
-    if ( is_wp_error( $result ) ) {
-        return $result;
-    }
-    
-    // Verify theme.json exists
-    if ( ! file_exists( $install_path . 'theme.json' ) ) {
-        return new WP_Error( 'invalid_template', 'Downloaded template is missing theme.json file.' );
-    }
-    
-    return true;
-}
-
-/**
- * Submit template rating to marketplace
- */
-function base47_he_submit_marketplace_rating( $template_id, $rating, $review ) {
-    $api_url = 'https://47-studio.com/base47/api/templates/' . urlencode( $template_id ) . '/rate';
-    
-    $response = wp_remote_post( $api_url, [
-        'timeout' => 15,
-        'headers' => [
-            'User-Agent' => 'Base47-HTML-Editor/' . BASE47_HE_VERSION,
-            'Content-Type' => 'application/json'
-        ],
-        'body' => json_encode( [
-            'rating' => intval( $rating ),
-            'review' => sanitize_textarea_field( $review ),
-            'site_url' => home_url(),
-            'plugin_version' => BASE47_HE_VERSION
-        ] )
-    ] );
-    
-    if ( is_wp_error( $response ) ) {
-        return $response;
-    }
-    
-    $response_code = wp_remote_retrieve_response_code( $response );
-    if ( $response_code !== 200 ) {
-        return new WP_Error( 'api_error', 'Could not submit rating: ' . $response_code );
-    }
-    
-    return true;
-}
-?>

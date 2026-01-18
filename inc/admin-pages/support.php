@@ -201,6 +201,10 @@ function base47_he_support_tickets_list() {
                                         <a href="<?php echo admin_url( 'admin.php?page=base47-he-support&action=view&ticket=' . $ticket['id'] ); ?>" class="ticket-action-btn">
                                             View Details
                                         </a>
+                                        <button type="button" class="ticket-action-btn ticket-delete-btn" data-ticket-id="<?php echo esc_attr( $ticket['id'] ); ?>" title="Delete Ticket">
+                                            <span class="dashicons dashicons-trash"></span>
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
                             </div>

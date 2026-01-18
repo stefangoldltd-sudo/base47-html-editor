@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 add_action( 'wp_ajax_base47_he_submit_ticket', 'base47_he_ajax_submit_ticket' );
 add_action( 'wp_ajax_base47_he_reply_ticket', 'base47_he_ajax_reply_ticket' );
 add_action( 'wp_ajax_base47_he_filter_tickets', 'base47_he_ajax_filter_tickets' );
+add_action( 'wp_ajax_base47_he_delete_ticket', 'base47_he_ajax_delete_ticket' );
 
 /**
  * Submit new support ticket
@@ -255,6 +256,85 @@ function base47_he_ajax_filter_tickets() {
     wp_die( json_encode([
         'success' => true,
         'tickets' => $tickets ?: []
+    ]));
+}
+
+/**
+ * Delete support ticket
+ */
+function base47_he_ajax_delete_ticket() {
+    // Verify nonce
+    if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'base47_he_delete_ticket' ) ) {
+        wp_die( json_encode([
+            'success' => false,
+            'message' => 'Security check failed'
+        ]));
+    }
+    
+    // Check permissions
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( json_encode([
+            'success' => false,
+            'message' => 'Insufficient permissions'
+        ]));
+    }
+    
+    // Validate ticket ID
+    $ticket_id = intval( $_POST['ticket_id'] ?? 0 );
+    
+    if ( ! $ticket_id ) {
+        wp_die( json_encode([
+            'success' => false,
+            'message' => 'Invalid ticket ID'
+        ]));
+    }
+    
+    // Verify ticket ownership
+    global $wpdb;
+    $tickets_table = $wpdb->prefix . 'base47_support_tickets';
+    $replies_table = $wpdb->prefix . 'base47_support_replies';
+    $user_id = get_current_user_id();
+    
+    $ticket = $wpdb->get_row( $wpdb->prepare(
+        "SELECT * FROM {$tickets_table} WHERE id = %d AND user_id = %d",
+        $ticket_id,
+        $user_id
+    ));
+    
+    if ( ! $ticket ) {
+        wp_die( json_encode([
+            'success' => false,
+            'message' => 'Ticket not found or access denied'
+        ]));
+    }
+    
+    // Delete ticket replies first
+    $wpdb->delete(
+        $replies_table,
+        ['ticket_id' => $ticket_id],
+        ['%d']
+    );
+    
+    // Delete ticket
+    $result = $wpdb->delete(
+        $tickets_table,
+        [
+            'id' => $ticket_id,
+            'user_id' => $user_id
+        ],
+        ['%d', '%d']
+    );
+    
+    if ( $result === false ) {
+        wp_die( json_encode([
+            'success' => false,
+            'message' => 'Failed to delete ticket. Please try again.'
+        ]));
+    }
+    
+    wp_die( json_encode([
+        'success' => true,
+        'message' => 'Ticket deleted successfully'
     ]));
 }
 

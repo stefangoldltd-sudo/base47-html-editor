@@ -203,6 +203,54 @@ function base47_he_marketplace_page_v2() {
 			<p>Try adjusting your filters or search query.</p>
 		</div>
 		
+		<!-- Installation Guide -->
+		<div class="marketplace-install-guide">
+			<div class="install-guide-header">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="10"/>
+					<path d="M12 16v-4"/>
+					<path d="M12 8h.01"/>
+				</svg>
+				<h3>How to Install Templates</h3>
+			</div>
+			<div class="install-guide-steps">
+				<div class="install-step">
+					<div class="step-number">1</div>
+					<div class="step-content">
+						<h4>Download Template</h4>
+						<p>Click the "Install" button on any template card. The ZIP file will download to your computer.</p>
+					</div>
+				</div>
+				<div class="install-step">
+					<div class="step-number">2</div>
+					<div class="step-content">
+						<h4>Go to Theme Manager</h4>
+						<p>Navigate to <strong>Base47 HTML → Theme Manager</strong> in your WordPress admin menu.</p>
+					</div>
+				</div>
+				<div class="install-step">
+					<div class="step-number">3</div>
+					<div class="step-content">
+						<h4>Upload ZIP File</h4>
+						<p>Click "Choose ZIP File" and select the downloaded template. Then click "Upload & Install".</p>
+					</div>
+				</div>
+				<div class="install-step">
+					<div class="step-number">4</div>
+					<div class="step-content">
+						<h4>Start Using</h4>
+						<p>The template will be added to your collection and ready to use in the Live Editor!</p>
+					</div>
+				</div>
+			</div>
+			<div class="install-guide-note">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+				</svg>
+				<p><strong>Note:</strong> Make sure the ZIP file contains a folder ending with "-templates" (e.g., "agency-templates"). If you get an error, check the ZIP structure.</p>
+			</div>
+		</div>
+		
 	</div>
 	
 	<!-- Preview Modal -->

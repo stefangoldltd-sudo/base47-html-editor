@@ -935,7 +935,17 @@
     font-family: var(--soft-font-family);
 }
 
-.base47-tm-soft-ui .notice {
-    border-radius: var(--soft-radius-md);
-    box-shadow: var(--soft-shadow-sm);
+/* Hide WordPress notices - we use Soft UI notifications instead */
+.base47-tm-soft-ui .notice,
+.base47-tm-soft-ui .updated,
+.base47-tm-soft-ui .error {
+    display: none !important;
+}
+
+/* Prevent white box from appearing */
+.base47-tm-soft-ui .notice-success,
+.base47-tm-soft-ui .notice-error,
+.base47-tm-soft-ui .notice-warning,
+.base47-tm-soft-ui .notice-info {
+    display: none !important;
 }

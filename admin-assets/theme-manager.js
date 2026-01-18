@@ -290,7 +290,7 @@ jQuery(function ($) {
  * @param {string} message - Notification message
  * @param {number} duration - Auto-close duration in ms (0 = no auto-close)
  */
-function base47ShowNotification(type, title, message, duration = 5000) {
+function base47ShowNotification(type, title, message, duration = 10000) {
     // Remove any existing notifications
     $('.base47-notification').remove();
     
@@ -488,23 +488,26 @@ jQuery(function($) {
     });
     
     // Handle WordPress notices and convert to Soft UI notifications
-    $('.notice.notice-success, .notice.notice-error').each(function() {
-        const $notice = $(this);
-        const message = $notice.find('p').text();
-        const isError = $notice.hasClass('notice-error');
-        
-        if (message) {
-            // Show Soft UI notification
-            base47ShowNotification(
-                isError ? 'error' : 'success',
-                isError ? 'Error' : 'Success',
-                message,
-                6000
-            );
+    $(document).ready(function() {
+        // Convert WordPress notices immediately on page load
+        $('.notice.notice-success, .notice.updated, .notice.notice-error, .notice.error').each(function() {
+            const $notice = $(this);
+            const message = $notice.find('p').html() || $notice.text();
+            const isError = $notice.hasClass('notice-error') || $notice.hasClass('error');
             
-            // Hide WordPress notice
-            $notice.hide();
-        }
+            if (message && message.trim()) {
+                // Show Soft UI notification
+                base47ShowNotification(
+                    isError ? 'error' : 'success',
+                    isError ? 'Error' : 'Success',
+                    message,
+                    10000 // 10 seconds
+                );
+            }
+            
+            // Hide WordPress notice immediately
+            $notice.remove();
+        });
     });
     
 });

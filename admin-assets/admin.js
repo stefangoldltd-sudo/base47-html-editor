@@ -754,11 +754,23 @@ function getActiveSet() {
                 hasUnsavedChanges = false;
                 updateSaveButtonState();
                 
-                // Update preview
-                const iframe = $('#base47-he-preview')[0];
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.location.reload();
-                }
+                // Update preview with live preview (not reload)
+                $.post(BASE47_HE.ajax_url, {
+                    action: 'base47_he_live_preview',
+                    nonce: BASE47_HE.nonce,
+                    file: $('#base47-he-current-file').val(),
+                    set: $('#base47-he-current-set').val(),
+                    content: content
+                }, function(previewResp) {
+                    if (previewResp.success && previewResp.data && previewResp.data.html) {
+                        const iframe = $('#base47-he-preview')[0];
+                        if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.document.open();
+                            iframe.contentWindow.document.write(previewResp.data.html);
+                            iframe.contentWindow.document.close();
+                        }
+                    }
+                });
                 
                 // Show success feedback
                 btn.text('Saved!').css('background', '#46b450');
