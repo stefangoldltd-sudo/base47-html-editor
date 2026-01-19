@@ -406,12 +406,44 @@
                     }, 3000);
                 } else {
                     $btn.removeClass('loading').html(originalHtml);
-                    showNotification('error', response.data.message || 'Installation failed');
+                    
+                    let errorMessage = 'Installation failed';
+                    if (response.data) {
+                        if (typeof response.data === 'string') {
+                            errorMessage = response.data;
+                        } else if (response.data.message) {
+                            errorMessage = response.data.message;
+                        }
+                        
+                        // Log debug info to console for troubleshooting
+                        if (response.data.debug) {
+                            console.log('Installation Debug Info:', response.data.debug);
+                        }
+                    }
+                    
+                    showNotification('error', errorMessage);
                 }
             },
             error: function(xhr, status, error) {
                 $btn.removeClass('loading').html(originalHtml);
-                showNotification('error', 'Installation failed: ' + error);
+                
+                let errorMessage = 'Installation failed: ' + error;
+                
+                // Try to get more detailed error from response
+                if (xhr.responseJSON && xhr.responseJSON.data) {
+                    if (typeof xhr.responseJSON.data === 'string') {
+                        errorMessage = xhr.responseJSON.data;
+                    } else if (xhr.responseJSON.data.message) {
+                        errorMessage = xhr.responseJSON.data.message;
+                    }
+                    
+                    // Log debug info
+                    if (xhr.responseJSON.data.debug) {
+                        console.log('Installation Error Debug:', xhr.responseJSON.data.debug);
+                    }
+                }
+                
+                showNotification('error', errorMessage);
             }
         });
     }

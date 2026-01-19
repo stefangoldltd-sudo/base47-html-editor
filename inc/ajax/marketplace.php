@@ -251,28 +251,70 @@ function base47_he_install_marketplace_template() {
     $templates_dir = $upload_dir['basedir'] . '/base47-downloads/templates/';
     $zip_file = $templates_dir . $template_id . '.zip';
     
+    // Debug info
+    $debug_info = array(
+        'template_id' => $template_id,
+        'templates_dir' => $templates_dir,
+        'zip_file' => $zip_file,
+        'file_exists' => file_exists( $zip_file ),
+        'file_size' => file_exists( $zip_file ) ? filesize( $zip_file ) : 0,
+        'is_readable' => file_exists( $zip_file ) ? is_readable( $zip_file ) : false,
+        'ziparchive_available' => class_exists( 'ZipArchive' )
+    );
+    
     // Check if ZIP file exists
     if ( ! file_exists( $zip_file ) ) {
-        wp_send_json_error( 'Template ZIP file not found. Please ensure the template is available.' );
+        wp_send_json_error( array(
+            'message' => 'Template ZIP file not found: ' . basename( $zip_file ),
+            'debug' => $debug_info
+        ) );
+    }
+    
+    // Check if file is readable
+    if ( ! is_readable( $zip_file ) ) {
+        wp_send_json_error( array(
+            'message' => 'Template ZIP file is not readable. Please check file permissions.',
+            'debug' => $debug_info
+        ) );
+    }
+    
+    // Check ZipArchive availability
+    if ( ! class_exists( 'ZipArchive' ) ) {
+        wp_send_json_error( array(
+            'message' => 'ZipArchive extension is not available on this server.',
+            'debug' => $debug_info
+        ) );
     }
     
     // Load theme installation functions
     if ( ! function_exists( 'base47_he_install_theme_from_zip' ) ) {
-        require_once plugin_dir_path( __FILE__ ) . '../operations/theme-install.php';
+        $theme_install_file = plugin_dir_path( __FILE__ ) . '../operations/theme-install.php';
+        if ( ! file_exists( $theme_install_file ) ) {
+            wp_send_json_error( array(
+                'message' => 'Theme installation file not found: ' . $theme_install_file,
+                'debug' => $debug_info
+            ) );
+        }
+        require_once $theme_install_file;
     }
     
     // Install the template using existing installation function
     $result = base47_he_install_theme_from_zip( $zip_file );
     
     if ( is_wp_error( $result ) ) {
-        wp_send_json_error( $result->get_error_message() );
+        wp_send_json_error( array(
+            'message' => $result->get_error_message(),
+            'error_code' => $result->get_error_code(),
+            'debug' => $debug_info
+        ) );
     }
     
     // Success - template installed
     wp_send_json_success( array(
         'message' => 'Template installed successfully! You can now use it in the Live Editor.',
         'theme_slug' => $result,
-        'redirect_url' => admin_url( 'admin.php?page=base47-he-theme-manager' )
+        'redirect_url' => admin_url( 'admin.php?page=base47-he-theme-manager' ),
+        'debug' => $debug_info
     ) );
 }
 
