@@ -534,35 +534,129 @@
     }
     
     /***
-     * Show notification
+     * Show notification as center modal
      */
     function showNotification(type, message) {
-        // Create a nice notification
-        const notification = $('<div>')
-            .css({
-                position: 'fixed',
-                top: '20px',
-                right: '20px',
-                background: type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6',
-                color: 'white',
-                padding: '16px 24px',
-                borderRadius: '12px',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                zIndex: 10000,
-                fontSize: '14px',
-                fontWeight: '600',
-                maxWidth: '400px',
-                animation: 'slideIn 0.3s ease'
-            })
-            .text(message);
+        // Remove any existing notifications
+        $('.base47-notification-modal').remove();
         
-        $('body').append(notification);
+        const iconSvg = type === 'error' ? 
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' :
+            type === 'success' ? 
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>' :
+            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>';
         
-        setTimeout(function() {
-            notification.fadeOut(300, function() {
+        const bgColor = type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6';
+        
+        const modal = $(`
+            <div class="base47-notification-modal" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 999999;
+                animation: fadeIn 0.3s ease;
+            ">
+                <div style="
+                    background: white;
+                    border-radius: 16px;
+                    padding: 32px;
+                    max-width: 400px;
+                    margin: 20px;
+                    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+                    text-align: center;
+                    animation: slideUp 0.3s ease;
+                ">
+                    <div style="
+                        width: 64px;
+                        height: 64px;
+                        border-radius: 50%;
+                        background: ${bgColor};
+                        color: white;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto 20px;
+                    ">
+                        ${iconSvg}
+                    </div>
+                    <h3 style="
+                        margin: 0 0 12px;
+                        font-size: 20px;
+                        font-weight: 600;
+                        color: #1f2937;
+                    ">${type === 'success' ? 'Success!' : type === 'error' ? 'Error' : 'Info'}</h3>
+                    <p style="
+                        margin: 0 0 24px;
+                        color: #6b7280;
+                        line-height: 1.5;
+                    ">${escapeHtml(message)}</p>
+                    <button class="notification-close-btn" style="
+                        background: ${bgColor};
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                    ">OK</button>
+                </div>
+            </div>
+        `);
+        
+        // Add CSS animations
+        if (!$('#base47-notification-styles').length) {
+            $('head').append(`
+                <style id="base47-notification-styles">
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    @keyframes slideUp {
+                        from { transform: translateY(20px); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                    .notification-close-btn:hover {
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    }
+                </style>
+            `);
+        }
+        
+        $('body').append(modal);
+        
+        // Close on button click or backdrop click
+        modal.find('.notification-close-btn').on('click', function() {
+            modal.fadeOut(200, function() {
                 $(this).remove();
             });
-        }, 3000);
+        });
+        
+        modal.on('click', function(e) {
+            if (e.target === this) {
+                modal.fadeOut(200, function() {
+                    $(this).remove();
+                });
+            }
+        });
+        
+        // Auto-close after 5 seconds for success/info
+        if (type !== 'error') {
+            setTimeout(function() {
+                if (modal.is(':visible')) {
+                    modal.fadeOut(200, function() {
+                        $(this).remove();
+                    });
+                }
+            }, 5000);
+        }
     }
     
     /***

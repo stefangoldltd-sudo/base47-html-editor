@@ -229,35 +229,35 @@ function base47_he_marketplace_page_v2() {
 					<path d="M12 16v-4"/>
 					<path d="M12 8h.01"/>
 				</svg>
-				<h3>How to Install Templates</h3>
+				<h3>How to Use Templates</h3>
 			</div>
 			<div class="install-guide-steps">
 				<div class="install-step">
 					<div class="step-number">1</div>
 					<div class="step-content">
-						<h4>Download Template</h4>
-						<p>Click the "Install" button on any template card. The ZIP file will download to your computer.</p>
+						<h4>One-Click Install</h4>
+						<p>Click the "Install" button on any template card. The template will be automatically installed to your theme collection.</p>
 					</div>
 				</div>
 				<div class="install-step">
 					<div class="step-number">2</div>
 					<div class="step-content">
-						<h4>Go to Theme Manager</h4>
-						<p>Navigate to <strong>Base47 HTML → Theme Manager</strong> in your WordPress admin menu.</p>
+						<h4>Activate Theme</h4>
+						<p>Go to <strong>Base47 HTML → Theme Manager</strong> and activate your newly installed template.</p>
 					</div>
 				</div>
 				<div class="install-step">
 					<div class="step-number">3</div>
 					<div class="step-content">
-						<h4>Upload ZIP File</h4>
-						<p>Click "Choose ZIP File" and select the downloaded template. Then click "Upload & Install".</p>
+						<h4>Start Editing</h4>
+						<p>Use the <strong>Live Editor</strong> to customize your template with real-time preview and Monaco code editor.</p>
 					</div>
 				</div>
 				<div class="install-step">
 					<div class="step-number">4</div>
 					<div class="step-content">
-						<h4>Start Using</h4>
-						<p>The template will be added to your collection and ready to use in the Live Editor!</p>
+						<h4>Download Option</h4>
+						<p>Alternatively, use the "Download" button to get the ZIP file for manual installation or backup.</p>
 					</div>
 				</div>
 			</div>
@@ -265,7 +265,7 @@ function base47_he_marketplace_page_v2() {
 				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
 				</svg>
-				<p><strong>Note:</strong> Make sure the ZIP file contains a folder ending with "-templates" (e.g., "agency-templates"). If you get an error, check the ZIP structure.</p>
+				<p><strong>Note:</strong> Templates are installed directly to your WordPress site. No manual upload required! The download button is available for backup purposes.</p>
 			</div>
 		</div>
 		
