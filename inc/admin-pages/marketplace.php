@@ -54,6 +54,24 @@ function base47_he_marketplace_page_v2() {
 			</div>
 		</div>
 		
+		<!-- More Templates Coming Notification -->
+		<div class="base47-notification-banner">
+			<div class="notification-content">
+				<div class="notification-icon">
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+					</svg>
+				</div>
+				<div class="notification-text">
+					<h3>More Templates Coming Soon!</h3>
+					<p>We're constantly adding new professional templates. Currently featuring SaaS and Slider templates, with many more categories launching regularly.</p>
+				</div>
+				<div class="notification-badge">
+					<span>New</span>
+				</div>
+			</div>
+		</div>
+		
 		<!-- Stats Grid -->
 		<div class="base47-stats-grid">
 			<div class="stat-card">

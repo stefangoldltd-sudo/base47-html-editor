@@ -324,37 +324,43 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
             </svg>
-            Downloading...
+            Installing...
         `);
         
-        // Get upload directory URL from WordPress
-        const uploadsUrl = base47HeAdmin.uploadsUrl || '/wp-content/uploads';
-        const downloadUrl = `${uploadsUrl}/base47-downloads/templates/${templateId}.zip`;
-        
-        // Create temporary link and trigger download
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = `${templateId}.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Show success after a short delay
-        setTimeout(function() {
-            $btn.removeClass('loading').html(`
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                Downloaded!
-            `);
-            
-            showNotification('success', 'Template downloaded successfully! Extract the ZIP file to use it.');
-            
-            // Reset button after 2 seconds
-            setTimeout(function() {
+        // Install template via AJAX
+        $.ajax({
+            url: base47HeAdmin.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'base47_he_install_marketplace_template',
+                template_id: templateId,
+                nonce: base47HeAdmin.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    $btn.removeClass('loading').html(`
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Installed!
+                    `);
+                    
+                    showNotification('success', response.data.message || 'Template installed successfully!');
+                    
+                    // Reset button after 3 seconds
+                    setTimeout(function() {
+                        $btn.removeClass('loading').html(originalHtml);
+                    }, 3000);
+                } else {
+                    $btn.removeClass('loading').html(originalHtml);
+                    showNotification('error', response.data.message || 'Installation failed');
+                }
+            },
+            error: function(xhr, status, error) {
                 $btn.removeClass('loading').html(originalHtml);
-            }, 2000);
-        }, 500);
+                showNotification('error', 'Installation failed: ' + error);
+            }
+        });
     }
     
     /***

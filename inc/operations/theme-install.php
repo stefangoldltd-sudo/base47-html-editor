@@ -145,3 +145,117 @@ function base47_he_install_theme_from_upload() {
 
     return $root_folder;
 }
+/**
+ * Install a theme from ZIP file path
+ * 
+ * @param string $zip_file_path Full path to ZIP file
+ * @return string|WP_Error Theme slug on success, WP_Error on failure
+ */
+function base47_he_install_theme_from_zip( $zip_file_path ) {
+    
+    if ( ! file_exists( $zip_file_path ) ) {
+        return new WP_Error( 'file_not_found', 'ZIP file not found: ' . $zip_file_path );
+    }
+    
+    if ( ! class_exists( 'ZipArchive' ) ) {
+        return new WP_Error( 'no_zip', 'ZipArchive is not available on this server.' );
+    }
+    
+    $zip = new ZipArchive();
+    $open_result = $zip->open( $zip_file_path );
+    
+    if ( true !== $open_result ) {
+        $error_messages = [
+            ZipArchive::ER_EXISTS => 'File already exists',
+            ZipArchive::ER_INCONS => 'ZIP archive inconsistent',
+            ZipArchive::ER_INVAL => 'Invalid argument',
+            ZipArchive::ER_MEMORY => 'Memory allocation failure',
+            ZipArchive::ER_NOENT => 'No such file',
+            ZipArchive::ER_NOZIP => 'Not a valid ZIP archive',
+            ZipArchive::ER_OPEN => 'Cannot open file',
+            ZipArchive::ER_READ => 'Read error',
+            ZipArchive::ER_SEEK => 'Seek error',
+        ];
+        
+        $error_detail = isset( $error_messages[$open_result] ) ? $error_messages[$open_result] : 'Unknown error';
+        
+        return new WP_Error(
+            'open_failed', 
+            sprintf(
+                'Could not open ZIP file. %s. The file may be corrupted or not a valid ZIP archive.',
+                $error_detail
+            )
+        );
+    }
+    
+    // Detect root folder inside ZIP
+    $root_folder = '';
+    for ( $i = 0; $i < $zip->numFiles; $i++ ) {
+        $stat = $zip->statIndex( $i );
+        if ( ! $stat || empty( $stat['name'] ) ) continue;
+        
+        $name_in_zip = $stat['name'];
+        
+        if ( substr( $name_in_zip, -1 ) === '/' ) {
+            $root_folder = trim( $name_in_zip, '/' );
+            break;
+        }
+    }
+    
+    if ( ! $root_folder ) {
+        $zip->close();
+        return new WP_Error(
+            'no_root_folder', 
+            'Invalid ZIP structure. The ZIP must contain a root folder (e.g., "saas-templates/").'
+        );
+    }
+    
+    // VALIDATION: Folder must end with -templates or -templetes
+    if ( ! preg_match( '/-templates?$/i', $root_folder ) ) {
+        $zip->close();
+        return new WP_Error(
+            'invalid_structure', 
+            'Invalid theme structure. The ZIP must contain a folder ending with "-templates" (e.g., saas-templates).'
+        );
+    }
+    
+    // Clean the folder name to a safe slug (lowercase)
+    $root_folder = strtolower( $root_folder );
+    
+    // Determine install location
+    $root = base47_he_get_themes_root();
+    $themes_dir = $root['dir'];
+    
+    $target_dir = trailingslashit( $themes_dir . $root_folder );
+    
+    // VALIDATION: Check if theme already exists (overwrite protection)
+    if ( file_exists( $target_dir ) ) {
+        $zip->close();
+        
+        // Get theme name for better error message
+        $theme_name = str_replace( ['-templates', '-templetes', '-', '_'], ['', '', ' ', ' '], $root_folder );
+        $theme_name = ucwords( trim( $theme_name ) );
+        
+        return new WP_Error(
+            'theme_exists', 
+            sprintf( 'A theme named "%s" already exists. Please delete the existing theme first.', $theme_name )
+        );
+    }
+    
+    // Extract ONLY into uploads dir
+    if ( ! $zip->extractTo( $themes_dir ) ) {
+        $zip->close();
+        return new WP_Error( 'extract_failed', 'Could not extract ZIP into themes directory.' );
+    }
+    
+    $zip->close();
+    
+    if ( ! is_dir( $target_dir ) ) {
+        return new WP_Error( 'no_target', 'Theme folder not found after extraction.' );
+    }
+    
+    // Auto-rebuild cache after successful install
+    base47_he_refresh_theme_caches();
+    
+    return $root_folder;
+}

@@ -239,25 +239,38 @@ function base47_he_install_marketplace_template() {
         wp_send_json_error( 'Insufficient permissions' );
     }
     
-    $template_id = isset( $_POST['template_id'] ) ? intval( $_POST['template_id'] ) : 0;
+    $template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( $_POST['template_id'] ) : '';
     
     if ( ! $template_id ) {
         wp_send_json_error( 'Invalid template ID' );
     }
     
-    // TODO: Implement actual template installation logic
-    // This would typically:
-    // 1. Download template files from remote server
-    // 2. Extract to appropriate directory
-    // 3. Register template in database
-    // 4. Create necessary pages/posts
+    // Get upload directory
+    $upload_dir = wp_upload_dir();
+    $templates_dir = $upload_dir['basedir'] . '/base47-downloads/templates/';
+    $zip_file = $templates_dir . $template_id . '.zip';
     
-    // Simulate installation delay
-    sleep( 1 );
+    // Check if ZIP file exists
+    if ( ! file_exists( $zip_file ) ) {
+        wp_send_json_error( 'Template ZIP file not found. Please ensure the template is available.' );
+    }
     
-    // For now, just return success
+    // Load theme installation functions
+    if ( ! function_exists( 'base47_he_install_theme_from_zip' ) ) {
+        require_once plugin_dir_path( __FILE__ ) . '../operations/theme-install.php';
+    }
+    
+    // Install the template using existing installation function
+    $result = base47_he_install_theme_from_zip( $zip_file );
+    
+    if ( is_wp_error( $result ) ) {
+        wp_send_json_error( $result->get_error_message() );
+    }
+    
+    // Success - template installed
     wp_send_json_success( array(
-        'message' => 'Template installed successfully!',
+        'message' => 'Template installed successfully! You can now use it in the Live Editor.',
+        'theme_slug' => $result,
         'redirect_url' => admin_url( 'admin.php?page=base47-he-theme-manager' )
     ) );
 }
