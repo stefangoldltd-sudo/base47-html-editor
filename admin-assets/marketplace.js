@@ -72,6 +72,52 @@
             installTemplate(templateId, $(this));
         });
         
+        $templatesGrid.on('click', '.btn-download', function() {
+            const templateId = $(this).data('template-id');
+            const $btn = $(this);
+            const originalHtml = $btn.html();
+            
+            // Show loading state
+            $btn.addClass('loading').html(`
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                </svg>
+            `);
+            
+            // Get download URL via AJAX
+            $.ajax({
+                url: base47HeAdmin.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'base47_he_download_marketplace_template',
+                    template_id: templateId,
+                    nonce: base47HeAdmin.nonce
+                },
+                success: function(response) {
+                    $btn.removeClass('loading').html(originalHtml);
+                    
+                    if (response.success && response.data.download_url) {
+                        // Create a temporary link and trigger download
+                        const link = document.createElement('a');
+                        link.href = response.data.download_url;
+                        link.download = response.data.file_name || '';
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        showNotification('success', `Download started: ${response.data.file_name} (${formatFileSize(response.data.file_size)})`);
+                    } else {
+                        showNotification('error', response.data.message || 'Download failed');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $btn.removeClass('loading').html(originalHtml);
+                    showNotification('error', 'Download failed: ' + error);
+                }
+            });
+        });
+        
         $templatesGrid.on('click', '.btn-preview', function() {
             const templateId = $(this).data('template-id');
             openPreview(templateId);
@@ -293,6 +339,13 @@
                             </svg>
                             Install
                         </button>
+                        <button type="button" class="btn btn-secondary btn-download" data-template-id="${escapeHtml(template.id)}" title="Download ZIP file">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" x2="12" y1="15" y2="3"/>
+                            </svg>
+                        </button>
                         <button type="button" class="btn btn-secondary btn-preview" data-template-id="${escapeHtml(template.id)}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
@@ -503,6 +556,17 @@
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    
+    /***
+     * Utility: Format file size (bytes to human readable)
+     */
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
     
     /***

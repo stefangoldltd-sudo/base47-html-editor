@@ -23,7 +23,7 @@ function base47_he_load_marketplace() {
     
     // Load templates from JSON file
     $upload_dir = wp_upload_dir();
-    $json_file = $upload_dir['basedir'] . '/base47-downloads/templates.json';
+    $json_file = $upload_dir['basedir'] . '/base47-downloads/metadata/templates.json';
     
     if ( file_exists( $json_file ) ) {
         $json_content = file_get_contents( $json_file );
@@ -53,7 +53,8 @@ function base47_he_load_marketplace() {
                     'reviews' => $template['reviews'],
                     'downloads' => $template['downloads'],
                     'thumbnail' => $template['thumbnail'],
-                    'preview_url' => $template['preview_url']
+                    'preview_url' => $template['preview_url'],
+                    'download_url' => $template['download_url']
                 );
             }
             
@@ -276,8 +277,46 @@ function base47_he_install_marketplace_template() {
 }
 
 /**
- * Get template preview URL
+ * Download marketplace template
  */
+add_action( 'wp_ajax_base47_he_download_marketplace_template', 'base47_he_download_marketplace_template' );
+function base47_he_download_marketplace_template() {
+    check_ajax_referer( 'base47_he_nonce', 'nonce' );
+    
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Insufficient permissions' );
+    }
+    
+    $template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( $_POST['template_id'] ) : '';
+    
+    if ( ! $template_id ) {
+        wp_send_json_error( 'Invalid template ID' );
+    }
+    
+    // Get upload directory
+    $upload_dir = wp_upload_dir();
+    $templates_dir = $upload_dir['basedir'] . '/base47-downloads/templates/';
+    $zip_file = $templates_dir . $template_id . '.zip';
+    
+    // Check if ZIP file exists
+    if ( ! file_exists( $zip_file ) ) {
+        wp_send_json_error( 'Template ZIP file not found: ' . $template_id . '.zip' );
+    }
+    
+    // Get file info
+    $file_size = filesize( $zip_file );
+    $file_name = basename( $zip_file );
+    
+    // Send download URL
+    $download_url = $upload_dir['baseurl'] . '/base47-downloads/templates/' . $template_id . '.zip';
+    
+    wp_send_json_success( array(
+        'download_url' => $download_url,
+        'file_name' => $file_name,
+        'file_size' => $file_size,
+        'message' => 'Download ready'
+    ) );
+}
 add_action( 'wp_ajax_base47_he_get_template_preview', 'base47_he_get_template_preview' );
 function base47_he_get_template_preview() {
     check_ajax_referer( 'base47_he_nonce', 'nonce' );
