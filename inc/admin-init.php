@@ -347,14 +347,14 @@ function base47_he_admin_assets( $hook ) {
             'base47-he-marketplace',
             BASE47_HE_URL . 'admin-assets/marketplace.css',
             [],
-            BASE47_HE_VERSION
+            BASE47_HE_VERSION . '-' . time() // Cache busting
         );
         
         wp_enqueue_script(
             'base47-he-marketplace',
             BASE47_HE_URL . 'admin-assets/marketplace.js',
             [ 'jquery' ],
-            BASE47_HE_VERSION,
+            BASE47_HE_VERSION . '-' . time(), // Cache busting
             true
         );
         
@@ -363,7 +363,8 @@ function base47_he_admin_assets( $hook ) {
             'base47HeAdmin',
             [
                 'nonce' => wp_create_nonce('base47_he_nonce'),
-                'ajaxUrl' => admin_url('admin-ajax.php')
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'uploadsUrl' => wp_upload_dir()['baseurl']
             ]
         );
     }

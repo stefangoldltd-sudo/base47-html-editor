@@ -55,19 +55,19 @@ function base47_he_marketplace_page_v2() {
 		</div>
 		
 		<!-- More Templates Coming Notification -->
-		<div class="base47-notification-banner">
-			<div class="notification-content">
-				<div class="notification-icon">
+		<div class="base47-notification-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 1.25rem; padding: 2rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05);">
+			<div class="notification-content" style="display: flex; align-items: center; gap: 1.5rem; position: relative; z-index: 2;">
+				<div class="notification-icon" style="width: 3rem; height: 3rem; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;">
 					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
 					</svg>
 				</div>
-				<div class="notification-text">
-					<h3>More Templates Coming Soon!</h3>
-					<p>We're constantly adding new professional templates. Currently featuring SaaS and Slider templates, with many more categories launching regularly.</p>
+				<div class="notification-text" style="flex: 1; color: white;">
+					<h3 style="margin: 0 0 0.5rem; font-size: 1.25rem; font-weight: 600; color: white;">More Templates Coming Soon!</h3>
+					<p style="margin: 0; opacity: 0.9; line-height: 1.5;">We're constantly adding new professional templates. Currently featuring SaaS and Slider templates, with many more categories launching regularly.</p>
 				</div>
-				<div class="notification-badge">
-					<span>New</span>
+				<div class="notification-badge" style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 2rem; padding: 0.5rem 1rem; backdrop-filter: blur(10px); flex-shrink: 0;">
+					<span style="color: white; font-size: 0.875rem; font-weight: 600;">New</span>
 				</div>
 			</div>
 		</div>
