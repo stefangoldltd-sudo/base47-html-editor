@@ -32,6 +32,16 @@ function base47_he_admin_menu() {
         60
     );
 
+    // Onboarding (Hidden from menu, accessible via direct URL)
+    add_submenu_page(
+        null, // Hidden from menu
+        'Welcome to Base47 HTML Editor',
+        'Onboarding',
+        'manage_options',
+        'base47-he-onboarding',
+        'base47_he_onboarding_page'
+    );
+
     // Shortcodes
     add_submenu_page(
         'base47-he-dashboard',
@@ -341,20 +351,32 @@ function base47_he_admin_assets( $hook ) {
         );
     }
     
+    // Onboarding page CSS (V3 Feature)
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-onboarding' ) {
+        wp_enqueue_style(
+            'base47-he-onboarding',
+            BASE47_HE_URL . 'admin-assets/onboarding.css',
+            [],
+            BASE47_HE_VERSION
+        );
+    }
+        );
+    }
+    
     // Marketplace page CSS & JS
     if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-marketplace' ) {
         wp_enqueue_style(
             'base47-he-marketplace',
             BASE47_HE_URL . 'admin-assets/marketplace.css',
             [],
-            BASE47_HE_VERSION . '-' . time() // Cache busting
+            BASE47_HE_VERSION
         );
         
         wp_enqueue_script(
             'base47-he-marketplace',
             BASE47_HE_URL . 'admin-assets/marketplace.js',
             [ 'jquery' ],
-            BASE47_HE_VERSION . '-' . time(), // Cache busting
+            BASE47_HE_VERSION,
             true
         );
         

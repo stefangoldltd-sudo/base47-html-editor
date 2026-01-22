@@ -73,9 +73,9 @@ function base47_he_marketplace_page_v2() {
 		</div>
 		
 		<!-- Stats Grid -->
-		<div class="base47-stats-grid">
-			<div class="stat-card">
-				<div class="stat-icon gradient-primary">
+		<div class="base47-stats-grid" style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+			<div class="stat-card" style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 1rem;">
+				<div class="stat-icon gradient-primary" style="width: 3rem; height: 3rem; background: linear-gradient(310deg, #f97316, #fb923c); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white;">
 					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<rect width="7" height="9" x="3" y="3" rx="1"/>
 						<rect width="7" height="5" x="14" y="3" rx="1"/>
@@ -84,13 +84,13 @@ function base47_he_marketplace_page_v2() {
 					</svg>
 				</div>
 				<div class="stat-content">
-					<p class="stat-value" id="templates-count">0</p>
-					<p class="stat-label">Templates</p>
+					<p class="stat-value" id="templates-count" style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #18181b;">0</p>
+					<p class="stat-label" style="margin: 0; color: #71717a; font-size: 0.875rem;">Templates</p>
 				</div>
 			</div>
 			
-			<div class="stat-card">
-				<div class="stat-icon gradient-info">
+			<div class="stat-card" style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 1rem;">
+				<div class="stat-icon gradient-info" style="width: 3rem; height: 3rem; background: linear-gradient(310deg, #3b82f6, #0ea5e9); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white;">
 					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/>
 						<path d="M14 4h6v6"/>
@@ -98,13 +98,13 @@ function base47_he_marketplace_page_v2() {
 					</svg>
 				</div>
 				<div class="stat-content">
-					<p class="stat-value">12</p>
-					<p class="stat-label">Categories</p>
+					<p class="stat-value" style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #18181b;">12</p>
+					<p class="stat-label" style="margin: 0; color: #71717a; font-size: 0.875rem;">Categories</p>
 				</div>
 			</div>
 			
-			<div class="stat-card">
-				<div class="stat-icon gradient-success">
+			<div class="stat-card" style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 1rem;">
+				<div class="stat-icon gradient-success" style="width: 3rem; height: 3rem; background: linear-gradient(310deg, #22c55e, #84cc16); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white;">
 					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/>
 						<path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/>
@@ -112,13 +112,13 @@ function base47_he_marketplace_page_v2() {
 					</svg>
 				</div>
 				<div class="stat-content">
-					<p class="stat-value">Free & Pro</p>
-					<p class="stat-label">Available</p>
+					<p class="stat-value" style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #18181b;">Free & Pro</p>
+					<p class="stat-label" style="margin: 0; color: #71717a; font-size: 0.875rem;">Available</p>
 				</div>
 			</div>
 			
-			<div class="stat-card">
-				<div class="stat-icon gradient-purple">
+			<div class="stat-card" style="background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 1rem;">
+				<div class="stat-icon gradient-purple" style="width: 3rem; height: 3rem; background: linear-gradient(310deg, #667eea, #764ba2); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: white;">
 					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
 						<polyline points="7 10 12 15 17 10"/>
@@ -126,11 +126,24 @@ function base47_he_marketplace_page_v2() {
 					</svg>
 				</div>
 				<div class="stat-content">
-					<p class="stat-value">1-Click</p>
-					<p class="stat-label">Install</p>
+					<p class="stat-value" style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #18181b;">1-Click</p>
+					<p class="stat-label" style="margin: 0; color: #71717a; font-size: 0.875rem;">Install</p>
 				</div>
 			</div>
 		</div>
+		
+		<style>
+		@media (min-width: 640px) {
+			.base47-stats-grid {
+				grid-template-columns: repeat(2, 1fr) !important;
+			}
+		}
+		@media (min-width: 1024px) {
+			.base47-stats-grid {
+				grid-template-columns: repeat(4, 1fr) !important;
+			}
+		}
+		</style>
 		
 		<!-- Filter Section -->
 		<div class="dashboard-card filter-card">

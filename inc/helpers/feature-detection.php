@@ -39,18 +39,19 @@ function base47_he_is_pro_active() {
     // Check if Pro plugin constant is defined
     if ( defined( 'BASE47_HE_PRO_VERSION' ) ) {
         // Pro plugin is installed - now check if license is active
-        $license_status = get_option( 'base47_he_license_status', 'inactive' );
+        // Use consistent option name for Pro license status
+        $license_status = get_option( 'base47_he_pro_license_status', 'inactive' );
         return ( $license_status === 'active' );
     }
     
     // Check if Pro plugin class exists
     if ( class_exists( 'Base47_HTML_Editor_Pro' ) ) {
         // Pro plugin is installed - now check if license is active
-        $license_status = get_option( 'base47_he_license_status', 'inactive' );
+        $license_status = get_option( 'base47_he_pro_license_status', 'inactive' );
         return ( $license_status === 'active' );
     }
     
-    // Allow Pro plugin to register itself via filter
+    // Allow Pro plugin to register itself via filter (Pro plugin MUST validate license)
     return apply_filters( 'base47_he_is_pro_active', false );
 }
 
@@ -86,6 +87,8 @@ function base47_he_has_feature( $feature ) {
         'priority_support',
         'license_management',
         'auto_updates',
+        'white_label',
+        'analytics_dashboard',
     );
     
     // If Pro is active, all features are available
@@ -99,6 +102,31 @@ function base47_he_has_feature( $feature ) {
     }
     
     // Free features are always available
+    return true;
+}
+
+/**
+ * Security gatekeeper for Pro features
+ * Prevents access to Pro functionality without valid license
+ * 
+ * @param string $feature Feature name for error message
+ * @return bool True if Pro access is allowed, false otherwise
+ */
+function base47_he_pro_security_check( $feature = 'Pro Feature' ) {
+    // Check if Pro is active
+    if ( ! base47_he_is_pro_active() ) {
+        // Log security attempt
+        error_log( 'Base47 HTML Editor: Unauthorized Pro feature access attempt - ' . $feature );
+        return false;
+    }
+    
+    // Additional security: Verify license data exists
+    $license_data = get_option( 'base47_he_pro_license_data', array() );
+    if ( empty( $license_data ) ) {
+        error_log( 'Base47 HTML Editor: Pro feature access denied - No license data found' );
+        return false;
+    }
+    
     return true;
 }
 
