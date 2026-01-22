@@ -96,11 +96,16 @@ function base47_he_license_page() {
                             <div class="detail-value"><?php echo esc_html( ucfirst( $license_data['plan'] ?? 'Pro' ) ); ?></div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Sites Allowed</div>
+                            <div class="detail-label">Sites Used</div>
                             <div class="detail-value">
                                 <?php 
+                                $used = $license_data['activations_count'] ?? 1;
                                 $max = $license_data['max_activations'] ?? 1;
-                                echo esc_html( $max == -1 ? 'Unlimited' : $max );
+                                if ( $max == -1 ) {
+                                    echo esc_html( $used . ' / Unlimited' );
+                                } else {
+                                    echo esc_html( $used . ' / ' . $max );
+                                }
                                 ?>
                             </div>
                         </div>
@@ -109,8 +114,21 @@ function base47_he_license_page() {
                             <div class="detail-value"><?php echo esc_html( $license_data['expires'] ?? 'Never' ); ?></div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Activated</div>
-                            <div class="detail-value"><?php echo esc_html( $license_data['activated_at'] ?? 'Unknown' ); ?></div>
+                            <div class="detail-label">License Type</div>
+                            <div class="detail-value">
+                                <?php 
+                                $type = $license_data['license_type'] ?? 'standard';
+                                $type_labels = array(
+                                    'dev' => 'Development',
+                                    'admin' => 'Admin',
+                                    'partner' => 'Partner',
+                                    'reviewer' => 'Reviewer',
+                                    'lifetime' => 'Lifetime',
+                                    'standard' => 'Standard',
+                                );
+                                echo esc_html( $type_labels[$type] ?? ucfirst($type) );
+                                ?>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Turn HTML templates in any *-templates folder into shortcodes, edit them live, and manage which theme-sets are active via toggle switches.
-Version: 2.9.9.7.11
+Version: 2.9.9.7.12
 Author: Stefan Gold
 Author URI: https://base47.com
 Plugin URI: https://base47.com/html-editor
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.9.9.7.11' );
+define( 'BASE47_HE_VERSION', '2.9.9.7.12' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 

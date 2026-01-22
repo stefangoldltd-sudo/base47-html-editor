@@ -39,16 +39,22 @@ function base47_he_is_pro_active() {
     // Check if Pro plugin constant is defined
     if ( defined( 'BASE47_HE_PRO_VERSION' ) ) {
         // Pro plugin is installed - now check if license is active
-        // Use consistent option name for Pro license status
+        // Check BOTH option names for compatibility
         $license_status = get_option( 'base47_he_pro_license_status', 'inactive' );
-        return ( $license_status === 'active' );
+        $free_license_status = get_option( 'base47_he_license_status', 'inactive' );
+        
+        // Return true if either license is active
+        return ( $license_status === 'active' || $free_license_status === 'active' );
     }
     
     // Check if Pro plugin class exists
     if ( class_exists( 'Base47_HTML_Editor_Pro' ) ) {
         // Pro plugin is installed - now check if license is active
         $license_status = get_option( 'base47_he_pro_license_status', 'inactive' );
-        return ( $license_status === 'active' );
+        $free_license_status = get_option( 'base47_he_license_status', 'inactive' );
+        
+        // Return true if either license is active
+        return ( $license_status === 'active' || $free_license_status === 'active' );
     }
     
     // Allow Pro plugin to register itself via filter (Pro plugin MUST validate license)
