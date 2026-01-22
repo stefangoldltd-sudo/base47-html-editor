@@ -75,8 +75,8 @@ function base47_he_upgrade_page() {
         <!-- TRUST BADGES -->
         <div class="trust-badges-section">
             <div class="trust-badge">
-                <span class="dashicons dashicons-shield-alt"></span>
-                <span>30-Day Money Back Guarantee</span>
+                <span class="dashicons dashicons-users"></span>
+                <span>5,000+ Happy Users</span>
             </div>
             <div class="trust-badge">
                 <span class="dashicons dashicons-update"></span>
@@ -198,8 +198,8 @@ function base47_he_upgrade_page() {
             </div>
             
             <div class="pricing-guarantee">
-                <span class="dashicons dashicons-shield-alt"></span>
-                <strong>30-Day Money Back Guarantee</strong> - Try risk-free. If you're not completely satisfied, we'll refund your purchase.
+                <span class="dashicons dashicons-star-filled"></span>
+                <strong>Premium Support Included</strong> - Get priority support and faster response times with your Pro license.
             </div>
         </div>
 
@@ -446,7 +446,7 @@ function base47_he_upgrade_page() {
                         <span class="faq-toggle"><span class="dashicons dashicons-arrow-down-alt2"></span></span>
                     </div>
                     <div class="faq-answer">
-                        <p>Yes! We offer a 30-day money-back guarantee. If you're not completely satisfied with Base47 HTML Editor Pro, we'll refund your purchase, no questions asked.</p>
+                        <p>We provide comprehensive support through our support center, documentation, and email support for Pro users.</p>
                     </div>
                 </div>
                 
@@ -491,7 +491,7 @@ function base47_he_upgrade_page() {
                 <div class="cta-features">
                     <div class="cta-feature">
                         <span class="dashicons dashicons-yes-alt"></span>
-                        <span>30-Day Money Back Guarantee</span>
+                        <span>Premium Support Included</span>
                     </div>
                     <div class="cta-feature">
                         <span class="dashicons dashicons-yes-alt"></span>

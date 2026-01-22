@@ -360,8 +360,6 @@ function base47_he_admin_assets( $hook ) {
             BASE47_HE_VERSION
         );
     }
-        );
-    }
     
     // Marketplace page CSS & JS
     if ( isset( $_GET['page'] ) && $_GET['page'] === 'base47-he-marketplace' ) {

@@ -114,46 +114,39 @@ function base47_he_onboarding_step_welcome() {
                 <div class="hero-icon">
                     <span class="dashicons dashicons-welcome-learn-more"></span>
                 </div>
-                <h2>Transform Your HTML Workflow</h2>
+                <h2>Welcome to Base47 HTML Editor!</h2>
                 <p class="hero-description">
-                    Base47 HTML Editor turns any HTML template into a WordPress shortcode, 
-                    with live editing, professional templates, and powerful features.
+                    Let's get you started in just 5 simple steps. You'll learn how to install templates, 
+                    edit them, and use them on your website.
                 </p>
             </div>
             
-            <div class="feature-highlights">
-                <div class="highlight-grid">
-                    <div class="highlight-item">
-                        <div class="highlight-icon">
-                            <span class="dashicons dashicons-edit"></span>
+            <div class="getting-started-video">
+                <div class="video-container">
+                    <div class="video-placeholder">
+                        <div class="play-button">
+                            <span class="dashicons dashicons-controls-play"></span>
                         </div>
-                        <h3>Live HTML Editor</h3>
-                        <p>Edit HTML with real-time preview and syntax highlighting</p>
-                    </div>
-                    
-                    <div class="highlight-item">
-                        <div class="highlight-icon">
-                            <span class="dashicons dashicons-layout"></span>
+                        <div class="video-info">
+                            <h3>Quick Start Guide (2 minutes)</h3>
+                            <p>Watch this quick overview to see how Base47 HTML Editor works</p>
                         </div>
-                        <h3>47 Pro Templates</h3>
-                        <p>Professional templates for agencies, e-commerce, restaurants & more</p>
                     </div>
-                    
-                    <div class="highlight-item">
-                        <div class="highlight-icon">
-                            <span class="dashicons dashicons-shortcode"></span>
-                        </div>
-                        <h3>Instant Shortcodes</h3>
-                        <p>Any template becomes a shortcode automatically</p>
-                    </div>
-                    
-                    <div class="highlight-item">
-                        <div class="highlight-icon">
-                            <span class="dashicons dashicons-smartphone"></span>
-                        </div>
-                        <h3>Responsive Design</h3>
-                        <p>All templates are mobile-friendly and responsive</p>
-                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <div class="stat-number">47</div>
+                    <div class="stat-label">Pro Templates</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5,000+</div>
+                    <div class="stat-label">Happy Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">9</div>
+                    <div class="stat-label">Categories</div>
                 </div>
             </div>
             
@@ -181,63 +174,60 @@ function base47_he_onboarding_step_welcome() {
 }
 
 /**
- * Step 2: Editor Introduction
+ * Step 2: Install Template
  */
 function base47_he_onboarding_step_editor() {
     ?>
     <div class="onboarding-step step-editor">
         <div class="step-content">
             <div class="step-header">
-                <h2>Meet Your HTML Editor</h2>
-                <p>Powerful editing tools designed for modern web development</p>
+                <h2>Step 1: Install a Template</h2>
+                <p>Let's start by installing your first professional template</p>
             </div>
             
-            <div class="editor-demo">
-                <div class="demo-screenshot">
-                    <img src="<?php echo BASE47_HE_URL; ?>admin-assets/images/editor-screenshot.png" alt="HTML Editor" class="screenshot">
-                    <div class="demo-overlay">
-                        <div class="play-button" onclick="base47PlayEditorDemo()">
-                            <span class="dashicons dashicons-controls-play"></span>
+            <div class="step-instructions">
+                <div class="instruction-card">
+                    <div class="instruction-number">1</div>
+                    <div class="instruction-content">
+                        <h3>Go to Marketplace</h3>
+                        <p>Click on "Marketplace" in the Base47 HTML menu to browse templates</p>
+                        <a href="<?php echo admin_url( 'admin.php?page=base47-he-marketplace' ); ?>" class="instruction-button" target="_blank">
+                            <span class="dashicons dashicons-external"></span>
+                            Open Marketplace
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="instruction-card">
+                    <div class="instruction-number">2</div>
+                    <div class="instruction-content">
+                        <h3>Choose a Template</h3>
+                        <p>Browse through 47 professional templates across 9 categories</p>
+                        <div class="template-categories-mini">
+                            <span class="category-tag">Agency</span>
+                            <span class="category-tag">E-commerce</span>
+                            <span class="category-tag">Restaurant</span>
+                            <span class="category-tag">+6 more</span>
                         </div>
                     </div>
                 </div>
                 
-                <div class="editor-features">
-                    <h3>Editor Features</h3>
-                    <ul class="feature-list">
-                        <li>
-                            <span class="dashicons dashicons-yes-alt"></span>
-                            <strong>Syntax Highlighting</strong> - Color-coded HTML, CSS, and JavaScript
-                        </li>
-                        <li>
-                            <span class="dashicons dashicons-yes-alt"></span>
-                            <strong>Live Preview</strong> - See changes instantly as you type
-                        </li>
-                        <li>
-                            <span class="dashicons dashicons-yes-alt"></span>
-                            <strong>Auto-Complete</strong> - Smart suggestions for tags and attributes
-                        </li>
-                        <li>
-                            <span class="dashicons dashicons-yes-alt"></span>
-                            <strong>Error Detection</strong> - Catch mistakes before publishing
-                        </li>
-                        <?php if ( base47_he_is_pro_active() ) : ?>
-                        <li class="pro-feature">
-                            <span class="dashicons dashicons-star-filled"></span>
-                            <strong>Monaco Editor</strong> - VS Code experience in WordPress
-                        </li>
-                        <?php endif; ?>
-                    </ul>
+                <div class="instruction-card">
+                    <div class="instruction-number">3</div>
+                    <div class="instruction-content">
+                        <h3>Install Template</h3>
+                        <p>Click "Install" on any template you like - it will be added to your website instantly</p>
+                    </div>
                 </div>
             </div>
             
-            <div class="quick-tip">
+            <div class="step-tip">
                 <div class="tip-icon">
                     <span class="dashicons dashicons-lightbulb"></span>
                 </div>
                 <div class="tip-content">
                     <h4>Pro Tip</h4>
-                    <p>Use <kbd>Ctrl+S</kbd> (or <kbd>Cmd+S</kbd> on Mac) to save your work quickly while editing.</p>
+                    <p>Start with an Agency or App template - they're versatile and work great for most websites!</p>
                 </div>
             </div>
         </div>
@@ -246,79 +236,60 @@ function base47_he_onboarding_step_editor() {
 }
 
 /**
- * Step 3: Templates Overview
+ * Step 3: Activate Template
  */
 function base47_he_onboarding_step_templates() {
     ?>
     <div class="onboarding-step step-templates">
         <div class="step-content">
             <div class="step-header">
-                <h2>Discover Professional Templates</h2>
-                <p>Choose from 47 professionally designed templates across 9 categories</p>
+                <h2>Step 2: Activate Your Template</h2>
+                <p>Now let's activate the template you installed so you can use it</p>
             </div>
             
-            <div class="template-categories">
-                <div class="category-grid">
-                    <?php
-                    $categories = array(
-                        'agency' => array( 'name' => 'Agency', 'icon' => 'building', 'count' => 6 ),
-                        'ecommerce' => array( 'name' => 'E-commerce', 'icon' => 'cart', 'count' => 5 ),
-                        'restaurant' => array( 'name' => 'Restaurant', 'icon' => 'food', 'count' => 4 ),
-                        'fitness' => array( 'name' => 'Fitness', 'icon' => 'heart', 'count' => 4 ),
-                        'realestate' => array( 'name' => 'Real Estate', 'icon' => 'admin-home', 'count' => 6 ),
-                        'education' => array( 'name' => 'Education', 'icon' => 'welcome-learn-more', 'count' => 5 ),
-                        'app' => array( 'name' => 'App Landing', 'icon' => 'smartphone', 'count' => 7 ),
-                        'event' => array( 'name' => 'Events', 'icon' => 'calendar-alt', 'count' => 5 ),
-                        'medical' => array( 'name' => 'Medical', 'icon' => 'plus-alt', 'count' => 5 ),
-                    );
-                    
-                    foreach ( $categories as $slug => $category ) :
-                    ?>
-                        <div class="category-card">
-                            <div class="category-icon">
-                                <span class="dashicons dashicons-<?php echo $category['icon']; ?>"></span>
-                            </div>
-                            <h3><?php echo $category['name']; ?></h3>
-                            <p class="template-count"><?php echo $category['count']; ?> Templates</p>
-                        </div>
-                    <?php endforeach; ?>
+            <div class="step-instructions">
+                <div class="instruction-card">
+                    <div class="instruction-number">1</div>
+                    <div class="instruction-content">
+                        <h3>Go to Theme Manager</h3>
+                        <p>Click on "Theme Manager" in the Base47 HTML menu</p>
+                        <a href="<?php echo admin_url( 'admin.php?page=base47-he-theme-manager' ); ?>" class="instruction-button" target="_blank">
+                            <span class="dashicons dashicons-external"></span>
+                            Open Theme Manager
+                        </a>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="template-preview">
-                <h3>How Templates Work</h3>
-                <div class="workflow-steps">
-                    <div class="workflow-step">
-                        <div class="step-number">1</div>
-                        <div class="step-info">
-                            <h4>Browse & Install</h4>
-                            <p>Choose from our marketplace of professional templates</p>
-                        </div>
+                
+                <div class="instruction-card">
+                    <div class="instruction-number">2</div>
+                    <div class="instruction-content">
+                        <h3>Find Your Template</h3>
+                        <p>You'll see your installed template in the list. It might be inactive (gray toggle)</p>
                     </div>
-                    <div class="workflow-arrow">→</div>
-                    <div class="workflow-step">
-                        <div class="step-number">2</div>
-                        <div class="step-info">
-                            <h4>Customize</h4>
-                            <p>Edit HTML, CSS, and content to match your brand</p>
-                        </div>
-                    </div>
-                    <div class="workflow-arrow">→</div>
-                    <div class="workflow-step">
-                        <div class="step-number">3</div>
-                        <div class="step-info">
-                            <h4>Use Anywhere</h4>
-                            <p>Insert with shortcodes in posts, pages, or widgets</p>
+                </div>
+                
+                <div class="instruction-card">
+                    <div class="instruction-number">3</div>
+                    <div class="instruction-content">
+                        <h3>Activate Template</h3>
+                        <p>Click the toggle switch next to your template to activate it (it will turn green)</p>
+                        <div class="toggle-example">
+                            <span class="toggle-off">OFF</span>
+                            <span class="arrow">→</span>
+                            <span class="toggle-on">ON</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="cta-section">
-                <a href="<?php echo admin_url( 'admin.php?page=base47-he-marketplace' ); ?>" class="button button-primary button-large">
-                    <span class="dashicons dashicons-download"></span>
-                    Browse Templates
-                </a>
+            <div class="step-tip">
+                <div class="tip-icon">
+                    <span class="dashicons dashicons-info"></span>
+                </div>
+                <div class="tip-content">
+                    <h4>Important</h4>
+                    <p>Only activated templates can be used on your website. Inactive templates won't generate shortcodes.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -326,101 +297,73 @@ function base47_he_onboarding_step_templates() {
 }
 
 /**
- * Step 4: Features Overview
+ * Step 4: Edit and Use Template
  */
 function base47_he_onboarding_step_features() {
     ?>
     <div class="onboarding-step step-features">
         <div class="step-content">
             <div class="step-header">
-                <h2>Powerful Features at Your Fingertips</h2>
-                <p>Discover what makes Base47 HTML Editor special</p>
+                <h2>Step 3: Edit & Use Your Template</h2>
+                <p>Now let's customize your template and add it to a page</p>
             </div>
             
-            <div class="features-grid">
-                <div class="feature-section">
-                    <h3>
-                        <span class="dashicons dashicons-heart"></span>
-                        Free Features
-                    </h3>
-                    <ul class="feature-list">
-                        <li>Live HTML Editor with syntax highlighting</li>
-                        <li>Real-time preview</li>
-                        <li>Template discovery system</li>
-                        <li>Shortcode generation</li>
-                        <li>Basic template pack included</li>
-                        <li>Community support</li>
-                    </ul>
-                </div>
-                
-                <?php if ( base47_he_is_pro_active() ) : ?>
-                <div class="feature-section pro-features">
-                    <h3>
-                        <span class="dashicons dashicons-star-filled"></span>
-                        Pro Features (Active)
-                    </h3>
-                    <ul class="feature-list">
-                        <li>Monaco Editor (VS Code experience)</li>
-                        <li>47 professional templates</li>
-                        <li>Template marketplace</li>
-                        <li>Advanced preview modes</li>
-                        <li>Auto-backups & restore</li>
-                        <li>White label system</li>
-                        <li>Analytics dashboard</li>
-                        <li>Priority support</li>
-                    </ul>
-                </div>
-                <?php else : ?>
-                <div class="feature-section pro-features">
-                    <h3>
-                        <span class="dashicons dashicons-star-filled"></span>
-                        Pro Features
-                    </h3>
-                    <ul class="feature-list">
-                        <li>Monaco Editor (VS Code experience)</li>
-                        <li>47 professional templates</li>
-                        <li>Template marketplace</li>
-                        <li>Advanced preview modes</li>
-                        <li>Auto-backups & restore</li>
-                        <li>White label system</li>
-                        <li>Analytics dashboard</li>
-                        <li>Priority support</li>
-                    </ul>
-                    <div class="upgrade-cta">
-                        <a href="<?php echo admin_url( 'admin.php?page=base47-he-upgrade' ); ?>" class="button button-primary">
-                            Upgrade to Pro
+            <div class="step-instructions">
+                <div class="instruction-card">
+                    <div class="instruction-number">1</div>
+                    <div class="instruction-content">
+                        <h3>Edit in Live Editor</h3>
+                        <p>Go to "Live Editor" and select your template to customize it</p>
+                        <a href="<?php echo admin_url( 'admin.php?page=base47-he-editor' ); ?>" class="instruction-button" target="_blank">
+                            <span class="dashicons dashicons-external"></span>
+                            Open Live Editor
                         </a>
                     </div>
                 </div>
-                <?php endif; ?>
+                
+                <div class="instruction-card">
+                    <div class="instruction-number">2</div>
+                    <div class="instruction-content">
+                        <h3>Copy the Shortcode</h3>
+                        <p>After editing, copy the shortcode from the "Shortcodes" page</p>
+                        <a href="<?php echo admin_url( 'admin.php?page=base47-he-templates' ); ?>" class="instruction-button" target="_blank">
+                            <span class="dashicons dashicons-external"></span>
+                            View Shortcodes
+                        </a>
+                        <div class="shortcode-example">
+                            <code>[base47_template name="your-template"]</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="instruction-card">
+                    <div class="instruction-number">3</div>
+                    <div class="instruction-content">
+                        <h3>Add to Page</h3>
+                        <p>Create a new page/post and paste the shortcode where you want the template to appear</p>
+                        <a href="<?php echo admin_url( 'post-new.php?post_type=page' ); ?>" class="instruction-button" target="_blank">
+                            <span class="dashicons dashicons-external"></span>
+                            Create New Page
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="instruction-card">
+                    <div class="instruction-number">4</div>
+                    <div class="instruction-content">
+                        <h3>Save & View</h3>
+                        <p>Save your page and view it on the frontend - your template is now live!</p>
+                    </div>
+                </div>
             </div>
             
-            <div class="help-section">
-                <h3>Need Help?</h3>
-                <div class="help-options">
-                    <a href="<?php echo admin_url( 'admin.php?page=base47-he-support' ); ?>" class="help-option">
-                        <span class="dashicons dashicons-sos"></span>
-                        <div>
-                            <strong>Support Center</strong>
-                            <p>Get help with any questions</p>
-                        </div>
-                    </a>
-                    
-                    <a href="https://47-studio.com/base47/docs/" target="_blank" class="help-option">
-                        <span class="dashicons dashicons-book"></span>
-                        <div>
-                            <strong>Documentation</strong>
-                            <p>Detailed guides and tutorials</p>
-                        </div>
-                    </a>
-                    
-                    <a href="https://www.youtube.com/channel/UC47Studio" target="_blank" class="help-option">
-                        <span class="dashicons dashicons-video-alt3"></span>
-                        <div>
-                            <strong>Video Tutorials</strong>
-                            <p>Watch step-by-step guides</p>
-                        </div>
-                    </a>
+            <div class="step-tip">
+                <div class="tip-icon">
+                    <span class="dashicons dashicons-star-filled"></span>
+                </div>
+                <div class="tip-content">
+                    <h4>That's It!</h4>
+                    <p>You can use the same shortcode on multiple pages, and any changes you make in the Live Editor will update everywhere automatically.</p>
                 </div>
             </div>
         </div>
