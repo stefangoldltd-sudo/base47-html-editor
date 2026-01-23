@@ -420,7 +420,18 @@ function base47_he_render_template( $filename, $set_slug = '' ) {
     // Check if we're in PURE canvas mode
     $pure_canvas = isset( $GLOBALS['base47_pure_canvas_mode'] ) && $GLOBALS['base47_pure_canvas_mode'];
     
-    if ( $pure_canvas ) {
+    // Check if we're in APP canvas mode (new mode for app templates)
+    $app_canvas = isset( $GLOBALS['base47_app_canvas_mode'] ) && $GLOBALS['base47_app_canvas_mode'];
+    
+    if ( $app_canvas ) {
+        // APP CANVAS MODE: For self-contained app templates
+        // These templates have all CSS inline in <style> tags
+        // Just rewrite asset URLs and process shortcodes - no shell stripping needed
+        
+        $html = base47_he_rewrite_assets( $html, $base_url, true );
+        $html = do_shortcode( $html );
+        
+    } else if ( $pure_canvas ) {
         // PURE CANVAS MODE: Keep complete HTML structure with all assets
         // Just rewrite asset URLs and process shortcodes
         
