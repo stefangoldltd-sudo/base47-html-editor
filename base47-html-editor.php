@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Transform HTML templates into WordPress shortcodes with live Monaco editor, theme management, and smart asset loading. Perfect for developers and agencies working with HTML templates.
-Version: 2.9.9.8
+Version: 2.9.9.8.1
 Author: Stefan Gold
 Author URI: https://base47.com
 Plugin URI: https://base47.com/html-editor
@@ -36,7 +36,7 @@ add_action( 'plugins_loaded', 'base47_he_load_textdomain' );
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.9.9.8' );
+define( 'BASE47_HE_VERSION', '2.9.9.8.1' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -240,6 +240,90 @@ function base47_render_html_fragment( $content, $post ) {
     ?>
     
     <?php echo $content; ?>
+    
+    <!-- Base47 Canvas Mode JavaScript Fixes -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Base47 Canvas Mode: Initializing JavaScript fixes...');
+        
+        // Fix for Mivon pricing tabs (recurring first section issue)
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const pricingSections = document.querySelectorAll('.pricing-section');
+        
+        console.log('Found tab buttons:', tabButtons.length);
+        console.log('Found pricing sections:', pricingSections.length);
+        
+        if (tabButtons.length > 0 && pricingSections.length > 0) {
+            // Initialize: ensure proper visibility on load
+            pricingSections.forEach(section => {
+                if (!section.classList.contains('hidden')) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+            
+            // Find and show the active section
+            const activeButton = document.querySelector('.tab-btn.active');
+            if (activeButton) {
+                const target = activeButton.getAttribute('data-target');
+                const targetSection = document.getElementById(target);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                    targetSection.style.display = 'block';
+                    console.log('Initialized active section:', target);
+                }
+            }
+            
+            // Add click handlers
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('data-target');
+                    console.log('Tab clicked:', target);
+                    
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    pricingSections.forEach(section => {
+                        section.classList.add('hidden');
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show target section
+                    const targetSection = document.getElementById(target);
+                    if (targetSection) {
+                        targetSection.classList.remove('hidden');
+                        targetSection.style.display = 'block';
+                        console.log('Switched to section:', target);
+                    }
+                });
+            });
+            
+            console.log('Pricing tabs initialized successfully');
+        }
+        
+        // Fix for any other first-section issues
+        setTimeout(function() {
+            // Trigger resize event for lazy-loaded content
+            if (typeof window.dispatchEvent === 'function') {
+                window.dispatchEvent(new Event('resize'));
+            }
+            
+            // Force re-render of any CSS animations
+            const body = document.body;
+            body.style.display = 'none';
+            body.offsetHeight; // Trigger reflow
+            body.style.display = '';
+            
+            console.log('Canvas Mode: Post-load fixes applied');
+        }, 100);
+    });
+    </script>
     
     <?php wp_footer(); ?>
 </body>
