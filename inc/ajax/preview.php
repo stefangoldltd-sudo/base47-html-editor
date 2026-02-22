@@ -13,6 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function base47_he_ajax_lazy_preview() {
     check_ajax_referer( 'base47_he', 'nonce' );
     
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
+    }
+    
     $file = isset($_POST['file']) ? sanitize_text_field( wp_unslash($_POST['file']) ) : '';
     $set  = isset($_POST['set'])  ? sanitize_text_field( wp_unslash($_POST['set']) )  : '';
 

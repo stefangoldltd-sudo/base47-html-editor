@@ -166,7 +166,7 @@ add_action( 'admin_menu', 'base47_he_admin_menu' );
 function base47_he_admin_assets( $hook ) {
     $screen = get_current_screen();
     // Check for both base47-he- and base47-special-widgets pages
-    if ( ! $screen || ( strpos( $screen->id, 'base47-he-' ) === false && strpos( $screen->id, 'base47-special-widgets' ) === false ) ) {
+    if ( ! $screen || ( strpos( $screen->id ?? '', 'base47-he-' ) === false && strpos( $screen->id ?? '', 'base47-special-widgets' ) === false ) ) {
         return;
     }
 

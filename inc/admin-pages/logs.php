@@ -43,14 +43,14 @@ function base47_he_render_logs_page() {
             <div class="base47-logs-stat-card">
                 <span class="dashicons dashicons-media-text"></span>
                 <div>
-                    <div class="stat-number"><?php echo $log_count; ?></div>
+                    <div class="stat-number"><?php echo esc_html( $log_count ); ?></div>
                     <div class="stat-label">Log Entries</div>
                 </div>
             </div>
             <div class="base47-logs-stat-card">
                 <span class="dashicons dashicons-database"></span>
                 <div>
-                    <div class="stat-number"><?php echo $log_size; ?></div>
+                    <div class="stat-number"><?php echo esc_html( $log_size ); ?></div>
                     <div class="stat-label">Log Size</div>
                 </div>
             </div>
@@ -122,7 +122,7 @@ function base47_he_render_logs_page() {
         <div class="base47-logs-footer">
             <p>
                 <span class="dashicons dashicons-info"></span>
-                Logs are stored in <code><?php echo esc_html( str_replace( ABSPATH, '', $log_file ) ); ?></code> and persist through plugin updates.
+                Logs are stored in <code><?php echo esc_html( str_replace( ABSPATH, '', $log_file ?? '' ) ); ?></code> and persist through plugin updates.
             </p>
         </div>
 

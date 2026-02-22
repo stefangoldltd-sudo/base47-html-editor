@@ -181,7 +181,7 @@ function base47_he_support_tickets_list() {
                                         </a>
                                     </h3>
                                     <div class="ticket-meta">
-                                        <span class="ticket-id">#<?php echo $ticket['id']; ?></span>
+                                        <span class="ticket-id">#<?php echo esc_html( $ticket['id'] ); ?></span>
                                         <span class="ticket-category"><?php echo esc_html( $ticket['category'] ); ?></span>
                                         <span class="ticket-priority priority-<?php echo esc_attr( $ticket['priority'] ); ?>">
                                             <?php echo ucfirst( $ticket['priority'] ); ?>
@@ -320,11 +320,11 @@ function base47_he_support_new_ticket_form() {
                         </div>
                         <div class="info-item">
                             <span class="info-label">Server:</span>
-                            <span class="info-value"><?php echo $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown'; ?></span>
+                            <span class="info-value"><?php echo esc_html( $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown' ); ?></span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">User Agent:</span>
-                            <span class="info-value"><?php echo $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'; ?></span>
+                            <span class="info-value"><?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown' ); ?></span>
                         </div>
                     </div>
                 </div>
@@ -370,7 +370,7 @@ function base47_he_support_view_ticket( $ticket_id ) {
             <div class="header-content">
                 <h1>
                     <span class="dashicons dashicons-tickets"></span>
-                    Ticket #<?php echo $ticket['id']; ?>: <?php echo esc_html( $ticket['subject'] ); ?>
+                    Ticket #<?php echo esc_html( $ticket['id'] ); ?>: <?php echo esc_html( $ticket['subject'] ); ?>
                 </h1>
                 <div class="ticket-meta-header">
                     <span class="status-badge status-<?php echo esc_attr( $ticket['status'] ); ?>">
@@ -420,7 +420,7 @@ function base47_he_support_view_ticket( $ticket_id ) {
 
             <!-- Replies -->
             <?php foreach ( $replies as $reply ) : ?>
-                <div class="message-item message-<?php echo $reply['author_type']; ?>">
+                <div class="message-item message-<?php echo esc_attr( $reply['author_type'] ); ?>">
                     <div class="message-header">
                         <div class="message-author">
                             <?php if ( $reply['author_type'] === 'support' ) : ?>
@@ -447,7 +447,7 @@ function base47_he_support_view_ticket( $ticket_id ) {
                     <h3>Add Reply</h3>
                     <form id="ticket-reply-form" class="reply-form">
                         <?php wp_nonce_field( 'base47_he_ticket_reply', 'reply_nonce' ); ?>
-                        <input type="hidden" name="ticket_id" value="<?php echo $ticket['id']; ?>">
+                        <input type="hidden" name="ticket_id" value="<?php echo esc_attr( $ticket['id'] ); ?>">
                         
                         <div class="form-group">
                             <textarea name="reply_message" rows="5" required 

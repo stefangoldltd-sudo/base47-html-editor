@@ -116,7 +116,7 @@ function base47_he_install_theme_from_upload() {
         $zip->close();
         
         // Get theme name for better error message
-        $theme_name = str_replace(['-templates', '-templetes', '-', '_'], ['', '', ' ', ' '], $root_folder);
+        $theme_name = str_replace(['-templates', '-templetes', '-', '_'], ['', '', ' ', ' '], $root_folder ?? '');
         $theme_name = ucwords(trim($theme_name));
         
         return new WP_Error(
@@ -233,7 +233,7 @@ function base47_he_install_theme_from_zip( $zip_file_path ) {
         $zip->close();
         
         // Get theme name for better error message
-        $theme_name = str_replace( ['-templates', '-templetes', '-', '_'], ['', '', ' ', ' '], $root_folder );
+        $theme_name = str_replace( ['-templates', '-templetes', '-', '_'], ['', '', ' ', ' '], $root_folder ?? '' );
         $theme_name = ucwords( trim( $theme_name ) );
         
         return new WP_Error(

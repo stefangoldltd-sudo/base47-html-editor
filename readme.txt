@@ -1,181 +1,170 @@
-=== Mivon HTML Editor ===
-Contributors: stefan-gold
-Tags: html, editor, custom templates, shortcode generator, theme manager, website builder, html builder
+=== Base47 HTML Editor ===
+Contributors: stefangold
+Tags: html editor, template manager, shortcodes, live editor, code editor, html templates
 Requires at least: 5.0
-Tested up to: 6.7
-Stable tag: 2.5.2
+Tested up to: 6.9.1
+Requires PHP: 7.4
+Stable tag: 3.0.0
 License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Transform any HTML template folder into reusable WordPress shortcodes —  
-with live editing, automatic asset rewriting, template-set switching,  
-and a full visual management UI inside WordPress.
+Transform any HTML template folder into WordPress shortcodes with a professional Monaco-based live editor, theme-set manager, smart asset loading, and a beautiful Soft UI dashboard.
 
 == Description ==
 
-Mivon HTML Editor turns any folder ending with “-templates” into a complete HTML template pack inside WordPress.
+Base47 HTML Editor allows developers and designers to use static HTML templates inside WordPress by converting them into shortcodes with controlled asset loading and a live editor.
 
-It automatically:
-✔ detects template folders
-✔ generates shortcodes for each HTML file
-✔ loads CSS/JS only when needed
-✔ rewrites asset paths (images, CSS, JS)
-✔ provides a real-time Live Editor
-✔ includes Theme Set Manager for multi-template setups
+The plugin automatically converts HTML files into shortcodes, loads their CSS/JS only when needed, and provides a full Monaco-powered live editor with real-time preview. Manage multiple template sets, special widgets, and assets with ease — all inside a modern Soft UI dashboard.
 
-Perfect for:
-	•	Web designers
-	•	Agency site builders
-	•	Elementor/Bricks/Beaver/WPBakery users
-	•	Developers using static HTML templates
-	•	Anyone who wants fast reusable HTML blocks with styling included
+= Highlights =
 
-⸻
+* Live HTML editor powered by Monaco (VS Code engine)
+* Automatic shortcode creation for every HTML file
+* Real-time live preview with responsive modes
+* Theme-set management (activate/deactivate template packs)
+* Smart asset loading (Manifest, Smart Loader++, Fallback)
+* Automatic rewriting of image/CSS/JS URLs
+* Special Widgets system with auto-discovery
+* Soft UI admin dashboard for a premium user experience
+* Clean uninstall and full logging system
+* Tested with Elementor, Bricks, Gutenberg, and WooCommerce
 
-== Key Features ==
+= Main Features =
 
-🎨 Template → Shortcode System
-	•	Every HTML file becomes a shortcode automatically
-	•	Shortcode names based on set + filename
-	•	Works with unlimited template sets
-	•	Only active sets generate shortcodes
+**Live HTML Editor**
+* Monaco editor (syntax highlighting, IntelliSense, shortcuts)
+* Real-time preview inside iframe
+* Backup + restore of previous versions
 
-✏️ Live HTML Editor
-	•	Full-width code editor
-	•	Instant preview (Full, Desktop, Tablet, Mobile)
-	•	Ctrl/Cmd + S save shortcut
-	•	Ctrl/Cmd + P preview shortcut
-	•	Restore button for backups
-	•	Real-time live preview engine
+**Template & Shortcode System**
+* Every HTML file becomes a shortcode `[base47-theme-template]`
+* Nested shortcodes supported
+* Works with unlimited template folders ending in `-templates`
 
-🧩 Special Widgets System (NEW in 2.5.2)
-	•	Create reusable widgets using:
-	•	/special-widgets/<widget-folder>/widget.json
-	•	HTML + CSS + JS
-	•	Auto-detected and listed in admin
-	•	Shortcode: [mivon_widget slug="your-widget"]
-	•	Perfect for sliders, hero blocks, contact forms, etc.
+**Theme Manager**
+* Activate/deactivate template sets
+* Set default theme
+* Per-theme asset loading mode
 
-🚀 Asset Management
-	•	Automatic path rewriting for images/CSS/JS
-	•	Optional Manifest system for advanced asset control
-	•	Loader mode for heavy template sets (Mivon, Lezar, Bfolio, Redox)
-	•	Loads only what is needed — improves speed
-	•	No conflicts with theme or other plugins
+**Smart Asset Loader**
+* Loads only the CSS/JS required by the specific template
+* Manifest.json support for advanced libraries
+* Prevents conflicts between template sets and theme CSS
 
-🗂️ Theme Set Manager
-	•	Activate/deactivate entire template packs
-	•	Only active sets appear in:
-	•	Live Editor
-	•	Shortcodes
-	•	Frontend rendering
-
-📸 Preview System
-	•	Live template thumbnails in Shortcodes page
-	•	Iframe sandbox preview
-	•	Cache-busted assets for accurate rendering
-
-⸻
+**Special Widgets**
+* Add reusable HTML components such as sliders, hero sections
+* Auto-detection from `special-widgets/` folder
+* Shortcode usage: `[base47_widget slug="widget-name"]`
 
 == Installation ==
-	1.	Upload plugin to /wp-content/plugins/
-	2.	Activate in Plugins → Installed Plugins
-	3.	Add template folders inside the plugin directory, for example:
-	•	/mivon-html-editor/mivon-templates/
-	•	/mivon-html-editor/beauty-templates/
-	4.	Open Mivon HTML → Theme Manager and enable the sets you want
-	5.	Use the auto-generated shortcodes in any page or builder
 
-⸻
+1. Upload the plugin or install via **Plugins → Add New**.
+2. Activate the plugin.
+3. Place your template folders inside:
+   - `wp-content/uploads/base47-themes/` (recommended)
+   - Or use the built-in template installer to add and manage template sets
+4. Visit **Base47 → Theme Manager** and activate your template sets.
+5. Use the generated shortcodes anywhere in your pages or page builders.
+
+== External Services & Privacy ==
+
+This plugin does not contact any external services or APIs by default. All template processing, editing, and management happens locally on your WordPress installation.
+
+Data Collection:
+- No personal data is collected or transmitted to external servers
+- All user data remains on your WordPress installation
+- No tracking, analytics, or phone home functionality
+
+Third-Party Libraries:
+This plugin bundles the following third-party libraries (see THIRD-PARTY-LICENSES.md for full details):
+- Monaco Editor v0.45.0 (MIT License) - Code editor component
+- Font Awesome Free v6.5.1 (Font Awesome Free License) - Icon library
+- jQuery v3.7.1 (MIT License) - JavaScript library
+
+All bundled libraries are GPL-compatible and properly licensed.
 
 == Frequently Asked Questions ==
 
-Can I use my own HTML files?
+= Can I use my own HTML templates? =
 
-Yes — any folder ending in -templates is auto-detected.
+Yes. Any folder ending with `-templates` is detected automatically.
 
-Do CSS/JS load automatically?
+= Do CSS and JS load automatically? =
 
-Yes — assets inside /assets/css/ and /assets/js/ load only when needed.
+Yes. Assets inside `assets/css/` and `assets/js/` load only when the shortcode is used.
 
-Can I edit templates inside WordPress?
+= Can I edit templates? =
 
-Yes — live editor with preview is built-in.
+Yes. The built-in Monaco editor provides full live editing and preview.
 
-Where do I find shortcodes?
+= Is it compatible with page builders? =
 
-Under Mivon HTML → Shortcodes.
+Yes. Tested with Elementor, Bricks, Beaver Builder, Gutenberg, and WPBakery.
 
-What are Special Widgets?
+= Does this plugin work with WooCommerce? =
 
-Reusable HTML components detected from /special-widgets/
-Each widget becomes a shortcode.
+Yes. The asset loader is designed to minimize conflicts with WooCommerce styling.
 
-⸻
+= Where do I find my shortcodes? =
+
+Go to **Base47 → Shortcodes** to browse all available shortcodes with live previews.
+
+= What are Special Widgets? =
+
+Reusable HTML components stored inside each template set under `/special-widgets/`. Each widget can be used with `[base47_widget slug="widget-name"]`.
+
+= Can I manage multiple template sets? =
+
+Yes. Use the Theme Manager to activate/deactivate unlimited template sets.
+
+= Does it create backups? =
+
+Yes. The Live Editor automatically creates backups before each save. Use the "Restore" button to view previous versions.
+
+= What happens when I uninstall? =
+
+On uninstall, all plugin options and generated data are removed. Template files stored in wp-content/uploads/base47-themes/ are preserved and can be manually deleted if desired.
 
 == Screenshots ==
-	1.	Theme Manager with activation toggles
-	2.	Shortcodes overview with thumbnails
-	3.	Live Editor interface
-	4.	Preview modes (Desktop/Tablet/Mobile)
 
+1. Dashboard overview
+2. Live HTML Editor
+3. Theme Manager
+4. Shortcodes preview
+5. Special Widgets
+6. Settings panel
+7. Logs view
+8. Changelog page
 
 == Changelog ==
 
-= 2.5.2 =
-
-New:
-	•	Special Widgets auto-discovery via widget.json
-	•	Universal shortcode [mivon_widget slug="..."]
-	•	New admin page listing all widgets with preview + shortcode
-
-Improvements:
-	•	Widgets load only their own CSS/JS — no conflicts
-	•	Cleaner, modular widget engine
-	•	Removed old hardcoded slider widget
-
-Technical:
-	•	New registry function and shortcode handler
-	•	Safe path rewriting
-	•	Fail-proof scanning of widget folders
-
-⸻
-
-= 2.5.1 =
-	•	Manifest vs Loader toggle per template set
-	•	Added Special Widgets system foundation
-	•	Slider V1 integration
-	•	Performance improvements
-	•	Many bug fixes and safety improvements
-
-⸻
-
-= 2.5.0 – Manifest System =
-	•	Introduced manifest.json asset loading
-	•	Massive performance upgrade
-	•	Per-set asset configuration
-	•	Cleaner code and conflict prevention
-
-= 2.1.1 =
-* Critical fix: Admin CSS & JS were not being enqueued on some sites.
-* Fixed: Live Editor "Save" button not responding.
-* Fixed: Preview iframe not refreshing after edits.
-* Fixed: Layout broken in Templates/Editor pages when admin assets failed to load.
-* Improvement: Default theme detection is now stable.
-* Added: Internal fallback styles remain intact.
-* Added: Clean asset loading order for consistent admin UI.
-* Misc code cleanup.
-
-= 2.1.0 =
-* New Theme Set Manager with activation toggles.
-* Shortcodes now appear only for active sets.
-* Improved template discovery logic.
-* Security enhancements & nonce improvements.
-* Rewrite and cleanup of preview/iframe logic.
+= 3.0.0 – February 6, 2026 =
+* Initial WordPress.org release
+* Complete internationalization (i18n) support with translation files
+* Enhanced security with proper escaping, sanitization, and nonce validation
+* Improved file deletion security with capability checks and path validation
+* Updated compatibility testing with WordPress 6.9.1
+* Enhanced documentation and privacy disclosures
+* Third-party library licensing documentation
+* Removed external update mechanisms for WordPress.org compliance
+* Professional Monaco-powered live HTML editor
+* Automatic shortcode generation for HTML templates
+* Smart asset loading system (Manifest, Smart Loader, Fallback modes)
+* Theme-set management with activation/deactivation
+* Special Widgets system with auto-discovery
+* Real-time preview with responsive modes
+* Backup and restore functionality
+* Soft UI admin dashboard
+* Complete WordPress coding standards compliance
+* Clean uninstall procedures
+* Comprehensive logging system
+* Mobile-responsive admin interface
 
 == Upgrade Notice ==
 
-Version 2.5.x is a major performance upgrade.
-Recommended for all users using multiple template sets or heavy HTML packs
+= 3.0.0 =
+Initial WordPress.org release with full internationalization, enhanced security, and comprehensive HTML template management features.
 
-2.1.1 fixes a critical admin asset loading bug that breaks layout and disables saving.  
-Updating is strongly recommended.
+== License ==
+
+GPL v2 or later.

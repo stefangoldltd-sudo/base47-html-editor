@@ -178,13 +178,13 @@ function base47_he_load_local_templates( $filters = [] ) {
     
     // Replace URL placeholders with actual WordPress URLs
     foreach ( $templates as &$template ) {
-        $template['thumbnail'] = str_replace( '{UPLOADS_URL}', $uploads_url, $template['thumbnail'] );
-        $template['preview_url'] = str_replace( '{SITE_URL}', $site_url, $template['preview_url'] );
-        $template['download_url'] = str_replace( '{UPLOADS_URL}', $uploads_url, $template['download_url'] );
+        $template['thumbnail'] = str_replace( '{UPLOADS_URL}', $uploads_url, $template['thumbnail'] ?? '' );
+        $template['preview_url'] = str_replace( '{SITE_URL}', $site_url, $template['preview_url'] ?? '' );
+        $template['download_url'] = str_replace( '{UPLOADS_URL}', $uploads_url, $template['download_url'] ?? '' );
         
         // If thumbnail doesn't exist, use a default placeholder based on category
-        if (strpos($template['thumbnail'], 'thumbnails/') !== false) {
-            $thumbnail_path = str_replace($uploads_url, $uploads_path, $template['thumbnail']);
+        if (strpos($template['thumbnail'] ?? '', 'thumbnails/') !== false) {
+            $thumbnail_path = str_replace($uploads_url, $uploads_path, $template['thumbnail'] ?? '');
             if (!file_exists($thumbnail_path)) {
                 // Generate a simple SVG placeholder based on template category
                 $category_colors = [
@@ -232,8 +232,8 @@ function base47_he_load_local_templates( $filters = [] ) {
     if ( ! empty( $filters['search'] ) ) {
         $search = strtolower( $filters['search'] );
         $templates = array_filter( $templates, function( $template ) use ( $search ) {
-            return strpos( strtolower( $template['name'] ), $search ) !== false ||
-                   strpos( strtolower( $template['description'] ), $search ) !== false ||
+            return strpos( strtolower( $template['name'] ?? '' ), $search ) !== false ||
+                   strpos( strtolower( $template['description'] ?? '' ), $search ) !== false ||
                    in_array( $search, array_map( 'strtolower', $template['tags'] ) );
         });
     }

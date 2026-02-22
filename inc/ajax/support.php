@@ -226,6 +226,14 @@ function base47_he_ajax_reply_ticket() {
  * Filter tickets by status
  */
 function base47_he_ajax_filter_tickets() {
+    // Verify nonce
+    if ( ! wp_verify_nonce( $_GET['nonce'] ?? '', 'base47_he_filter_tickets' ) ) {
+        wp_die( json_encode([
+            'success' => false,
+            'message' => 'Security check failed'
+        ]));
+    }
+    
     // Check permissions
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_die( json_encode([

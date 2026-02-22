@@ -2,6 +2,184 @@
 BASE47 HTML EDITOR — CHANGELOG
 ========================================================
 
+Version 2.9.9.7.3 – January 19, 2026
+------------------------------------------
+MARKETPLACE UX IMPROVEMENTS:
+• Fixed notification position - now shows as center modal popup instead of corner
+• Fixed "More Templates Coming Soon" section layout with proper CSS
+• Updated installation guide to reflect direct installation workflow
+• Enhanced notification modal with better styling and animations
+• Added backdrop click and auto-close functionality for notifications
+
+NOTIFICATION SYSTEM:
+• Center modal popup with backdrop overlay
+• Success/Error/Info icons with color-coded styling
+• Auto-close after 5 seconds (except errors)
+• Click outside or OK button to close
+• Smooth fade animations and slide effects
+
+LAYOUT FIXES:
+• Added missing notification-banner CSS with gradient background
+• Fixed responsive design for mobile devices
+• Proper floating animations and visual effects
+• Corrected installation guide text for one-click install workflow
+
+Version 2.9.9.7.2 – January 19, 2026
+------------------------------------------
+MARKETPLACE INSTALLATION DEBUG:
+• Added comprehensive error reporting for installation failures
+• Enhanced AJAX error handling with detailed debug information
+• Added file permission and ZipArchive availability checks
+• Improved error messages with specific failure reasons
+• Debug info logged to browser console for troubleshooting
+• Better validation of ZIP files and installation requirements
+
+DEBUGGING FEATURES:
+• File existence and readability validation
+• ZipArchive extension availability check
+• Detailed error codes and messages
+• Installation path verification
+• File size and permission reporting
+
+Version 2.9.9.7.1 – January 19, 2026
+------------------------------------------
+MARKETPLACE DOWNLOAD FIX:
+• Fixed template download issue - users were getting 2KB files instead of actual ZIP files
+• Added dedicated download button for each template with proper file serving
+• Created new AJAX endpoint: base47_he_download_marketplace_template
+• Fixed JSON file path - now correctly reads from /metadata/templates.json
+• Added file size validation and proper download URLs
+• Enhanced download button with loading states and success notifications
+• Templates now download as proper ZIP files (SaaS: ~3MB, Slider: ~1.2MB)
+
+DOWNLOAD FUNCTIONALITY:
+• New download button with blue gradient styling
+• Real-time file size display in download notifications
+• Proper error handling for missing or corrupted ZIP files
+• Download progress feedback with loading animations
+• Automatic file naming for downloaded templates
+
+UI IMPROVEMENTS:
+• Three-button layout: Install | Download | Preview
+• Improved button spacing and visual hierarchy
+• Better download notifications with file size information
+• Enhanced error messages for troubleshooting
+
+TECHNICAL FIXES:
+• Fixed templates.json path from /base47-downloads/templates.json to /base47-downloads/metadata/templates.json
+• Added formatFileSize() utility function for human-readable file sizes
+• Enhanced AJAX error handling with detailed error messages
+• Improved file existence validation before serving downloads
+
+Version 2.9.9.7 – January 19, 2026
+------------------------------------------
+MARKETPLACE COMPLETE OVERHAUL:
+• Fixed template installation - now actually installs instead of just downloading
+• Added "More Templates Coming Soon" notification banner with purple gradient
+• Cleaned up template selection - now only shows Slider and SaaS templates
+• Fixed installation guide layout with professional styling and animations
+• Added proper AJAX installation with error handling and success messages
+• Templates now extract automatically to correct directory structure
+
+TEMPLATE MANAGEMENT:
+• Updated templates.json to only include active templates (Slider + SaaS)
+• Fixed template installation process with proper ZIP extraction
+• Added base47_he_install_theme_from_zip() function for marketplace integration
+• Improved error messages for installation failures
+• Auto-refresh theme cache after successful installation
+
+UI/UX IMPROVEMENTS:
+• Beautiful notification banner with floating animations and "New" badge
+• Professional installation guide with numbered steps and hover effects
+• Responsive design for all marketplace components
+• Clean template grid showing only selected templates
+• Mobile-friendly layout for all screen sizes
+
+TECHNICAL ENHANCEMENTS:
+• New AJAX handler: base47_he_install_marketplace_template
+• Enhanced marketplace.js with proper installation workflow
+• Improved CSS architecture with Soft UI design system
+• Better error handling and user feedback throughout installation process
+
+Version 2.9.9.6.3 – January 18, 2026
+------------------------------------------
+BUG FIXES - MAJOR UX IMPROVEMENTS:
+• Fixed error messages disappearing too fast - now stay for 10 seconds
+• Fixed white box appearing in Theme Manager header after actions
+• Fixed Live Editor Save button showing WordPress dashboard in preview
+• Fixed fallback mode error message with broken UI - now uses Soft UI design
+• Fixed fallback mode redirect - now goes to Dashboard instead of Settings
+• Added delete ticket functionality in Support page with confirmation
+• Fixed Pro License page design - now matches Soft UI styling
+• Improved ZIP upload error messages with detailed explanations
+
+MARKETPLACE ENHANCEMENTS:
+• Added installation guide at bottom of marketplace page
+• Step-by-step instructions for template installation
+• Beautiful purple gradient design with responsive layout
+• Clear notes about ZIP structure requirements
+
+THEME MANAGER IMPROVEMENTS:
+• WordPress notices now hidden - using Soft UI notifications instead
+• Notifications stay visible for 10 seconds (was 5-6 seconds)
+• Better error message conversion and timing
+• Professional notification system with proper styling
+
+LIVE EDITOR FIX:
+• Save button now correctly refreshes preview with HTML content
+• No more WordPress dashboard appearing in preview iframe
+• Consistent behavior with auto-refresh functionality
+• Uses base47_he_live_preview AJAX call instead of iframe reload
+
+FALLBACK MODE REDESIGN:
+• Modern Soft UI styled error message
+• Red gradient background with wave pattern
+• Clear information display with backdrop blur effects
+• Professional action buttons with hover effects
+• Better visual hierarchy and readability
+• Redirect to Dashboard page instead of Settings after deactivation
+
+SUPPORT SYSTEM ENHANCEMENTS:
+• Added delete ticket button with confirmation dialog
+• Tickets fade out smoothly when deleted
+• Proper AJAX endpoint with security checks
+• Automatic ticket count update after deletion
+• Reload page if no tickets remain
+
+PRO LICENSE PAGE REDESIGN:
+• Complete Soft UI v3.0 design matching main license page
+• Modern gradient hero cards with animations
+• Professional license details grid layout
+• Enhanced activation form with better UX
+• Testimonials and features showcase sections
+• Responsive design for all screen sizes
+
+TECHNICAL DETAILS:
+• Updated plugin version to 2.9.9.6.3
+• Modified: theme-manager.css, theme-manager.js, theme-install.php
+• Modified: marketplace.php, marketplace.css, admin.js
+• Modified: fallback-mode.php with complete UI redesign
+• Modified: support.js, support.php (added delete functionality)
+• Modified: base47-html-editor-PRO/inc/admin-pages/license.php
+• Modified: base47-html-editor-PRO/assets/pro-admin.css
+• All changes maintain backward compatibility
+
+Version 2.9.9.6.1 – January 15, 2026
+------------------------------------------
+MARKETPLACE FIX:
+• Fixed marketplace CSS not loading (added enqueue in admin-init.php lines 344-365)
+• Confirmed marketplace.css with complete Soft UI orange gradient design
+• Confirmed marketplace.js with AJAX filtering and preview functionality
+• Confirmed marketplace.php AJAX handler with 12 sample templates
+• Marketplace now properly displays: orange gradient banner, 4 stat cards, filter section, and template grid
+
+TECHNICAL DETAILS:
+• Updated plugin version to 2.9.9.6.1
+• Added wp_enqueue_style for marketplace.css
+• Added wp_enqueue_script for marketplace.js
+• Added wp_localize_script for AJAX nonce and URL
+• All marketplace files confirmed present and functional
+
 Version 2.9.9.3.9 – January 12, 2026
 ------------------------------------------
 CRITICAL BUG FIXES:

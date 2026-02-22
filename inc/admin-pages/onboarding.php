@@ -34,12 +34,12 @@ function base47_he_onboarding_page() {
                 <div class="progress-bar">
                     <div class="progress-steps">
                         <?php for ( $i = 1; $i <= 5; $i++ ) : ?>
-                            <div class="step <?php echo $i <= $current_step ? 'active' : ''; ?> <?php echo $i < $current_step ? 'completed' : ''; ?>">
-                                <span class="step-number"><?php echo $i; ?></span>
+                            <div class="step <?php echo esc_attr( $i <= $current_step ? 'active' : '' ); ?> <?php echo esc_attr( $i < $current_step ? 'completed' : '' ); ?>">
+                                <span class="step-number"><?php echo esc_html( $i ); ?></span>
                                 <span class="step-label">
                                     <?php
                                     $labels = array( 1 => 'Welcome', 2 => 'Editor', 3 => 'Templates', 4 => 'Features', 5 => 'Complete' );
-                                    echo $labels[$i];
+                                    echo esc_html( $labels[$i] );
                                     ?>
                                 </span>
                             </div>

@@ -45,7 +45,7 @@ function base47_he_get_special_widgets_registry() {
     }
 
     foreach ( $folders as $folder ) {
-        if ( $folder === '.' || $folder === '..' ) {
+        if ( $folder === '.' || $folder === '..' || $folder === '.DS_Store' ) {
             continue;
         }
 
@@ -174,13 +174,13 @@ function base47_he_special_widget_shortcode( $atts = [], $content = '' ) {
     $html = str_replace(
         '/wp-content/plugins/base47-html-editor/special-widgets/' . $folder . '/',
         $widget_dir_url,
-        $html
+        $html ?? ''
     );
     // Backward compatibility: also replace old mivon path
     $html = str_replace(
         '/wp-content/plugins/mivon-html-editor/special-widgets/' . $folder . '/',
         $widget_dir_url,
-        $html
+        $html ?? ''
     );
 
     return $html;

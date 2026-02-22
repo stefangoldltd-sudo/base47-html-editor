@@ -26,7 +26,7 @@ add_action( 'init', function() {
     foreach ( $sets as $set_slug => $set ) {
 
         // theme prefix = mivon, redox, lezar, bfolio
-        $theme_prefix = str_replace([ '-templates', '-templetes' ], '', $set_slug);
+        $theme_prefix = str_replace([ '-templates', '-templetes' ], '', $set_slug ?? '');
 
         foreach (glob($set['path'] . '*.html') as $file_path) {
 

@@ -29,6 +29,9 @@ function base47_he_settings_page() {
             'enable_cache'                => isset( $_POST['enable_cache'] ),
             'cache_lifetime'              => absint( $_POST['cache_lifetime'] ?? 60 ),
             
+            // Support
+            'support_email'               => sanitize_email( $_POST['support_email'] ?? 'support@47-studio.com' ),
+            
             // Live Editor
             'editor_theme'                => sanitize_key( $_POST['editor_theme'] ?? 'light' ),
             'editor_font_size'            => sanitize_text_field( $_POST['editor_font_size'] ?? '14px' ),
@@ -140,6 +143,17 @@ function base47_he_settings_page() {
                                     <input type="number" name="cache_lifetime" value="<?php echo esc_attr( $settings['cache_lifetime'] ); ?>" min="1" max="720" class="form-control">
                                     <span class="input-suffix">minutes</span>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Support Email -->
+                        <div class="setting-row">
+                            <div class="setting-label">
+                                <label>Support Email</label>
+                                <p class="description">Email address to receive support ticket notifications</p>
+                            </div>
+                            <div class="setting-control">
+                                <input type="email" name="support_email" value="<?php echo esc_attr( $settings['support_email'] ?? 'support@47-studio.com' ); ?>" class="form-control" placeholder="support@47-studio.com">
                             </div>
                         </div>
                         

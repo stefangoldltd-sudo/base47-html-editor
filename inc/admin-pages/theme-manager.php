@@ -273,17 +273,17 @@ function base47_he_render_theme_manager_section() {
             ?>
             
         <!-- THEME CARD -->
-        <div class="base47-tm-card-soft <?php echo $is_active ? 'is-active' : 'is-inactive'; ?>"
+        <div class="base47-tm-card-soft <?php echo esc_attr( $is_active ? 'is-active' : 'is-inactive' ); ?>"
              data-theme="<?php echo esc_attr( $slug ); ?>"
-             data-active="<?php echo $is_active ? '1' : '0'; ?>">
+             data-active="<?php echo esc_attr( $is_active ? '1' : '0' ); ?>">
 
             <!-- Card Header with Thumbnail -->
             <div class="base47-tm-card-header">
                 <img src="<?php echo esc_url( $thumbnail_url ); ?>" alt="<?php echo esc_attr( $info['label'] ); ?>">
                 
                 <!-- Status Badge -->
-                <div class="base47-tm-status-badge <?php echo $is_active ? 'is-active' : 'is-inactive'; ?>">
-                    <?php echo $is_active ? 'Active' : 'Inactive'; ?>
+                <div class="base47-tm-status-badge <?php echo esc_attr( $is_active ? 'is-active' : 'is-inactive' ); ?>">
+                    <?php echo esc_html( $is_active ? 'Active' : 'Inactive' ); ?>
                 </div>
             </div>
 
@@ -405,7 +405,7 @@ function base47_he_render_theme_manager_section() {
                         <span class="base47-tm-toggle-slider"></span>
                     </label>
                     <span class="base47-tm-toggle-label">
-                        <?php echo $is_active ? 'Enabled' : 'Disabled'; ?>
+                        <?php echo esc_html( $is_active ? 'Enabled' : 'Disabled' ); ?>
                     </span>
                 </div>
 

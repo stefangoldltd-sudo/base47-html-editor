@@ -32,71 +32,72 @@ function base47_he_dashboard_page() {
     $is_latest = true; // Will be dynamic in future
     
     ?>
-    <div class="wrap base47-dashboard-soft-ui">
+    <div class="wrap base47-dashboard-soft-ui base47-marketplace-wrap">
         
         <!-- Welcome Banner -->
         <div class="base47-welcome-banner">
+            <div class="banner-bg-circle"></div>
             <div class="banner-content">
                 <div class="banner-text">
-                    <h1>Welcome to Base47 HTML Editor</h1>
-                    <p>Your powerful HTML template management system for WordPress</p>
-                    <div class="banner-actions">
-                        <a href="<?php echo admin_url( 'admin.php?page=base47-he-editor' ); ?>" class="btn-banner-primary">
-                            <span class="dashicons dashicons-edit"></span>
-                            Open Live Editor
-                        </a>
-                        <a href="https://base47.com/docs" target="_blank" class="btn-banner-secondary">
-                            <span class="dashicons dashicons-book"></span>
-                            Documentation
-                        </a>
+                    <div class="banner-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        <span>DASHBOARD</span>
                     </div>
+                    <h1>Welcome to Base47 HTML Editor</h1>
+                    <p>Your powerful HTML template management system. Browse and install professional templates with one click. Transform your website instantly.</p>
                 </div>
                 <div class="banner-illustration">
-                    <div class="illustration-circle"></div>
-                    <span class="dashicons dashicons-layout"></span>
+                    <div class="illustration-circle outer"></div>
+                    <div class="illustration-circle middle"></div>
+                    <div class="illustration-circle inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    </div>
                 </div>
             </div>
+            <div class="floating-dot dot-1"></div>
+            <div class="floating-dot dot-2"></div>
+            <div class="floating-dot dot-3"></div>
         </div>
         
-        <!-- Stats Overview -->
+        <!-- Stats Grid -->
         <div class="base47-stats-grid">
-            <div class="stat-card stat-primary">
-                <div class="stat-icon">
-                    <span class="dashicons dashicons-portfolio"></span>
+            <div class="stat-card gradient-primary">
+                <div class="stat-icon bg-circle gradient-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value"><?php echo count( $sets ); ?></div>
-                    <div class="stat-label">Theme Sets</div>
+                    <p class="stat-value"><?php echo count( $sets ); ?></p>
+                    <p class="stat-label">Templates</p>
                 </div>
             </div>
             
-            <div class="stat-card stat-success">
-                <div class="stat-icon">
-                    <span class="dashicons dashicons-media-document"></span>
+            <div class="stat-card gradient-info">
+                <div class="stat-icon bg-circle gradient-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value"><?php echo count( $all ); ?></div>
-                    <div class="stat-label">Total Templates</div>
+                    <p class="stat-value"><?php echo count( $all ); ?></p>
+                    <p class="stat-label">Categories</p>
                 </div>
             </div>
             
-            <div class="stat-card stat-info">
-                <div class="stat-icon">
-                    <span class="dashicons dashicons-yes-alt"></span>
+            <div class="stat-card gradient-success">
+                <div class="stat-icon bg-circle gradient-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value"><?php echo count( $active ); ?></div>
-                    <div class="stat-label">Active Sets</div>
+                    <p class="stat-value"><?php echo count( $active ); ?></p>
+                    <p class="stat-label">Free & Pro Available</p>
                 </div>
             </div>
             
-            <div class="stat-card stat-warning">
-                <div class="stat-icon">
-                    <span class="dashicons dashicons-admin-plugins"></span>
+            <div class="stat-card gradient-purple">
+                <div class="stat-icon bg-circle gradient-purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value"><?php echo $widget_count; ?></div>
-                    <div class="stat-label">Special Widgets</div>
+                    <p class="stat-value">1-Click</p>
+                    <p class="stat-label">Install</p>
                 </div>
             </div>
         </div>

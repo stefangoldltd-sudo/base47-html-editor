@@ -13,6 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function base47_he_ajax_get_template() {
     check_ajax_referer( 'base47_he', 'nonce' );
     
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
+    }
+    
     $file = isset( $_POST['file'] ) ? sanitize_text_field( wp_unslash( $_POST['file'] ) ) : '';
     $set  = isset( $_POST['set'] )  ? sanitize_text_field( wp_unslash( $_POST['set'] ) )  : '';
 
@@ -48,6 +52,10 @@ add_action( 'wp_ajax_base47_he_get_template', 'base47_he_ajax_get_template' );
  */
 function base47_he_ajax_save_template() {
     check_ajax_referer( 'base47_he', 'nonce' );
+    
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
+    }
     
     $file    = isset( $_POST['file'] )    ? sanitize_text_field( wp_unslash( $_POST['file'] ) )    : '';
     $set     = isset( $_POST['set'] )     ? sanitize_text_field( wp_unslash( $_POST['set'] ) )     : '';
@@ -91,6 +99,10 @@ add_action( 'wp_ajax_base47_he_save_template', 'base47_he_ajax_save_template' );
  */
 function base47_he_ajax_duplicate_template() {
     check_ajax_referer( 'base47_he', 'nonce' );
+    
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( [ 'message' => 'Insufficient permissions.' ] );
+    }
     
     $file     = isset( $_POST['file'] )     ? sanitize_text_field( wp_unslash( $_POST['file'] ) )     : '';
     $set      = isset( $_POST['set'] )      ? sanitize_text_field( wp_unslash( $_POST['set'] ) )      : '';

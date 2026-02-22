@@ -2,7 +2,7 @@
 /*
 Plugin Name: Base47 HTML Editor
 Description: Transform HTML templates into WordPress shortcodes with live Monaco editor, theme management, and smart asset loading. Perfect for developers and agencies working with HTML templates.
-Version: 2.9.9.8.1
+Version: 3.0.0
 Author: Stefan Gold
 Author URI: https://base47.com
 Plugin URI: https://base47.com/html-editor
@@ -11,13 +11,10 @@ Domain Path: /languages
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.9.1
 Requires PHP: 7.4
 Network: false
 */
-
-
-
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -36,299 +33,9 @@ add_action( 'plugins_loaded', 'base47_he_load_textdomain' );
 /* --------------------------------------------------------------------------
 | CONSTANTS
 -------------------------------------------------------------------------- */
-define( 'BASE47_HE_VERSION', '2.9.9.8.1' );
+define( 'BASE47_HE_VERSION', '3.0.0' );
 define( 'BASE47_HE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'BASE47_HE_URL',  plugin_dir_url( __FILE__ ) );
-
-/* --------------------------------------------------------------------------
-| CANVAS MODE RENDERING TAKEOVER
--------------------------------------------------------------------------- */
-
-/**
- * Initialize Canvas Mode after WordPress is fully loaded
- */
-function base47_init_canvas_mode() {
-    // Add the template filter after WordPress is ready
-    add_filter( 'template_include', 'base47_canvas_mode_takeover', 1 );
-}
-add_action( 'init', 'base47_init_canvas_mode' );
-
-/**
- * Canvas Mode: Plugin takes full control of rendering
- * This ensures HTML templates render perfectly regardless of active theme
- */
-function base47_canvas_mode_takeover( $template ) {
-    if ( ! is_singular() ) {
-        return $template;
-    }
-    
-    $post_id = get_the_ID();
-    if ( ! $post_id ) {
-        return $template;
-    }
-    
-    // Check if this page should use Canvas Mode
-    if ( base47_is_canvas_page( $post_id ) ) {
-        base47_render_canvas_html( $post_id );
-        exit; // Plugin takes full control - no theme interference
-    }
-    
-    return $template;
-}
-
-/**
- * Check if a page should use Canvas Mode rendering
- */
-function base47_is_canvas_page( $post_id ) {
-    // Check meta box setting
-    $canvas_mode = get_post_meta( $post_id, '_nexus_canvas_mode', true );
-    $app_canvas_mode = get_post_meta( $post_id, '_nexus_canvas_app_mode', true );
-    
-    if ( $canvas_mode === '1' || $app_canvas_mode === '1' ) {
-        return true;
-    }
-    
-    // Check page template
-    $template = get_page_template_slug( $post_id );
-    if ( $template === 'template-canvas.php' || $template === 'template-canvas-app.php' ) {
-        return true;
-    }
-    
-    // Check for Base47 shortcodes in content
-    $content = get_post_field( 'post_content', $post_id );
-    if ( base47_has_html_template_content( $content ) ) {
-        return true;
-    }
-    
-    return false;
-}
-
-/**
- * Detect if content contains HTML template patterns
- */
-function base47_has_html_template_content( $content ) {
-    $patterns = [
-        // Base47/Mivon shortcodes
-        '[mivon-',
-        '[base47-',
-        // HTML template indicators
-        'class="header',
-        'data-scroll-container',
-        '<section class=',
-        'data-aos=',
-        'class="hero',
-        'class="banner',
-        'class="landing',
-        // Bootstrap/Framework patterns
-        'class="container-fluid',
-        'class="row"',
-        'data-bs-',
-        // Animation libraries
-        'data-wow-',
-        'animate__',
-        // Full HTML documents
-        '<!DOCTYPE html>',
-        '<html lang=',
-    ];
-    
-    foreach ( $patterns as $pattern ) {
-        if ( strpos( $content, $pattern ) !== false ) {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-/**
- * Render Canvas Mode HTML with full control
- */
-function base47_render_canvas_html( $post_id ) {
-    $post = get_post( $post_id );
-    if ( ! $post ) {
-        return;
-    }
-    
-    // Get the content
-    $content = apply_filters( 'the_content', $post->post_content );
-    
-    // Check if content is a full HTML document
-    $is_full_document = ( strpos( $content, '<!DOCTYPE' ) !== false || strpos( $content, '<html' ) !== false );
-    
-    if ( $is_full_document ) {
-        // Content is a complete HTML document - output as-is with minimal WordPress integration
-        base47_render_full_html_document( $content, $post );
-    } else {
-        // Content is HTML fragments - wrap in minimal document structure
-        base47_render_html_fragment( $content, $post );
-    }
-}
-
-/**
- * Render full HTML document with minimal WordPress integration
- */
-function base47_render_full_html_document( $content, $post ) {
-    // Parse the HTML to inject WordPress essentials
-    $dom = new DOMDocument();
-    libxml_use_internal_errors( true );
-    $dom->loadHTML( $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-    libxml_clear_errors();
-    
-    // Find head tag and inject wp_head()
-    $head = $dom->getElementsByTagName( 'head' )->item( 0 );
-    if ( $head ) {
-        // Capture wp_head() output
-        ob_start();
-        wp_head();
-        $wp_head_content = ob_get_clean();
-        
-        // Create a comment node to mark where wp_head() content goes
-        $head_marker = $dom->createComment( 'WP_HEAD_PLACEHOLDER' );
-        $head->appendChild( $head_marker );
-    }
-    
-    // Find body tag and inject wp_footer()
-    $body = $dom->getElementsByTagName( 'body' )->item( 0 );
-    if ( $body ) {
-        // Add Canvas Mode body class
-        $existing_class = $body->getAttribute( 'class' );
-        $new_class = trim( $existing_class . ' base47-canvas' );
-        $body->setAttribute( 'class', $new_class );
-        
-        // Create a comment node to mark where wp_footer() content goes
-        $footer_marker = $dom->createComment( 'WP_FOOTER_PLACEHOLDER' );
-        $body->appendChild( $footer_marker );
-    }
-    
-    // Output the modified HTML
-    $html = $dom->saveHTML();
-    
-    // Replace placeholders with actual WordPress content
-    if ( isset( $wp_head_content ) ) {
-        $html = str_replace( '<!--WP_HEAD_PLACEHOLDER-->', $wp_head_content, $html );
-    }
-    
-    // Capture wp_footer() output
-    ob_start();
-    wp_footer();
-    $wp_footer_content = ob_get_clean();
-    
-    $html = str_replace( '<!--WP_FOOTER_PLACEHOLDER-->', $wp_footer_content, $html );
-    
-    // Output final HTML
-    echo $html;
-}
-
-/**
- * Render HTML fragment in minimal document structure
- */
-function base47_render_html_fragment( $content, $post ) {
-    ?><!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo( 'charset' ); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo esc_html( get_the_title( $post ) ); ?></title>
-    <?php wp_head(); ?>
-</head>
-<body class="base47-canvas base47-fragment">
-    <?php 
-    // Handle admin bar spacing without hiding it
-    if ( is_admin_bar_showing() ) {
-        echo '<style>body.base47-canvas { padding-top: 32px; } @media screen and (max-width: 782px) { body.base47-canvas { padding-top: 46px; } }</style>';
-    }
-    ?>
-    
-    <?php echo $content; ?>
-    
-    <!-- Base47 Canvas Mode JavaScript Fixes -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Base47 Canvas Mode: Initializing JavaScript fixes...');
-        
-        // Fix for Mivon pricing tabs (recurring first section issue)
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const pricingSections = document.querySelectorAll('.pricing-section');
-        
-        console.log('Found tab buttons:', tabButtons.length);
-        console.log('Found pricing sections:', pricingSections.length);
-        
-        if (tabButtons.length > 0 && pricingSections.length > 0) {
-            // Initialize: ensure proper visibility on load
-            pricingSections.forEach(section => {
-                if (!section.classList.contains('hidden')) {
-                    section.style.display = 'block';
-                } else {
-                    section.style.display = 'none';
-                }
-            });
-            
-            // Find and show the active section
-            const activeButton = document.querySelector('.tab-btn.active');
-            if (activeButton) {
-                const target = activeButton.getAttribute('data-target');
-                const targetSection = document.getElementById(target);
-                if (targetSection) {
-                    targetSection.classList.remove('hidden');
-                    targetSection.style.display = 'block';
-                    console.log('Initialized active section:', target);
-                }
-            }
-            
-            // Add click handlers
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const target = this.getAttribute('data-target');
-                    console.log('Tab clicked:', target);
-                    
-                    // Remove active class from all buttons
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    
-                    // Add active class to clicked button
-                    this.classList.add('active');
-                    
-                    // Hide all sections
-                    pricingSections.forEach(section => {
-                        section.classList.add('hidden');
-                        section.style.display = 'none';
-                    });
-                    
-                    // Show target section
-                    const targetSection = document.getElementById(target);
-                    if (targetSection) {
-                        targetSection.classList.remove('hidden');
-                        targetSection.style.display = 'block';
-                        console.log('Switched to section:', target);
-                    }
-                });
-            });
-            
-            console.log('Pricing tabs initialized successfully');
-        }
-        
-        // Fix for any other first-section issues
-        setTimeout(function() {
-            // Trigger resize event for lazy-loaded content
-            if (typeof window.dispatchEvent === 'function') {
-                window.dispatchEvent(new Event('resize'));
-            }
-            
-            // Force re-render of any CSS animations
-            const body = document.body;
-            body.style.display = 'none';
-            body.offsetHeight; // Trigger reflow
-            body.style.display = '';
-            
-            console.log('Canvas Mode: Post-load fixes applied');
-        }, 100);
-    });
-    </script>
-    
-    <?php wp_footer(); ?>
-</body>
-</html><?php
-}
 
 /* --------------------------------------------------------------------------
 | OPTIONS
@@ -369,16 +76,6 @@ function base47_he_get_themes_root() {
 
     return $root;
 }
-
-// GitHub Updater (Base47)
-require_once BASE47_HE_PATH . 'inc/class-base47-github-updater.php';
-
-new Base47_GitHub_Updater(
-    __FILE__,
-    'stefangoldltd-sudo/base47-html-editor',  // GitHub repo
-    BASE47_HE_VERSION                           // version from this plugin
-);
-
 
 /* --------------------------------------------------------------------------
 | INCLUDES
@@ -440,8 +137,8 @@ require_once BASE47_HE_PATH . 'inc/admin-pages/widgets.php';
 require_once BASE47_HE_PATH . 'inc/admin-pages/settings.php';
 require_once BASE47_HE_PATH . 'inc/admin-pages/changelog.php';
 require_once BASE47_HE_PATH . 'inc/admin-pages/logs.php';
-require_once BASE47_HE_PATH . 'inc/admin-pages/upgrade.php';   // Phase 16.4
-require_once BASE47_HE_PATH . 'inc/admin-pages/license.php';   // Phase 16.4
+require_once BASE47_HE_PATH . 'inc/admin-pages/upgrade.php';  
+require_once BASE47_HE_PATH . 'inc/admin-pages/license.php';   
 
 // Admin initialization (MUST be after admin pages so functions exist)
 require_once BASE47_HE_PATH . 'inc/admin-init.php';

@@ -54,7 +54,7 @@ function base47_he_changelog_page() {
                     <span class="dashicons dashicons-star-filled"></span>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number"><?php echo $stats['features']; ?></div>
+                    <div class="stat-number"><?php echo esc_html( $stats['features'] ); ?></div>
                     <div class="stat-label">New Features</div>
                 </div>
             </div>
@@ -64,7 +64,7 @@ function base47_he_changelog_page() {
                     <span class="dashicons dashicons-admin-tools"></span>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number"><?php echo $stats['fixes']; ?></div>
+                    <div class="stat-number"><?php echo esc_html( $stats['fixes'] ); ?></div>
                     <div class="stat-label">Bug Fixes</div>
                 </div>
             </div>
@@ -75,7 +75,7 @@ function base47_he_changelog_page() {
             <?php foreach ( $versions as $version ) : 
                 $is_current = ( $version['version'] === BASE47_HE_VERSION );
             ?>
-                <div class="version-row <?php echo $is_current ? 'current-version' : ''; ?>">
+                <div class="version-row <?php echo esc_attr( $is_current ? 'current-version' : '' ); ?>">
                     <div class="version-header">
                         <div class="version-info">
                             <h3 class="version-number">v<?php echo esc_html( $version['version'] ); ?></h3>

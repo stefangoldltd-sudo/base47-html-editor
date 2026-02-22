@@ -63,7 +63,7 @@ function base47_he_save_backup( $file_path, $content, $theme ) {
     
     // Get relative path and filename
     $filename = basename( $file_path );
-    $relative_dir = dirname( str_replace( wp_normalize_path( WP_CONTENT_DIR ), '', wp_normalize_path( $file_path ) ) );
+    $relative_dir = dirname( str_replace( wp_normalize_path( WP_CONTENT_DIR ), '', wp_normalize_path( $file_path ?? '' ) ) );
     
     // Create subdirectory structure if needed
     $backup_subdir = $theme_dir . $relative_dir;
@@ -158,7 +158,7 @@ function base47_he_list_backups( $file_path, $theme ) {
     
     // Get file key
     $filename = basename( $file_path );
-    $relative_dir = dirname( str_replace( wp_normalize_path( WP_CONTENT_DIR ), '', wp_normalize_path( $file_path ) ) );
+    $relative_dir = dirname( str_replace( wp_normalize_path( WP_CONTENT_DIR ), '', wp_normalize_path( $file_path ?? '' ) ) );
     $file_key = ltrim( $relative_dir . '/' . $filename, '/' );
     
     if ( ! isset( $index[ $file_key ] ) ) {
@@ -214,7 +214,7 @@ function base47_he_restore_backup( $backup_filename, $theme, $original_path ) {
     $theme_dir = $backup_dir . '/' . sanitize_file_name( $theme );
     
     // Get relative directory
-    $relative_dir = dirname( str_replace( wp_normalize_path( WP_CONTENT_DIR ), '', wp_normalize_path( $original_path ) ) );
+    $relative_dir = dirname( str_replace( wp_normalize_path( WP_CONTENT_DIR ), '', wp_normalize_path( $original_path ?? '' ) ) );
     $backup_subdir = $theme_dir . $relative_dir;
     $backup_path = $backup_subdir . '/' . $backup_filename;
     

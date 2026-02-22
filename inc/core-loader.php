@@ -127,7 +127,7 @@ function base47_he_rewrite_assets( $html, $base_url, $add_ver = true ) {
 
             if ( $manifest && ! empty( $manifest['assets'] ) ) {
                 foreach ( $manifest['assets'] as $original => $mapped ) {
-                    $html = str_replace( $original, $mapped, $html );
+                    $html = str_replace( $original, $mapped, $html ?? '' );
                 }
             }
         }
@@ -139,7 +139,7 @@ function base47_he_rewrite_assets( $html, $base_url, $add_ver = true ) {
             '#\b(src|href)=["\'](' . preg_quote( $base, '#' ) . 'assets/[^"\']+)#i',
             function( $m ) use ( $ver ) {
                 $url = $m[2];
-                $url .= ( strpos( $url, '?' ) === false ? '?ver=' : '&ver=' ) . $ver;
+                $url .= ( strpos( $url ?? '', '?' ) === false ? '?ver=' : '&ver=' ) . $ver;
                 return $m[1] . '="' . $url . '"';
             },
             $html
@@ -420,18 +420,7 @@ function base47_he_render_template( $filename, $set_slug = '' ) {
     // Check if we're in PURE canvas mode
     $pure_canvas = isset( $GLOBALS['base47_pure_canvas_mode'] ) && $GLOBALS['base47_pure_canvas_mode'];
     
-    // Check if we're in APP canvas mode (new mode for app templates)
-    $app_canvas = isset( $GLOBALS['base47_app_canvas_mode'] ) && $GLOBALS['base47_app_canvas_mode'];
-    
-    if ( $app_canvas ) {
-        // APP CANVAS MODE: For self-contained app templates
-        // These templates have all CSS inline in <style> tags
-        // Just rewrite asset URLs and process shortcodes - no shell stripping needed
-        
-        $html = base47_he_rewrite_assets( $html, $base_url, true );
-        $html = do_shortcode( $html );
-        
-    } else if ( $pure_canvas ) {
+    if ( $pure_canvas ) {
         // PURE CANVAS MODE: Keep complete HTML structure with all assets
         // Just rewrite asset URLs and process shortcodes
         
@@ -466,7 +455,7 @@ function base47_he_register_shortcodes() {
         $file = $item['file'];
         $slug = base47_he_filename_to_slug( $file );
 
-        $set_clean = str_replace(['-templates','-templetes'], '', $set);
+        $set_clean = str_replace(['-templates','-templetes'], '', $set ?? '');
         $shortcode = 'base47-' . $set_clean . '-' . $slug;
 
         add_shortcode( $shortcode, function() use ( $file, $set ) {
@@ -489,7 +478,7 @@ function base47_he_register_legacy_shortcodes() {
         $file = $item['file'];
         $slug = base47_he_filename_to_slug( $file );
 
-        $set_clean = str_replace(['-templates','-templetes'], '', $set);
+        $set_clean = str_replace(['-templates','-templetes'], '', $set ?? '');
         $legacy_shortcode = 'mivon-' . $set_clean . '-' . $slug;
 
         add_shortcode( $legacy_shortcode, function() use ( $file, $set, $legacy_shortcode ) {
@@ -502,5 +491,4 @@ function base47_he_register_legacy_shortcodes() {
         });
     }
 }
-add_action( 'init', 'base47_he_register_legacy_shortcodes', 21 );
 add_action( 'init', 'base47_he_register_legacy_shortcodes', 21 );

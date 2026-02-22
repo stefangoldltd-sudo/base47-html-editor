@@ -74,7 +74,7 @@ function base47_he_templates_page() {
 $slug = base47_he_filename_to_slug( $file );
 
 // Unified shortcode naming for ALL themes
-$set_clean = str_replace( [ '-templates', '-templetes' ], '', $set_slug );
+$set_clean = str_replace( [ '-templates', '-templetes' ], '', $set_slug ?? '' );
 $shortcode = '[base47-' . $set_clean . '-' . $slug . ']';
 
                     // Classic preview

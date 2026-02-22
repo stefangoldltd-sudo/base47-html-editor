@@ -22,7 +22,7 @@ function base47_he_load_theme_metadata( $path ) {
     
     // Create readable label from folder name
     // kiro-templates → KIRO Templates
-    $label = str_replace( [ '-templates', '-templetes', '-', '_' ], [ '', '', ' ', ' ' ], $folder_name );
+    $label = str_replace( [ '-templates', '-templetes', '-', '_' ], [ '', '', ' ', ' ' ], $folder_name ?? '' );
     $label = ucwords( trim( $label ) );
     if ( empty( $label ) ) {
         $label = $folder_name;
@@ -118,7 +118,7 @@ function base47_he_theme_metadata( $slug ) {
     );
 
     if ( ! function_exists( 'base47_he_get_themes_root' ) ) {
-        $meta['title'] = ucwords( str_replace( array( '-', '_' ), ' ', $slug ) );
+        $meta['title'] = ucwords( str_replace( array( '-', '_' ), ' ', $slug ?? '' ) );
         return $meta;
     }
 
@@ -138,7 +138,7 @@ function base47_he_theme_metadata( $slug ) {
 
     if ( empty( $meta['title'] ) ) {
         $pretty = preg_replace( '#-templates?$#', '', $slug );
-        $pretty = str_replace( array( '-', '_' ), ' ', $pretty );
+        $pretty = str_replace( array( '-', '_' ), ' ', $pretty ?? '' );
         $meta['title'] = ucwords( $pretty );
     }
 
